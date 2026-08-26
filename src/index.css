@@ -1,0 +1,47 @@
+:root {
+  font-family: Gotham, Montserrat, Avenir Next, Arial, Helvetica, sans-serif;
+  color: #231f20;
+  background: #f6f4f1;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+h1,
+h2,
+h3,
+h4,
+p {
+  margin-top: 0;
+}
+
+img,
+video {
+  max-width: 100%;
+}
+
+#root {
+  min-height: 100vh;
+}

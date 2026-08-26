@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>C.C.S</title>
+  </head>
+  <body>
+    <script>
+      ;(function () {
+        var known = [
+          'shop',
+          'products',
+          'products-hp',
+          'product',
+          'product-category',
+          'hp-poly',
+          'fortinet',
+          'cisco',
+          'network-security',
+          'servers-storage',
+          'infrastructure',
+          'support',
+          'case-studies',
+          'case-study-1',
+          'case-study-2',
+          'case-study-3',
+          'case-study-4',
+          'case-study-5',
+          'case-study-6',
+          'cart',
+          'checkout',
+          'account',
+          'profile',
+          'register',
+          'password-reset',
+          'log-in',
+        ]
+        var parts = location.pathname.split('/').filter(Boolean)
+        var routeIndex = parts.findIndex(function (part) {
+          return known.indexOf(part) !== -1
+        })
+        var baseParts = routeIndex === -1 ? parts.slice(0, 1) : parts.slice(0, routeIndex)
+        var base = '/' + (baseParts.length ? baseParts.join('/') + '/' : '')
+        var target = location.pathname + location.search + location.hash
+        location.replace(base + '?redirect=' + encodeURIComponent(target))
+      })()
+    </script>
+  </body>
+</html>
