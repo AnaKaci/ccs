@@ -2238,30 +2238,32 @@ function ShopPage({
           })}
         </div>
 
-        <form className="shop-search" onSubmit={(event) => event.preventDefault()}>
-          <input
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder={copy.common.searchPlaceholder}
-          />
-          <button type="submit" aria-label={copy.common.shopSearch}>
-            <Search size={18} />
-          </button>
-        </form>
+        <div className="shop-control-row">
+          <form className="shop-search" onSubmit={(event) => event.preventDefault()}>
+            <input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder={copy.common.searchPlaceholder}
+            />
+            <button type="submit" aria-label={copy.common.shopSearch}>
+              <Search size={18} />
+            </button>
+          </form>
 
-        <div className="shop-tools">
-          <button className="filter-open" type="button" onClick={() => setDrawerOpen(true)}>
-            <Filter size={18} />
-            {copy.shop.filter}
-          </button>
-          <label>
-            <span>{copy.shop.sort}</span>
-            <select value={sort} onChange={(event) => setSort(event.target.value)}>
-              <option value=""></option>
-              <option value="low">{copy.shop.low}</option>
-              <option value="high">{copy.shop.high}</option>
-            </select>
-          </label>
+          <div className="shop-tools">
+            <button className="filter-open" type="button" onClick={() => setDrawerOpen(true)}>
+              <Filter size={18} />
+              {copy.shop.filter}
+            </button>
+            <label>
+              <span>{copy.shop.sort}</span>
+              <select value={sort} onChange={(event) => setSort(event.target.value)}>
+                <option value=""></option>
+                <option value="low">{copy.shop.low}</option>
+                <option value="high">{copy.shop.high}</option>
+              </select>
+            </label>
+          </div>
         </div>
       </div>
 

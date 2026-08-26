@@ -4656,6 +4656,54 @@ body.dark-mode .commerce-ui .shop-sticky {
   color: var(--shop-text);
 }
 
+.commerce-ui .shop-control-row {
+  width: min(var(--container-width), calc(100% - 48px));
+  margin: 0 auto;
+  padding: 20px 0;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.commerce-ui .shop-control-row .shop-search,
+.commerce-ui .shop-control-row .shop-tools {
+  width: auto;
+  margin: 0;
+  padding: 0;
+}
+
+.commerce-ui .shop-control-row .shop-search {
+  flex: 1 1 auto;
+  min-width: 0;
+  justify-content: flex-start;
+}
+
+.commerce-ui .shop-control-row .shop-search input {
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
+  height: 48px;
+}
+
+.commerce-ui .shop-control-row .shop-search button {
+  flex: 0 0 52px;
+  height: 48px;
+}
+
+.commerce-ui .shop-control-row .shop-tools {
+  flex: 0 0 auto;
+  justify-content: flex-end;
+}
+
+.commerce-ui .shop-control-row .shop-tools label {
+  min-height: 48px;
+  white-space: nowrap;
+}
+
+.commerce-ui .shop-control-row .shop-tools select {
+  min-height: 48px;
+}
+
 .commerce-ui .shop-search input,
 .commerce-ui .shop-search button,
 .commerce-ui .shop-tools select {
@@ -5028,6 +5076,34 @@ body.dark-mode .commerce-ui .product-description-list p {
     display: inline-flex;
   }
 
+  .commerce-ui .shop-control-row {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px 0;
+  }
+
+  .commerce-ui .shop-control-row .shop-search,
+  .commerce-ui .shop-control-row .shop-tools {
+    width: 100%;
+  }
+
+  .commerce-ui .shop-control-row .shop-tools {
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .commerce-ui .shop-control-row .shop-tools label {
+    flex: 1 1 220px;
+    justify-content: flex-end;
+  }
+
+  .commerce-ui .shop-control-row .shop-tools select {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
   .commerce-ui .main-nav {
     background: var(--shop-surface);
     border-bottom-color: var(--shop-border);
@@ -5041,6 +5117,10 @@ body.dark-mode .commerce-ui .product-description-list p {
 }
 
 @media (max-width: 760px) {
+  .commerce-ui .shop-control-row {
+    width: calc(100% - 32px);
+  }
+
   .commerce-ui .shop-page .products-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 20px;
