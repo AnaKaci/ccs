@@ -1332,22 +1332,26 @@ body.dark-mode .product-button {
   color: #fff;
 }
 
-.shop-hero video {
+.shop-hero video,
+.shop-hero-image {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  z-index: 0;
 }
 
 .shop-hero-shade {
   position: absolute;
   inset: 0;
+  z-index: 1;
   background: linear-gradient(90deg, rgba(18, 16, 17, 0.9), rgba(18, 16, 17, 0.58));
 }
 
 .shop-hero-content {
   position: relative;
+  z-index: 2;
   width: min(var(--container-width), calc(100% - 48px));
   margin: 0 auto;
   padding: 86px 0 64px;
