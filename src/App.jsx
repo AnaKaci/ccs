@@ -1334,7 +1334,7 @@ function Header({
     <header className="site-header">
       <div className="header-inner">
         <AppLink to="/" navigate={navigate} className="brand" aria-label="CCS home">
-          <img src={commerceMode || darkMode ? ASSETS.logoDark : ASSETS.logoLight} alt="C.C.S" />
+          <img src={darkMode ? ASSETS.logoDark : ASSETS.logoLight} alt="C.C.S" />
         </AppLink>
 
         <button
@@ -2266,13 +2266,6 @@ function ShopPage({
       </div>
 
       <section className="shop-layout">
-        <FilterMenu
-          copy={copy}
-          filters={filters}
-          toggleFilter={toggleFilter}
-          clearFilters={clearFilters}
-          className="desktop-filter"
-        />
         {drawerOpen && (
           <div className="filter-drawer">
             <FilterMenu
@@ -2286,6 +2279,15 @@ function ShopPage({
         )}
 
         <div className="product-area">
+          <FilterMenu
+            copy={copy}
+            filters={filters}
+            toggleFilter={toggleFilter}
+            clearFilters={clearFilters}
+            className="desktop-filter horizontal-filter"
+            defaultOpenBrand={false}
+          />
+
           <div className="product-count">
             <span>
               {productsLoading && !products.length
@@ -2565,7 +2567,7 @@ function ProductDetailPage({
   )
 }
 
-function FilterMenu({ copy, filters, toggleFilter, clearFilters, onClose, className = '' }) {
+function FilterMenu({ copy, filters, toggleFilter, clearFilters, onClose, className = '', defaultOpenBrand = true }) {
   return (
     <aside className={`filter-menu-panel ${className}`}>
       <div className="filter-menu-header">
@@ -2583,7 +2585,7 @@ function FilterMenu({ copy, filters, toggleFilter, clearFilters, onClose, classN
       </div>
 
       {SHOP_FILTERS.map((group) => (
-        <details key={group.key} open={group.key === 'brand'}>
+        <details key={group.key} open={defaultOpenBrand && group.key === 'brand'}>
           <summary>
             {group.title}
             <ChevronDown size={15} />
