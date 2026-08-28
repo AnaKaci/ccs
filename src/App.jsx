@@ -973,6 +973,416 @@ const SHOP_FILTERS = [
   },
 ]
 
+const HARDWARE_CATEGORY_KEYS = new Set(['desktop', 'laptop', 'monitor', 'printer', 'network', 'accessories'])
+
+const HARDWARE_FACETS_BY_CATEGORY = {
+  desktop: [
+    { key: 'processor', title: 'Processor' },
+    { key: 'ram', title: 'RAM' },
+    { key: 'storage', title: 'Storage' },
+    { key: 'os', title: 'Operating System' },
+  ],
+  laptop: [
+    { key: 'processor', title: 'Processor' },
+    { key: 'ram', title: 'RAM' },
+    { key: 'storage', title: 'Storage' },
+    { key: 'os', title: 'Operating System' },
+  ],
+  monitor: [
+    { key: 'screen-size', title: 'Screen Size' },
+    { key: 'resolution', title: 'Resolution' },
+    { key: 'connectivity', title: 'Connectivity' },
+  ],
+  printer: [
+    { key: 'print-technology', title: 'Technology' },
+    { key: 'print-color', title: 'Color' },
+    { key: 'paper-format', title: 'Format' },
+    { key: 'duplex', title: 'Duplex' },
+    { key: 'printer-connectivity', title: 'Connectivity' },
+  ],
+  network: [
+    { key: 'network-type', title: 'Device Type' },
+    { key: 'network-speed', title: 'Speed' },
+    { key: 'network-interface', title: 'Interface' },
+  ],
+  accessories: [
+    { key: 'accessory-type', title: 'Accessory Type' },
+    { key: 'accessory-connection', title: 'Connection' },
+    { key: 'compatibility', title: 'Compatibility' },
+  ],
+}
+
+function matchesShopCategory(item, category) {
+  if (category === 'all') return true
+  if (category === 'hardware' || category === 'software') return item.kind === category
+  if (HARDWARE_CATEGORY_KEYS.has(category)) return item.kind === 'hardware' && item.category === category
+  return false
+}
+
+function facetToken(key, label) {
+  return `${key}:${String(label)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')}`
+}
+
+function facetOption(key, label) {
+  return [facetToken(key, label), label]
+}
+
+function uniqueFacetOptions(options) {
+  const seen = new Set()
+  return options.filter(([token]) => {
+    if (seen.has(token)) return false
+    seen.add(token)
+    return true
+  })
+}
+
+function productFacetLines(item) {
+  const variantLines = (item.variants || []).flatMap((variant) => [
+    variant.name,
+    variant.attributeName,
+    variant.attributeValue,
+  ])
+
+  return [
+    item.name,
+    item.brand,
+    item.attributeName,
+    item.attributeValues,
+    ...(item.specs || []),
+    ...(item.description || []),
+    ...variantLines,
+  ]
+    .filter(Boolean)
+    .map(String)
+}
+
+function productFacetText(item) {
+  return productFacetLines(item).join(' ')
+}
+
+function normalizedFacetText(item) {
+  return productFacetText(item).toLowerCase().replace(/\s+/g, ' ')
+}
+
+function facetLinesMatching(item, pattern) {
+  return productFacetLines(item).filter((line) => pattern.test(line))
+}
+
+function toFacetOptions(key, labels) {
+  return uniqueFacetOptions(labels.filter(Boolean).map((label) => facetOption(key, label)))
+}
+
+function extractProcessorOptions(item) {
+  const text = normalizedFacetText(item)
+  const labels = []
+
+  if (/\bcore\s*ultra\s*5\b|\bultra\s*5\b/.test(text)) labels.push('Core Ultra 5')
+  if (/\bcore\s*ultra\s*7\b|\bultra\s*7\b/.test(text)) labels.push('Core Ultra 7')
+  if (/\bcore\s*i3\b|\bi3-\d/.test(text)) labels.push('Core i3')
+  if (/\bcore\s*i5\b|\bi5-\d/.test(text)) labels.push('Core i5')
+  if (/\bcore\s*i7\b|\bi7-\d/.test(text)) labels.push('Core i7')
+  if (/\bryzen\s*5\b/.test(text)) labels.push('Ryzen 5')
+  if (/\bryzen\s*7\b/.test(text)) labels.push('Ryzen 7')
+  if (/\bxeon\b/.test(text)) labels.push('Xeon')
+
+  return toFacetOptions('processor', labels)
+}
+
+function extractRamOptions(item) {
+  const labels = facetLinesMatching(item, /memoria|memory|ram/i)
+    .map((line) => line.match(/\b(4|8|12|16|24|32|64)\s*gb\b/i)?.[1])
+    .filter(Boolean)
+    .map((size) => `${size}GB RAM`)
+
+  return toFacetOptions('ram', labels)
+}
+
+function normalizeStorageSize(size, unit) {
+  return `${size.replace(/\.0$/, '')}${unit.toUpperCase()}`
+}
+
+function extractStorageOptions(item) {
+  const labels = facetLinesMatching(item, /kapaciteti|storage|ssd|hdd|sata|nvme|pcie/i)
+    .map((line) => {
+      const match = line.match(/\b(\d+(?:\.\d+)?)\s*(tb|gb)\b/i)
+      if (!match) return ''
+
+      const lowerLine = line.toLowerCase()
+      const size = normalizeStorageSize(match[1], match[2])
+      const type = /ssd|nvme|pcie|m\.2/.test(lowerLine)
+        ? 'SSD'
+        : /hdd|sata|7200\s*rpm/.test(lowerLine)
+          ? 'HDD SATA'
+          : ''
+
+      return type ? `${size} ${type}` : size
+    })
+    .filter(Boolean)
+
+  return toFacetOptions('storage', labels)
+}
+
+function extractOsOptions(item) {
+  const text = normalizedFacetText(item)
+  const labels = []
+
+  if (/\b(?:windows|win)\s*10\s*\/\s*11\s*pro\b/.test(text)) labels.push('Windows 10/11 Pro')
+  if (/\b(?:windows|win)\s*11\s*pro\b/.test(text)) labels.push('Windows 11 Pro')
+  if (/\b(?:windows|win)\s*10\s*pro\b/.test(text)) labels.push('Windows 10 Pro')
+  if (/\bfree\s*dos\b|\bfreedos\b/.test(text)) labels.push('FreeDOS')
+
+  return toFacetOptions('os', labels)
+}
+
+function extractScreenSizeOptions(item) {
+  const text = productFacetText(item)
+  const labels = [...text.matchAll(/\b(\d{2}(?:[.,]\d)?)\s*(?:-| )?(?:inch|")/gi)].map((match) => {
+    const size = Number(match[1].replace(',', '.'))
+    return `${Number.isInteger(size) ? size.toFixed(0) : size}"`
+  })
+
+  return toFacetOptions('screen-size', labels)
+}
+
+function extractResolutionOptions(item) {
+  const text = normalizedFacetText(item)
+  const labels = []
+
+  if (/\bqhd\b|2560\s*x\s*1440/.test(text)) labels.push('QHD (2560x1440)')
+  if (/\bfhd\b|\bfull\s*hd\b|1920\s*x\s*1080/.test(text)) labels.push('FHD (1920x1080)')
+
+  return toFacetOptions('resolution', labels)
+}
+
+function extractMonitorConnectivityOptions(item) {
+  const text = normalizedFacetText(item)
+  const labels = []
+
+  if (/\bhdmi\b/.test(text)) labels.push('HDMI')
+  if (/\bdisplayport\b|\bdport\b|\bdp\b/.test(text)) labels.push('DisplayPort')
+  if (/\busb[\s-]*c\b|type-c/.test(text)) labels.push('USB-C')
+  if (/\busb\b|usb[\s-]*(?:2|3)|type-a/.test(text)) labels.push('USB')
+  if (/\bvga\b/.test(text)) labels.push('VGA')
+
+  return toFacetOptions('connectivity', labels)
+}
+
+function extractPrintTechnologyOptions(item) {
+  const text = normalizedFacetText(item)
+  const labels = []
+
+  if (/\binkjet\b/.test(text)) labels.push('Inkjet')
+  if (/\blaser\b/.test(text)) labels.push('Laser')
+
+  return toFacetOptions('print-technology', labels)
+}
+
+function extractPrintColorOptions(item) {
+  const lines = facetLinesMatching(item, /teknologjia|kategoria|category/i)
+  const labels = lines.map((line) => {
+    const lowerLine = line.toLowerCase()
+    if (/\bb\s*&\s*w\b|\bb&w\b|black\s*and\s*white|monochrome/.test(lowerLine)) return 'B&W'
+    if (/\bcolor\b/.test(lowerLine)) return 'Color'
+    return ''
+  })
+
+  return toFacetOptions('print-color', labels)
+}
+
+function extractPaperFormatOptions(item) {
+  const labels = facetLinesMatching(item, /kategoria|category|paper/i).map((line) => {
+    const lowerLine = line.toLowerCase()
+    if (/\ba3\b/.test(lowerLine) && /\ba4\b/.test(lowerLine)) return 'A3 / A4'
+    if (/\ba3\b/.test(lowerLine)) return 'A3'
+    if (/\ba4\b/.test(lowerLine)) return 'A4'
+    return ''
+  })
+
+  return toFacetOptions('paper-format', labels)
+}
+
+function extractDuplexOptions(item) {
+  const labels = facetLinesMatching(item, /printim i dyanshem|duplex/i).map((line) => {
+    const lowerLine = line.toLowerCase()
+    if (/\bpo\b|\byes\b|automatic/.test(lowerLine)) return 'Duplex: Yes'
+    if (/\bjo\b|\bno\b/.test(lowerLine)) return 'Duplex: No'
+    return ''
+  })
+
+  return toFacetOptions('duplex', labels)
+}
+
+function extractPrinterConnectivityOptions(item) {
+  const text = normalizedFacetText(item)
+  const labels = []
+
+  if (/\busb\b|usb[\s-]*2|usb[\s-]*3/.test(text)) labels.push('USB')
+  if (/\bethernet\b|rj-?45/.test(text)) labels.push('Ethernet')
+  if (/\bwi[\s-]?fi\b|\bwireless\b|airprint|eprint|mobile print/.test(text)) labels.push('Wireless')
+
+  return toFacetOptions('printer-connectivity', labels)
+}
+
+function extractAccessoryTypeOptions(item) {
+  const name = String(item.name || '').toLowerCase()
+  const labels = []
+
+  if (/webcam|camera/.test(name)) labels.push('Webcam')
+  if (/mouse\s+pad/.test(name)) labels.push('Mouse Pad')
+  if (/mouse.*keyboard|keyboard.*mouse|combo/.test(name)) labels.push('Keyboard & Mouse')
+  if (!labels.includes('Keyboard & Mouse') && /keyboard/.test(name)) labels.push('Keyboard')
+  if (!labels.includes('Keyboard & Mouse') && /mouse/.test(name)) labels.push('Mouse')
+  if (/backpack|bag/.test(name)) labels.push('Bag')
+  if (/dvdrw|optical|drive/.test(name)) labels.push('Optical Drive')
+  if (/charger/.test(name)) labels.push('Charger')
+  if (/adapter/.test(name)) labels.push('Adapter')
+  if (/cable/.test(name)) labels.push('Cable')
+
+  return toFacetOptions('accessory-type', labels)
+}
+
+function extractAccessoryConnectionOptions(item) {
+  const text = normalizedFacetText(item)
+  const labels = []
+
+  if (/\busb[\s-]*c\b|type-c/.test(text)) labels.push('USB-C')
+  if (/\busb[\s-]*a\b|type-a|usb\s*3|usb\s*2|\busb\b/.test(text)) labels.push('USB')
+  if (/\bbluetooth\b/.test(text)) labels.push('Bluetooth')
+  if (/\b2\.4\s*ghz\b|\bwireless\b/.test(text)) labels.push('Wireless')
+  if (/\bwired\b/.test(text)) labels.push('Wired')
+  if (/\bhdmi\b/.test(text)) labels.push('HDMI')
+  if (/\bethernet\b|rj-?45|gigabit/.test(text)) labels.push('Ethernet')
+
+  return toFacetOptions('accessory-connection', labels)
+}
+
+function extractCompatibilityOptions(item) {
+  const text = normalizedFacetText(item)
+  const labels = []
+
+  if (/\bwindows\b|\bwindows\s*10\b|\bwindows\s*11\b/.test(text)) labels.push('Windows')
+  if (/\bmacos\b|\bmac\s*os\b/.test(text)) labels.push('macOS')
+  if (/\bchrome\s*os\b|\bchromebook\b/.test(text)) labels.push('ChromeOS')
+
+  return toFacetOptions('compatibility', labels)
+}
+
+function extractNetworkTypeOptions(item) {
+  const text = normalizedFacetText(item)
+  const labels = []
+
+  if (/\bswitch\b/.test(text)) labels.push('Switch')
+  if (/\brouter\b/.test(text)) labels.push('Router')
+  if (/\baccess\s*point\b|\bap\b/.test(text)) labels.push('Access Point')
+  if (/\bfirewall\b/.test(text)) labels.push('Firewall')
+
+  return toFacetOptions('network-type', labels)
+}
+
+function extractNetworkSpeedOptions(item) {
+  const text = normalizedFacetText(item)
+  const labels = []
+
+  if (/\b10\s*g(?:b|igabit)\b|10gbe/.test(text)) labels.push('10GbE')
+  if (/\b2\.5\s*g(?:b|igabit)\b/.test(text)) labels.push('2.5GbE')
+  if (/\bgigabit\b|\b1\s*g(?:b|igabit)\b/.test(text)) labels.push('Gigabit')
+
+  return toFacetOptions('network-speed', labels)
+}
+
+function extractNetworkInterfaceOptions(item) {
+  const text = normalizedFacetText(item)
+  const labels = []
+
+  if (/\brj-?45\b|ethernet/.test(text)) labels.push('RJ45')
+  if (/\bsfp\+?\b/.test(text)) labels.push('SFP')
+  if (/\bwi[\s-]?fi\b|\bwireless\b/.test(text)) labels.push('Wireless')
+
+  return toFacetOptions('network-interface', labels)
+}
+
+function extractFacetOptions(key, item) {
+  switch (key) {
+    case 'processor':
+      return extractProcessorOptions(item)
+    case 'ram':
+      return extractRamOptions(item)
+    case 'storage':
+      return extractStorageOptions(item)
+    case 'os':
+      return extractOsOptions(item)
+    case 'screen-size':
+      return extractScreenSizeOptions(item)
+    case 'resolution':
+      return extractResolutionOptions(item)
+    case 'connectivity':
+      return extractMonitorConnectivityOptions(item)
+    case 'print-technology':
+      return extractPrintTechnologyOptions(item)
+    case 'print-color':
+      return extractPrintColorOptions(item)
+    case 'paper-format':
+      return extractPaperFormatOptions(item)
+    case 'duplex':
+      return extractDuplexOptions(item)
+    case 'printer-connectivity':
+      return extractPrinterConnectivityOptions(item)
+    case 'accessory-type':
+      return extractAccessoryTypeOptions(item)
+    case 'accessory-connection':
+      return extractAccessoryConnectionOptions(item)
+    case 'compatibility':
+      return extractCompatibilityOptions(item)
+    case 'network-type':
+      return extractNetworkTypeOptions(item)
+    case 'network-speed':
+      return extractNetworkSpeedOptions(item)
+    case 'network-interface':
+      return extractNetworkInterfaceOptions(item)
+    default:
+      return []
+  }
+}
+
+function buildHardwareFacetGroups(products, category) {
+  if (!HARDWARE_CATEGORY_KEYS.has(category)) return []
+
+  const relevantProducts = products.filter((item) => item.kind === 'hardware' && item.category === category)
+  const definitions = HARDWARE_FACETS_BY_CATEGORY[category] || []
+
+  return definitions
+    .map((definition) => {
+      const options = uniqueFacetOptions(
+        relevantProducts.flatMap((item) => extractFacetOptions(definition.key, item)),
+      )
+
+      return options.length > 1
+        ? { ...definition, options, dynamic: true }
+        : null
+    })
+    .filter(Boolean)
+}
+
+function filterGroupsForCategory(products, category) {
+  const [brandFilter, availabilityFilter] = SHOP_FILTERS
+  return [
+    brandFilter,
+    ...buildHardwareFacetGroups(products, category),
+    availabilityFilter,
+  ]
+}
+
+function productMatchesFilter(item, group, token) {
+  if (group.dynamic) {
+    return extractFacetOptions(group.key, item).some(([optionToken]) => optionToken === token)
+  }
+
+  return item.tokens.includes(token)
+}
+
 function normalizePathname(pathname) {
   const parts = pathname.split('/').filter(Boolean)
   const routeIndex = parts.findIndex((part) => KNOWN_ROUTE_SEGMENTS.has(part))
@@ -2149,19 +2559,42 @@ function ShopPage({
     })
   }, [initialBrand])
 
+  const activeFilterGroups = useMemo(() => filterGroupsForCategory(products, category), [category, products])
+
+  useEffect(() => {
+    const validTokensByKey = new Map(
+      activeFilterGroups.map((group) => [group.key, new Set(group.options.map(([token]) => token))]),
+    )
+
+    setFilters((current) => {
+      const next = {}
+      let changed = false
+
+      Object.entries(current).forEach(([key, value]) => {
+        const validTokens = validTokensByKey.get(key)
+        if (!validTokens) {
+          changed = true
+          return
+        }
+
+        const selected = value.filter((token) => validTokens.has(token))
+        if (selected.length !== value.length) changed = true
+        if (selected.length) next[key] = selected
+      })
+
+      return changed ? next : current
+    })
+  }, [activeFilterGroups])
+
   const filteredProducts = useMemo(() => {
     const term = query.trim().toLowerCase()
 
     const matches = products.filter((item) => {
-      const categoryOk =
-        category === 'all' ||
-        item.kind === category ||
-        item.category === category ||
-        item.tokens.includes(category)
+      const categoryOk = matchesShopCategory(item, category)
       const queryOk = !term || (item.searchText || item.name).toLowerCase().includes(term)
-      const filterOk = SHOP_FILTERS.every((group) => {
+      const filterOk = activeFilterGroups.every((group) => {
         const selected = filters[group.key] || []
-        return selected.length === 0 || selected.some((token) => item.tokens.includes(token))
+        return selected.length === 0 || selected.some((token) => productMatchesFilter(item, group, token))
       })
 
       return categoryOk && queryOk && filterOk
@@ -2176,7 +2609,7 @@ function ShopPage({
     }
 
     return matches
-  }, [category, filters, products, query, sort])
+  }, [activeFilterGroups, category, filters, products, query, sort])
 
   const toggleFilter = (groupKey, token) => {
     setFilters((current) => {
@@ -2272,6 +2705,7 @@ function ShopPage({
           <div className="filter-drawer">
             <FilterMenu
               copy={copy}
+              filterGroups={activeFilterGroups}
               filters={filters}
               toggleFilter={toggleFilter}
               clearFilters={clearFilters}
@@ -2283,6 +2717,7 @@ function ShopPage({
         <div className="product-area">
           <FilterMenu
             copy={copy}
+            filterGroups={activeFilterGroups}
             filters={filters}
             toggleFilter={toggleFilter}
             clearFilters={clearFilters}
@@ -2569,7 +3004,16 @@ function ProductDetailPage({
   )
 }
 
-function FilterMenu({ copy, filters, toggleFilter, clearFilters, onClose, className = '', defaultOpenBrand = true }) {
+function FilterMenu({
+  copy,
+  filterGroups = SHOP_FILTERS,
+  filters,
+  toggleFilter,
+  clearFilters,
+  onClose,
+  className = '',
+  defaultOpenBrand = true,
+}) {
   return (
     <aside className={`filter-menu-panel ${className}`}>
       <div className="filter-menu-header">
@@ -2586,7 +3030,7 @@ function FilterMenu({ copy, filters, toggleFilter, clearFilters, onClose, classN
         </div>
       </div>
 
-      {SHOP_FILTERS.map((group) => (
+      {filterGroups.map((group) => (
         <details key={group.key} open={defaultOpenBrand && group.key === 'brand'}>
           <summary>
             {group.title}
