@@ -36,6 +36,7 @@ import {
 } from 'lucide-react'
 import CiscoSyndication from './components/syndication/CiscoSyndication'
 import { CartPage } from './components/cart/CartPage'
+import { SiteFooter } from './components/SiteFooter'
 import FortinetSyndication from './components/syndication/FortinetSyndication'
 import HPSyndication from './components/syndication/HPSyndication'
 import VendorSolutionLayout from './components/vendor/VendorSolutionLayout'
@@ -1730,7 +1731,7 @@ function App() {
           clearCart={cart.clearCart}
         />
       </main>
-      <Footer copy={copy} lang={lang} navigate={navigate} commerceMode={commerceMode} />
+      <Footer copy={copy} lang={lang} navigate={navigate} />
     </div>
   )
 }
@@ -3577,119 +3578,17 @@ function ContactSection({ copy }) {
   )
 }
 
-function Footer({ copy, lang, navigate, commerceMode = false }) {
-  if (commerceMode) {
-    return (
-      <footer className="site-footer commerce-footer">
-        <div className="commerce-footer-grid">
-          <div className="commerce-footer-brand">
-            <AppLink to="/" navigate={navigate} className="footer-logo"><img src={ASSETS.logoDark} alt="C.C.S" /></AppLink>
-            <p>{copy.shop.footer}</p>
-            <div className="commerce-footer-socials">
-              <a href="https://www.linkedin.com/company/computer-&-copier-systems/" target="_blank" rel="noreferrer">LinkedIn</a>
-              <a href="https://www.instagram.com/c.c.s.shpk?igsh=MTh2dm9ybDBlbWhiNg==" target="_blank" rel="noreferrer">Instagram</a>
-            </div>
-          </div>
-          <div className="footer-column">
-            <h2>{copy.nav.products}</h2>
-            <AppLink to="/shop/" navigate={navigate}>{copy.common.viewShop}</AppLink>
-            <AppLink to="/product-category/hardware/" navigate={navigate}>{copy.nav.hardware}</AppLink>
-            <AppLink to="/product-category/software/" navigate={navigate}>{copy.nav.software}</AppLink>
-            <AppLink to="/products-hp/" navigate={navigate}>{copy.nav.hpProducts}</AppLink>
-          </div>
-          <div className="footer-column commerce-footer-contact">
-            <h2>{copy.home.contactTitle}</h2>
-            <a href="mailto:info@ccs.al"><Mail size={17} /> info@ccs.al</a>
-            <a href="tel:+35542259005"><Phone size={17} /> + 04 225 9005</a>
-            <span><MapPin size={17} /> {copy.home.address}</span>
-          </div>
-          <div className="footer-column commerce-footer-hours">
-            <h2>{copy.home.hours}</h2>
-            <div><span>Mon - Fri</span><strong>08:00 - 17:00</strong></div>
-            <div><span>Saturday</span><strong>{lang === 'al' ? 'Mbyllur' : 'Closed'}</strong></div>
-            <div><span>Sunday</span><strong>{lang === 'al' ? 'Mbyllur' : 'Closed'}</strong></div>
-          </div>
-        </div>
-        <p className="commerce-footer-bottom">© {new Date().getFullYear()} CCS. All rights reserved.</p>
-      </footer>
-    )
-  }
-
+function Footer({ copy, lang, navigate }) {
   return (
-    <footer className="site-footer">
-      <div className="footer-brand">
-        <AppLink to="/" navigate={navigate} className="footer-logo">
-          <img src={ASSETS.logoLight} alt="C.C.S" />
-        </AppLink>
-        <p>{copy.shop.footer}</p>
-      </div>
-
-      <div className="footer-column">
-        <h2>{copy.nav.itSolution}</h2>
-        {SERVICES.map((service) => (
-          <AppLink to={service.to} navigate={navigate} key={service.key}>
-            {titleFor(service, lang)}
-          </AppLink>
-        ))}
-      </div>
-
-      <div className="footer-column">
-        <h2>{copy.nav.products}</h2>
-        <AppLink to="/product-category/hardware/" navigate={navigate}>
-          {copy.nav.hardware}
-        </AppLink>
-        <AppLink to="/product-category/software/" navigate={navigate}>
-          {copy.nav.software}
-        </AppLink>
-        <AppLink to="/products-hp/" navigate={navigate}>
-          {copy.nav.hpProducts}
-        </AppLink>
-        <AppLink to="/shop/" navigate={navigate}>
-          {copy.common.viewShop}
-        </AppLink>
-      </div>
-
-      <div className="footer-column">
-        <h2>{copy.nav.about}</h2>
-        <AppLink to="/#about" navigate={navigate}>
-          {copy.nav.aboutUs}
-        </AppLink>
-        <AppLink to="/#partners" navigate={navigate}>
-          {copy.nav.partners}
-        </AppLink>
-        <AppLink to="/#certification" navigate={navigate}>
-          {copy.nav.certifications}
-        </AppLink>
-        <AppLink to="/case-studies/" navigate={navigate}>
-          {copy.nav.caseStudies}
-        </AppLink>
-      </div>
-
-      <div className="footer-column footer-contact">
-        <h2>{copy.home.contactTitle}</h2>
-        <a href="mailto:info@ccs.al">info@ccs.al</a>
-        <a href="tel:+35542259005">+ 04 225 9005</a>
-        <span>{copy.home.address}</span>
-        <span>{copy.home.open}</span>
-        <span>{copy.home.closed}</span>
-      </div>
-
-      <div className="footer-links">
-        <a href="https://www.instagram.com/c.c.s.shpk?igsh=MTh2dm9ybDBlbWhiNg==" target="_blank" rel="noreferrer">
-          Instagram
-        </a>
-        <a href="https://www.linkedin.com/company/computer-&-copier-systems/" target="_blank" rel="noreferrer">
-          LinkedIn
-        </a>
-        <a href="https://www.facebook.com/people/CCS/100063607406981/" target="_blank" rel="noreferrer">
-          Facebook
-        </a>
-        <AppLink to="/#contact" navigate={navigate}>
-          {copy.nav.contactUs}
-        </AppLink>
-      </div>
-      <p className="footer-bottom">CCS</p>
-    </footer>
+    <SiteFooter
+      copy={copy}
+      lang={lang}
+      navigate={navigate}
+      logoSrc={ASSETS.logoDark}
+      services={SERVICES}
+      titleFor={titleFor}
+      LinkComponent={AppLink}
+    />
   )
 }
 
