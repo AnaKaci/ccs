@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   ArrowRight,
   BadgeCheck,
@@ -35,10 +35,12 @@ import {
   X,
 } from 'lucide-react'
 import CiscoSyndication from './components/syndication/CiscoSyndication'
+import { CartPage } from './components/cart/CartPage'
 import FortinetSyndication from './components/syndication/FortinetSyndication'
 import HPSyndication from './components/syndication/HPSyndication'
 import VendorSolutionLayout from './components/vendor/VendorSolutionLayout'
-import { CSV_BRAND_OPTIONS, CSV_CATALOG_META, CSV_PRODUCTS } from './data/catalog'
+import { useCart } from './cart'
+import { CSV_CATALOG_META, CSV_PRODUCTS } from './data/catalog'
 import './App.css'
 
 const ROUTE_SEGMENTS = [
@@ -219,6 +221,7 @@ const COPY = {
       viewShop: 'View shop',
       cart: 'Cart',
       addToCart: 'Add to cart',
+      addedToCart: 'Added',
       searchPlaceholder: 'Search products by keyword',
       noProducts: 'No products match these filters.',
       clear: 'Clear',
@@ -311,6 +314,7 @@ const COPY = {
       viewShop: 'Shiko dyqanin',
       cart: 'Shporta',
       addToCart: 'Shto ne shporte',
+      addedToCart: 'U shtua',
       searchPlaceholder: 'Kerko produktet me fjale kyce',
       noProducts: 'Asnje produkt nuk perputhet me filtrat.',
       clear: 'Pastro',
@@ -828,7 +832,6 @@ const AUTH_PAGES = {
   '/profile/': ['Profile', 'View and manage your customer profile.'],
   '/account/': ['Account', 'Review account details and saved information.'],
   '/password-reset/': ['Password Reset', 'Reset your account password securely.'],
-  '/cart/': ['Cart', 'Review products added from the CCS shop.'],
   '/checkout/': ['Checkout', 'Complete your order details.'],
 }
 
@@ -964,13 +967,15 @@ function useProducts() {
   return { products: CSV_PRODUCTS, loading: false }
 }
 
+const AVAILABILITY_FILTER = {
+  key: 'availability',
+  title: 'Availability',
+  options: [['instock', 'In stock'], ['quote', 'Quote / inquiry']],
+}
+
 const SHOP_FILTERS = [
-  { key: 'brand', title: 'Brand', options: CSV_BRAND_OPTIONS },
-  {
-    key: 'availability',
-    title: 'Availability',
-    options: [['instock', 'In stock'], ['quote', 'Quote / inquiry']],
-  },
+  { key: 'brand', title: 'Brand', options: [] },
+  AVAILABILITY_FILTER,
 ]
 
 const HARDWARE_CATEGORY_KEYS = new Set(['desktop', 'laptop', 'monitor', 'printer', 'network', 'accessories'])
@@ -1019,11 +1024,38 @@ function matchesShopCategory(item, category) {
   return false
 }
 
-function facetToken(key, label) {
-  return `${key}:${String(label)
+function normalizeFilterToken(value) {
+  return String(value || '')
+    .trim()
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '')}`
+    .replace(/^-|-$/g, '')
+}
+
+function productBrandOptions(products, category) {
+  const brands = new Map()
+
+  products
+    .filter((item) => matchesShopCategory(item, category))
+    .forEach((item) => {
+      const itemBrands = item.brands?.length
+        ? item.brands
+        : [{ name: item.brand, slug: normalizeFilterToken(item.brand) }]
+
+      itemBrands.forEach((brand) => {
+        const label = String(brand.name || '').trim()
+        const token = normalizeFilterToken(brand.slug || label)
+        if (token && label) brands.set(token, label)
+      })
+    })
+
+  return [...brands.entries()]
+    .map(([token, label]) => [token, label])
+    .sort((a, b) => a[1].localeCompare(b[1], undefined, { sensitivity: 'base' }))
+}
+
+function facetToken(key, label) {
+  return `${key}:${normalizeFilterToken(label)}`
 }
 
 function facetOption(key, label) {
@@ -1367,11 +1399,16 @@ function buildHardwareFacetGroups(products, category) {
 }
 
 function filterGroupsForCategory(products, category) {
-  const [brandFilter, availabilityFilter] = SHOP_FILTERS
+  const brandFilter = {
+    key: 'brand',
+    title: 'Brand',
+    options: productBrandOptions(products, category),
+  }
+
   return [
     brandFilter,
     ...buildHardwareFacetGroups(products, category),
-    availabilityFilter,
+    AVAILABILITY_FILTER,
   ]
 }
 
@@ -1636,9 +1673,9 @@ function App() {
   const [route, navigate] = useRoute()
   const [lang, setLang] = useState(() => localStorage.getItem('ccs-language') || 'en')
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem('theme') === 'dark')
-  const [cart, setCart] = useState([])
   const [shopQuery, setShopQuery] = useState('')
   const { products, loading: productsLoading } = useProducts()
+  const cart = useCart(products)
   const copy = COPY[lang]
 
   useEffect(() => {
@@ -1657,10 +1694,6 @@ function App() {
     document.querySelector('meta[name="description"]')?.setAttribute('content', seo.description)
   }, [route, lang])
 
-  const addToCart = (item) => {
-    setCart((current) => [...current, item.id])
-  }
-
   const commerceMode = isCommerceRoute(route.path)
 
   return (
@@ -1668,13 +1701,12 @@ function App() {
       <Header
         copy={copy}
         route={route}
-        commerceMode={commerceMode}
         lang={lang}
         setLang={setLang}
         darkMode={darkMode}
         setDarkMode={setDarkMode}
-        cartCount={cart.length}
-        showCart={route.path === '/shop/' || route.path === '/cart/' || route.path === '/checkout/'}
+        cartCount={cart.cartCount}
+        showCart={commerceMode}
         products={products}
         navigate={navigate}
         setShopQuery={setShopQuery}
@@ -1689,7 +1721,13 @@ function App() {
           productsLoading={productsLoading}
           shopQuery={shopQuery}
           setShopQuery={setShopQuery}
-          addToCart={addToCart}
+          addToCart={cart.addToCart}
+          cartItems={cart.cartItems}
+          cartCount={cart.cartCount}
+          increaseCartLine={cart.increaseCartLine}
+          decreaseCartLine={cart.decreaseCartLine}
+          removeCartLine={cart.removeCartLine}
+          clearCart={cart.clearCart}
         />
       </main>
       <Footer copy={copy} lang={lang} navigate={navigate} commerceMode={commerceMode} />
@@ -1700,7 +1738,6 @@ function App() {
 function Header({
   copy,
   route,
-  commerceMode,
   lang,
   setLang,
   darkMode,
@@ -1818,7 +1855,7 @@ function Header({
           </button>
 
           {showCart && (
-            <AppLink to="/shop/" navigate={navigate} className="cart-pill" aria-label={copy.common.cart}>
+            <AppLink to="/cart/" navigate={navigate} className="cart-pill" aria-label={copy.common.cart}>
               <ShoppingCart size={18} />
               <span>{copy.common.cart}</span>
               <strong>{cartCount}</strong>
@@ -1907,6 +1944,12 @@ function RouteRenderer({
   shopQuery,
   setShopQuery,
   addToCart,
+  cartItems,
+  cartCount,
+  increaseCartLine,
+  decreaseCartLine,
+  removeCartLine,
+  clearCart,
 }) {
   if (route.path.startsWith('/product/')) {
     const slug = route.path.replace(/^\/product\//, '').replace(/\/$/, '')
@@ -1919,6 +1962,23 @@ function RouteRenderer({
         products={products}
         productsLoading={productsLoading}
         addToCart={addToCart}
+      />
+    )
+  }
+
+  if (route.path === '/cart/') {
+    return (
+      <CartPage
+        copy={copy}
+        lang={lang}
+        navigate={navigate}
+        appUrl={appUrl}
+        cartItems={cartItems}
+        cartCount={cartCount}
+        increaseCartLine={increaseCartLine}
+        decreaseCartLine={decreaseCartLine}
+        removeCartLine={removeCartLine}
+        clearCart={clearCart}
       />
     )
   }
@@ -2630,7 +2690,7 @@ function ShopPage({
     setSort('')
   }
 
-  const categories = ['all', 'hardware', 'software', 'desktop', 'laptop', 'monitor', 'printer', 'network', 'accessories']
+  const categories = ['all', 'hardware', 'software', 'desktop', 'laptop', 'monitor', 'printer', 'accessories']
 
   return (
     <div className="shop-page">
@@ -2798,7 +2858,7 @@ function ProductDetailPage({
         resolvedProduct.variants.some((variant) => variant.id === current) ? current : resolvedProduct.variants[0].id,
       )
     }
-  }, [resolvedProduct?.id])
+  }, [resolvedProduct?.id, resolvedProduct?.variants])
 
   useEffect(() => {
     let active = true
@@ -2855,9 +2915,6 @@ function ProductDetailPage({
   const needsQuote = isSoftware || !resolvedProduct.priceLabel
   const displayPriceLabel = selectedVariant?.priceLabel || resolvedProduct.priceLabel
   const displayRegularPriceLabel = selectedVariant?.regularPriceLabel || resolvedProduct.regularPriceLabel
-  const cartProduct = selectedVariant
-    ? { ...resolvedProduct, id: selectedVariant.id, name: selectedVariant.name, price: selectedVariant.price, priceLabel: selectedVariant.priceLabel, image: selectedVariant.image || resolvedProduct.image }
-    : resolvedProduct
   const related = products
     .filter((item) => item.slug !== resolvedProduct.slug && item.kind === resolvedProduct.kind)
     .slice(0, 4)
@@ -2950,10 +3007,12 @@ function ProductDetailPage({
                 {lang === 'al' ? 'Kerko oferte' : 'Request quote'}
               </a>
             ) : (
-              <button type="button" className="primary-action" onClick={() => addToCart(cartProduct)}>
-                <ShoppingCart size={17} />
-                {copy.common.addToCart}
-              </button>
+              <AddToCartButton
+                copy={copy}
+                className="primary-action"
+                iconSize={17}
+                onAdd={() => addToCart(resolvedProduct, selectedVariant)}
+              />
             )}
             <a
               href="https://wa.me/355684088507?text=Jam+i+interesuar+p%C3%ABr+produktet+tuaja"
@@ -2978,8 +3037,8 @@ function ProductDetailPage({
           <h2>{resolvedProduct.name}</h2>
         </div>
         <div className="product-description-list">
-          {description.map((line) => (
-            <p key={line}>{line}</p>
+          {description.map((line, index) => (
+            <p key={`${index}-${line}`}>{line}</p>
           ))}
         </div>
       </div>
@@ -3014,8 +3073,64 @@ function FilterMenu({
   className = '',
   defaultOpenBrand = true,
 }) {
+  const isHorizontal = className.split(/\s+/).includes('horizontal-filter')
+  const panelRef = useRef(null)
+  const closeTimerRef = useRef(null)
+  const [openFilterKey, setOpenFilterKey] = useState(defaultOpenBrand ? 'brand' : null)
+
+  const clearCloseTimer = () => {
+    if (closeTimerRef.current) {
+      window.clearTimeout(closeTimerRef.current)
+      closeTimerRef.current = null
+    }
+  }
+
+  const scheduleClose = () => {
+    if (!isHorizontal) return
+    clearCloseTimer()
+    closeTimerRef.current = window.setTimeout(() => setOpenFilterKey(null), 150)
+  }
+
+  useEffect(() => {
+    if (!isHorizontal) return undefined
+
+    const onPointerDown = (event) => {
+      if (!panelRef.current?.contains(event.target)) {
+        setOpenFilterKey(null)
+      }
+    }
+
+    const onKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setOpenFilterKey(null)
+      }
+    }
+
+    document.addEventListener('pointerdown', onPointerDown)
+    document.addEventListener('keydown', onKeyDown)
+
+    return () => {
+      clearCloseTimer()
+      document.removeEventListener('pointerdown', onPointerDown)
+      document.removeEventListener('keydown', onKeyDown)
+    }
+  }, [isHorizontal])
+
   return (
-    <aside className={`filter-menu-panel ${className}`}>
+    <aside
+      className={`filter-menu-panel ${className}`}
+      ref={panelRef}
+      onMouseEnter={isHorizontal ? clearCloseTimer : undefined}
+      onMouseLeave={isHorizontal ? scheduleClose : undefined}
+      onFocus={isHorizontal ? clearCloseTimer : undefined}
+      onBlur={
+        isHorizontal
+          ? (event) => {
+              if (!event.currentTarget.contains(event.relatedTarget)) scheduleClose()
+            }
+          : undefined
+      }
+    >
       <div className="filter-menu-header">
         <h2>{copy.shop.filter}</h2>
         <div>
@@ -3030,30 +3145,50 @@ function FilterMenu({
         </div>
       </div>
 
-      {filterGroups.map((group) => (
-        <details key={group.key} open={defaultOpenBrand && group.key === 'brand'}>
-          <summary>
-            {group.title}
-            <ChevronDown size={15} />
-          </summary>
-          <div className="filter-options">
-            {group.options.map(([token, label]) => {
-              const checked = (filters[group.key] || []).includes(token)
-              return (
-                <button
-                  type="button"
-                  className={checked ? 'selected' : ''}
-                  key={token}
-                  onClick={() => toggleFilter(group.key, token)}
-                >
-                  <span>{checked && <Check size={14} />}</span>
-                  {label}
-                </button>
-              )
-            })}
-          </div>
-        </details>
-      ))}
+      {filterGroups.map((group) => {
+        const detailsProps = isHorizontal
+          ? { open: openFilterKey === group.key }
+          : defaultOpenBrand && group.key === 'brand'
+            ? { open: true }
+            : {}
+
+        return (
+          <details key={group.key} {...detailsProps}>
+            <summary
+              aria-controls={`${isHorizontal ? 'desktop' : 'drawer'}-filter-options-${group.key}`}
+              aria-expanded={isHorizontal ? openFilterKey === group.key : undefined}
+              onClick={
+                isHorizontal
+                  ? (event) => {
+                      event.preventDefault()
+                      clearCloseTimer()
+                      setOpenFilterKey((current) => (current === group.key ? null : group.key))
+                    }
+                  : undefined
+              }
+            >
+              {group.title}
+              <ChevronDown size={15} />
+            </summary>
+            <div className="filter-options" id={`${isHorizontal ? 'desktop' : 'drawer'}-filter-options-${group.key}`}>
+              {group.options.map(([token, label]) => {
+                const checked = (filters[group.key] || []).includes(token)
+                return (
+                  <button
+                    type="button"
+                    className={checked ? 'selected' : ''}
+                    key={token}
+                    onClick={() => toggleFilter(group.key, token)}
+                  >
+                    <span>{checked && <Check size={14} />}</span>
+                    {label}
+                  </button>
+                )
+              })}
+            </div>
+          </details>
+        )
+      })}
 
       {onClose && (
         <button type="button" className="primary-action full-width" onClick={onClose}>
@@ -3061,6 +3196,31 @@ function FilterMenu({
         </button>
       )}
     </aside>
+  )
+}
+
+function AddToCartButton({ copy, onAdd, className = '', iconSize = 16 }) {
+  const [added, setAdded] = useState(false)
+
+  useEffect(() => {
+    if (!added) return undefined
+    const timer = window.setTimeout(() => setAdded(false), 1200)
+    return () => window.clearTimeout(timer)
+  }, [added])
+
+  return (
+    <button
+      type="button"
+      className={`${className} ${added ? 'is-added' : ''}`.trim()}
+      onClick={(event) => {
+        event.preventDefault()
+        onAdd()
+        setAdded(true)
+      }}
+    >
+      <ShoppingCart size={iconSize} />
+      {added ? copy.common.addedToCart : copy.common.addToCart}
+    </button>
   )
 }
 
@@ -3077,8 +3237,8 @@ function ProductCard({ item, copy, navigate, addToCart }) {
         <h3>{item.name}</h3>
       </AppLink>
       <div className="product-specs">
-        {specs.map((spec) => (
-          <span key={spec}>{spec}</span>
+        {specs.map((spec, index) => (
+          <span key={`${index}-${spec}`}>{spec}</span>
         ))}
       </div>
       <div className="product-meta">
@@ -3097,10 +3257,7 @@ function ProductCard({ item, copy, navigate, addToCart }) {
           {copy.common.learnMore}
         </AppLink>
       ) : (
-        <button type="button" onClick={() => addToCart(item)}>
-          <ShoppingCart size={16} />
-          {copy.common.addToCart}
-        </button>
+        <AddToCartButton copy={copy} onAdd={() => addToCart(item)} />
       )}
     </article>
   )
