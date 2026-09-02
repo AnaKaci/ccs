@@ -1037,13 +1037,124 @@ body.dark-mode .product-button {
   text-decoration: none;
 }
 
-.partner-strip {
+.partners-section {
+  overflow: hidden;
+}
+
+.partners-carousel {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: var(--space-4);
 }
 
-.logo-tile,
+.partners-viewport {
+  overflow: hidden;
+  width: 100%;
+  cursor: grab;
+  touch-action: pan-y;
+}
+
+.partners-viewport:active {
+  cursor: grabbing;
+}
+
+.partners-track {
+  display: flex;
+  transition: transform 680ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  will-change: transform;
+}
+
+.partners-track.is-resetting {
+  transition: none;
+}
+
+.partner-page {
+  flex: 0 0 100%;
+  display: grid;
+  grid-template-columns: repeat(var(--partner-slides-per-page), minmax(0, 1fr));
+  align-items: center;
+  gap: clamp(16px, 3vw, 32px);
+  min-width: 0;
+}
+
+.partner-slide {
+  min-width: 0;
+  min-height: 92px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 8px;
+}
+
+.partner-slide img {
+  display: block;
+  max-width: min(150px, 86%);
+  max-height: 58px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  transition:
+    transform 220ms ease,
+    opacity 220ms ease;
+}
+
+.partner-slide:hover img {
+  opacity: 0.92;
+  transform: scale(1.04);
+}
+
+.partners-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: var(--space-1);
+}
+
+.partners-pagination button {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(35, 31, 32, 0.28);
+  cursor: pointer;
+  transition:
+    width 220ms ease,
+    background 220ms ease,
+    opacity 220ms ease;
+}
+
+.partners-pagination button:hover {
+  opacity: 0.8;
+}
+
+.partners-pagination button.is-active {
+  width: 20px;
+  background: var(--color-brand-red);
+}
+
+body.dark-mode .partners-pagination button,
+.non-shop-ui .partners-pagination button {
+  background: rgba(255, 255, 255, 0.32);
+}
+
+body.dark-mode .partners-pagination button.is-active,
+.non-shop-ui .partners-pagination button.is-active {
+  background: var(--color-brand-red);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .partners-track,
+  .partner-slide img,
+  .partners-pagination button {
+    transition: none;
+  }
+
+  .partner-slide:hover img {
+    transform: none;
+  }
+}
+
 .cert-tile {
   min-height: 112px;
   padding: var(--space-5);
@@ -1054,31 +1165,6 @@ body.dark-mode .product-button {
   align-content: center;
   place-items: center;
   gap: var(--space-3);
-}
-
-.logo-tile img {
-  max-width: 150px;
-  max-height: 58px;
-  object-fit: contain;
-}
-
-.logo-tile span {
-  color: #62656d;
-  font-size: 12px;
-  font-weight: 750;
-  text-align: center;
-}
-
-.logo-wordmark {
-  min-height: 58px;
-  display: grid;
-  place-items: center;
-  color: var(--color-brand-black);
-  font-size: clamp(15px, 1.3vw, 18px);
-  font-weight: 780;
-  line-height: 1.15;
-  text-align: center;
-  letter-spacing: 0;
 }
 
 .recommended-grid {
@@ -2556,7 +2642,6 @@ body.dark-mode .filter-menu-header h2 {
 }
 
 body.dark-mode .product-card,
-body.dark-mode .logo-tile,
 body.dark-mode .cert-tile,
 body.dark-mode .detail-image,
 body.dark-mode .vendor-identity,
@@ -2684,7 +2769,6 @@ body.dark-mode .case-detail-nav a {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .partner-strip,
   .cert-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -2825,7 +2909,6 @@ body.dark-mode .case-detail-nav a {
   .service-grid,
   .why-grid,
   .gis-grid,
-  .partner-strip,
   .recommended-grid,
   .case-grid,
   .cert-grid,
@@ -4057,7 +4140,6 @@ body.dark-mode .non-shop-ui .gis-card button {
 .non-shop-ui .contact-ribbon a { color: var(--ccs-white); }
 .non-shop-ui .contact-ribbon a:hover { color: var(--ccs-red); }
 
-.non-shop-ui .logo-tile,
 .non-shop-ui .cert-tile {
   border: 1px solid var(--ccs-border);
   border-radius: 18px;
@@ -4069,7 +4151,6 @@ body.dark-mode .non-shop-ui .gis-card button {
     box-shadow 260ms var(--ccs-transition);
 }
 
-.non-shop-ui .logo-tile:hover,
 .non-shop-ui .cert-tile:hover {
   transform: translateY(-4px);
   border-color: rgba(239, 65, 54, 0.35);

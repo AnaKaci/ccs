@@ -477,23 +477,64 @@ const GIS_SERVICES = [
   },
 ]
 
+const PARTNER_LOGOS = {
+  hp: 'https://upload.wikimedia.org/wikipedia/commons/a/ad/HP_logo_2012.svg',
+  hpe: 'https://upload.wikimedia.org/wikipedia/commons/d/d2/Hewlett_Packard_Enterprise_logo_2025_expanded.svg',
+  cisco: 'https://upload.wikimedia.org/wikipedia/commons/6/64/Cisco_logo.svg',
+  fortinet: 'https://upload.wikimedia.org/wikipedia/commons/6/62/Fortinet_logo.svg',
+  microsoft: 'https://upload.wikimedia.org/wikipedia/commons/9/96/Microsoft_logo_%282012%29.svg',
+  vmware: 'https://upload.wikimedia.org/wikipedia/commons/1/11/VMware_logo.svg',
+  veeam: 'https://upload.wikimedia.org/wikipedia/commons/c/c5/Veeam_logo.svg',
+  trellix: 'https://upload.wikimedia.org/wikipedia/commons/a/a0/Trellix_Logo.svg',
+  lenovo: 'https://upload.wikimedia.org/wikipedia/commons/0/05/Lenovo-Logo.svg',
+  schneider: 'https://upload.wikimedia.org/wikipedia/commons/9/95/Schneider_Electric_2007.svg',
+  barracuda: 'https://upload.wikimedia.org/wikipedia/commons/9/97/Barracuda_Networks_logo.svg',
+  esri: 'https://upload.wikimedia.org/wikipedia/commons/4/41/ArcGIS_Logo_2026.svg',
+  xerox: 'https://upload.wikimedia.org/wikipedia/commons/6/68/Xerox_logo.svg',
+}
+
 const PARTNERS = [
-  ['HP', ASSETS.hpLogo],
-  ['HPE', ASSETS.hpe],
-  ['Cisco', ASSETS.cisco],
-  ['Fortinet', ASSETS.fortinet],
-  ['Microsoft', ASSETS.microsoft],
-  ['VMware', ASSETS.vmware],
-  ['Veeam', ASSETS.veeam],
-  ['Trellix', ASSETS.trellix],
-  ['Lenovo', ASSETS.lenovo],
-  ['Schneider Electric', ASSETS.schneider],
-  ['Barracuda Networks', ASSETS.barracuda],
-  ['ESRI ArcGIS', ASSETS.esri],
-  ['Xerox', ASSETS.xerox],
+  ['HP', PARTNER_LOGOS.hp],
+  ['HPE', PARTNER_LOGOS.hpe],
+  ['Cisco', PARTNER_LOGOS.cisco],
+  ['Fortinet', PARTNER_LOGOS.fortinet],
+  ['Microsoft', PARTNER_LOGOS.microsoft],
+  ['VMware', PARTNER_LOGOS.vmware],
+  ['Veeam', PARTNER_LOGOS.veeam],
+  ['Trellix', PARTNER_LOGOS.trellix],
+  ['Lenovo', PARTNER_LOGOS.lenovo],
+  ['Schneider Electric', PARTNER_LOGOS.schneider],
+  ['Barracuda Networks', PARTNER_LOGOS.barracuda],
+  ['ESRI ArcGIS', PARTNER_LOGOS.esri],
+  ['Xerox', PARTNER_LOGOS.xerox],
 ]
 
-const PARTNER_WORDMARKS = new Set(['Lenovo', 'Schneider Electric', 'Barracuda Networks', 'ESRI ArcGIS', 'Xerox'])
+const PARTNER_AUTOPLAY_DELAY = 3000
+const PARTNER_SWIPE_THRESHOLD = 44
+
+function getPartnerSlidesPerPage() {
+  if (typeof window === 'undefined') {
+    return 6
+  }
+
+  if (window.innerWidth >= 1280) {
+    return 6
+  }
+
+  if (window.innerWidth >= 1024) {
+    return 5
+  }
+
+  if (window.innerWidth >= 768) {
+    return 4
+  }
+
+  if (window.innerWidth >= 480) {
+    return 3
+  }
+
+  return 2
+}
 
 const RECOMMENDED = [
   {
@@ -2109,6 +2150,203 @@ function RouteRenderer({
   return <HomePage copy={copy} lang={lang} navigate={navigate} />
 }
 
+function PartnerCarousel({ partners }) {
+  const [slidesPerPage, setSlidesPerPage] = useState(getPartnerSlidesPerPage)
+  const [activePage, setActivePage] = useState(0)
+  const [transitionEnabled, setTransitionEnabled] = useState(true)
+  const [isHovered, setIsHovered] = useState(false)
+  const [isFocused, setIsFocused] = useState(false)
+  const [isDragging, setIsDragging] = useState(false)
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(() =>
+    typeof window !== 'undefined' &&
+    window.matchMedia?.('(prefers-reduced-motion: reduce)').matches,
+  )
+  const pointerStartRef = useRef(null)
+  const pauseAutoplay = isHovered || isFocused || isDragging || prefersReducedMotion
+  const pageCount = Math.ceil(partners.length / slidesPerPage)
+  const activeDot = pageCount > 0 ? activePage % pageCount : 0
+  const pages = useMemo(
+    () =>
+      Array.from({ length: pageCount }, (_, pageIndex) =>
+        Array.from({ length: slidesPerPage }, (_, logoIndex) => {
+          const partnerIndex = (pageIndex * slidesPerPage + logoIndex) % partners.length
+          return partners[partnerIndex]
+        }),
+      ),
+    [pageCount, partners, slidesPerPage],
+  )
+  const carouselPages = pageCount > 1 ? [...pages, pages[0]] : pages
+
+  useEffect(() => {
+    const handleResize = () => setSlidesPerPage(getPartnerSlidesPerPage())
+
+    handleResize()
+    window.addEventListener('resize', handleResize)
+
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia?.('(prefers-reduced-motion: reduce)')
+
+    if (!mediaQuery) {
+      return undefined
+    }
+
+    const updateMotionPreference = () => setPrefersReducedMotion(mediaQuery.matches)
+
+    updateMotionPreference()
+    mediaQuery.addEventListener('change', updateMotionPreference)
+
+    return () => mediaQuery.removeEventListener('change', updateMotionPreference)
+  }, [])
+
+  useEffect(() => {
+    setTransitionEnabled(false)
+    setActivePage(0)
+
+    const firstFrame = window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => setTransitionEnabled(true))
+    })
+
+    return () => window.cancelAnimationFrame(firstFrame)
+  }, [slidesPerPage])
+
+  useEffect(() => {
+    if (pauseAutoplay || pageCount <= 1) {
+      return undefined
+    }
+
+    const timer = window.setInterval(() => {
+      setTransitionEnabled(true)
+      setActivePage((currentPage) => (currentPage >= pageCount ? 1 : currentPage + 1))
+    }, PARTNER_AUTOPLAY_DELAY)
+
+    return () => window.clearInterval(timer)
+  }, [pageCount, pauseAutoplay])
+
+  const goToPage = (pageIndex) => {
+    setTransitionEnabled(true)
+    setActivePage(pageIndex)
+  }
+
+  const handleTransitionEnd = (event) => {
+    if (event.target !== event.currentTarget || activePage < pageCount) {
+      return
+    }
+
+    setTransitionEnabled(false)
+    setActivePage(0)
+
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => setTransitionEnabled(true))
+    })
+  }
+
+  const handlePointerDown = (event) => {
+    if (event.pointerType === 'mouse' && event.button !== 0) {
+      return
+    }
+
+    pointerStartRef.current = event.clientX
+    setIsDragging(true)
+    event.currentTarget.setPointerCapture?.(event.pointerId)
+  }
+
+  const handlePointerEnd = (event) => {
+    const startX = pointerStartRef.current
+
+    if (startX !== null) {
+      const movement = event.clientX - startX
+
+      if (Math.abs(movement) > PARTNER_SWIPE_THRESHOLD) {
+        setTransitionEnabled(true)
+        setActivePage((currentPage) => {
+          if (movement < 0) {
+            return currentPage >= pageCount ? 1 : currentPage + 1
+          }
+
+          if (currentPage <= 0 || currentPage >= pageCount) {
+            return pageCount - 1
+          }
+
+          return currentPage - 1
+        })
+      }
+    }
+
+    pointerStartRef.current = null
+    setIsDragging(false)
+
+    if (event.currentTarget.hasPointerCapture?.(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId)
+    }
+  }
+
+  return (
+    <div
+      className="partners-carousel"
+      aria-label="Technology partners carousel"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onFocusCapture={() => setIsFocused(true)}
+      onBlurCapture={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) {
+          setIsFocused(false)
+        }
+      }}
+    >
+      <div
+        className="partners-viewport"
+        onPointerDown={handlePointerDown}
+        onPointerUp={handlePointerEnd}
+        onPointerCancel={handlePointerEnd}
+      >
+        <div
+          className={`partners-track${transitionEnabled ? '' : ' is-resetting'}`}
+          style={{ transform: `translate3d(-${activePage * 100}%, 0, 0)` }}
+          onTransitionEnd={handleTransitionEnd}
+        >
+          {carouselPages.map((page, pageIndex) => (
+            <div
+              className="partner-page"
+              key={pageIndex === pageCount ? 'page-clone' : `page-${pageIndex}`}
+              style={{ '--partner-slides-per-page': slidesPerPage }}
+            >
+              {page.map(([name, image], logoIndex) => (
+                <div className="partner-slide" key={`${pageIndex}-${name}-${logoIndex}`}>
+                  <img src={image} alt={name} loading={pageIndex === 0 ? 'eager' : 'lazy'} draggable="false" />
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {pageCount > 1 && (
+        <div className="partners-pagination" aria-label="Partner carousel pages">
+          {pages.map((_, pageIndex) => (
+            <button
+              className={pageIndex === activeDot ? 'is-active' : ''}
+              type="button"
+              key={`partner-page-${pageIndex}`}
+              aria-label={`Show partner group ${pageIndex + 1}`}
+              aria-current={pageIndex === activeDot ? 'true' : undefined}
+              onClick={(event) => {
+                goToPage(pageIndex)
+
+                if (event.detail > 0) {
+                  event.currentTarget.blur()
+                }
+              }}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 function HomePage({ copy, lang, navigate }) {
   const [activeModal, setActiveModal] = useState(null)
   const isAl = lang === 'al'
@@ -2435,24 +2673,7 @@ function HomePage({ copy, lang, navigate }) {
           title={copy.home.partnersTitle}
           text={copy.home.partnersIntro}
         />
-        <div className="partner-strip">
-          {PARTNERS.map(([name, image]) => {
-            const useWordmark = PARTNER_WORDMARKS.has(name)
-
-            return (
-              <div className="logo-tile" key={name}>
-                {useWordmark ? (
-                  <strong className="logo-wordmark" aria-label={name}>
-                    {name}
-                  </strong>
-                ) : (
-                  <img src={image} alt={name} loading="lazy" />
-                )}
-                <span>{name}</span>
-              </div>
-            )
-          })}
-        </div>
+        <PartnerCarousel partners={PARTNERS} />
       </section>
 
       <section className="section recommended-section">
