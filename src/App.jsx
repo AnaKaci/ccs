@@ -509,10 +509,10 @@ const PARTNERS = [
   ['Xerox', PARTNER_LOGOS.xerox],
 ]
 
-const PARTNER_AUTOPLAY_DELAY = 3000
-const PARTNER_SWIPE_THRESHOLD = 44
+const LOGO_CAROUSEL_AUTOPLAY_DELAY = 3000
+const LOGO_CAROUSEL_SWIPE_THRESHOLD = 44
 
-function getPartnerSlidesPerPage() {
+function getLogoCarouselSlidesPerPage() {
   if (typeof window === 'undefined') {
     return 6
   }
@@ -2150,8 +2150,8 @@ function RouteRenderer({
   return <HomePage copy={copy} lang={lang} navigate={navigate} />
 }
 
-function PartnerCarousel({ partners }) {
-  const [slidesPerPage, setSlidesPerPage] = useState(getPartnerSlidesPerPage)
+function LogoCarousel({ items, ariaLabel, paginationLabel, pageLabel }) {
+  const [slidesPerPage, setSlidesPerPage] = useState(getLogoCarouselSlidesPerPage)
   const [activePage, setActivePage] = useState(0)
   const [transitionEnabled, setTransitionEnabled] = useState(true)
   const [isHovered, setIsHovered] = useState(false)
@@ -2163,22 +2163,25 @@ function PartnerCarousel({ partners }) {
   )
   const pointerStartRef = useRef(null)
   const pauseAutoplay = isHovered || isFocused || isDragging || prefersReducedMotion
-  const pageCount = Math.ceil(partners.length / slidesPerPage)
+  const effectiveSlidesPerPage = Math.max(1, Math.min(slidesPerPage, items.length || 1))
+  const pageCount = Math.ceil(items.length / effectiveSlidesPerPage)
   const activeDot = pageCount > 0 ? activePage % pageCount : 0
-  const pages = useMemo(
-    () =>
-      Array.from({ length: pageCount }, (_, pageIndex) =>
-        Array.from({ length: slidesPerPage }, (_, logoIndex) => {
-          const partnerIndex = (pageIndex * slidesPerPage + logoIndex) % partners.length
-          return partners[partnerIndex]
-        }),
-      ),
-    [pageCount, partners, slidesPerPage],
-  )
+  const pages = useMemo(() => {
+    if (items.length === 0) {
+      return []
+    }
+
+    return Array.from({ length: pageCount }, (_, pageIndex) =>
+      Array.from({ length: effectiveSlidesPerPage }, (_, logoIndex) => {
+        const itemIndex = (pageIndex * effectiveSlidesPerPage + logoIndex) % items.length
+        return items[itemIndex]
+      }),
+    )
+  }, [effectiveSlidesPerPage, items, pageCount])
   const carouselPages = pageCount > 1 ? [...pages, pages[0]] : pages
 
   useEffect(() => {
-    const handleResize = () => setSlidesPerPage(getPartnerSlidesPerPage())
+    const handleResize = () => setSlidesPerPage(getLogoCarouselSlidesPerPage())
 
     handleResize()
     window.addEventListener('resize', handleResize)
@@ -2220,7 +2223,7 @@ function PartnerCarousel({ partners }) {
     const timer = window.setInterval(() => {
       setTransitionEnabled(true)
       setActivePage((currentPage) => (currentPage >= pageCount ? 1 : currentPage + 1))
-    }, PARTNER_AUTOPLAY_DELAY)
+    }, LOGO_CAROUSEL_AUTOPLAY_DELAY)
 
     return () => window.clearInterval(timer)
   }, [pageCount, pauseAutoplay])
@@ -2256,10 +2259,10 @@ function PartnerCarousel({ partners }) {
   const handlePointerEnd = (event) => {
     const startX = pointerStartRef.current
 
-    if (startX !== null) {
+    if (startX !== null && pageCount > 1) {
       const movement = event.clientX - startX
 
-      if (Math.abs(movement) > PARTNER_SWIPE_THRESHOLD) {
+      if (Math.abs(movement) > LOGO_CAROUSEL_SWIPE_THRESHOLD) {
         setTransitionEnabled(true)
         setActivePage((currentPage) => {
           if (movement < 0) {
@@ -2283,10 +2286,14 @@ function PartnerCarousel({ partners }) {
     }
   }
 
+  if (items.length === 0) {
+    return null
+  }
+
   return (
     <div
-      className="partners-carousel"
-      aria-label="Technology partners carousel"
+      className="logo-carousel"
+      aria-label={ariaLabel}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onFocusCapture={() => setIsFocused(true)}
@@ -2297,24 +2304,24 @@ function PartnerCarousel({ partners }) {
       }}
     >
       <div
-        className="partners-viewport"
+        className="logo-carousel__viewport"
         onPointerDown={handlePointerDown}
         onPointerUp={handlePointerEnd}
         onPointerCancel={handlePointerEnd}
       >
         <div
-          className={`partners-track${transitionEnabled ? '' : ' is-resetting'}`}
+          className={`logo-carousel__track${transitionEnabled ? '' : ' is-resetting'}`}
           style={{ transform: `translate3d(-${activePage * 100}%, 0, 0)` }}
           onTransitionEnd={handleTransitionEnd}
         >
           {carouselPages.map((page, pageIndex) => (
             <div
-              className="partner-page"
+              className="logo-carousel__page"
               key={pageIndex === pageCount ? 'page-clone' : `page-${pageIndex}`}
-              style={{ '--partner-slides-per-page': slidesPerPage }}
+              style={{ '--logo-carousel-slides-per-page': effectiveSlidesPerPage }}
             >
               {page.map(([name, image], logoIndex) => (
-                <div className="partner-slide" key={`${pageIndex}-${name}-${logoIndex}`}>
+                <div className="logo-carousel__slide" key={`${pageIndex}-${name}-${logoIndex}`}>
                   <img src={image} alt={name} loading={pageIndex === 0 ? 'eager' : 'lazy'} draggable="false" />
                 </div>
               ))}
@@ -2324,13 +2331,13 @@ function PartnerCarousel({ partners }) {
       </div>
 
       {pageCount > 1 && (
-        <div className="partners-pagination" aria-label="Partner carousel pages">
+        <div className="logo-carousel__pagination" aria-label={paginationLabel}>
           {pages.map((_, pageIndex) => (
             <button
               className={pageIndex === activeDot ? 'is-active' : ''}
               type="button"
-              key={`partner-page-${pageIndex}`}
-              aria-label={`Show partner group ${pageIndex + 1}`}
+              key={`${pageLabel}-${pageIndex}`}
+              aria-label={`${pageLabel} ${pageIndex + 1}`}
               aria-current={pageIndex === activeDot ? 'true' : undefined}
               onClick={(event) => {
                 goToPage(pageIndex)
@@ -2673,7 +2680,12 @@ function HomePage({ copy, lang, navigate }) {
           title={copy.home.partnersTitle}
           text={copy.home.partnersIntro}
         />
-        <PartnerCarousel partners={PARTNERS} />
+        <LogoCarousel
+          items={PARTNERS}
+          ariaLabel="Technology partners carousel"
+          paginationLabel="Partner carousel pages"
+          pageLabel="Show partner group"
+        />
       </section>
 
       <section className="section recommended-section">
@@ -2730,14 +2742,12 @@ function HomePage({ copy, lang, navigate }) {
           eyebrow={isAl ? 'Standarde' : 'Standards'}
           title={copy.home.certificationsTitle}
         />
-        <div className="cert-grid">
-          {CERTIFICATIONS.map(([name, image]) => (
-            <div className="cert-tile" key={name}>
-              <img src={image} alt={name} loading="lazy" />
-              <span>{name}</span>
-            </div>
-          ))}
-        </div>
+        <LogoCarousel
+          items={CERTIFICATIONS}
+          ariaLabel="Certifications carousel"
+          paginationLabel="Certification carousel pages"
+          pageLabel="Show certification group"
+        />
       </section>
 
       <section className="home-cta-section">
