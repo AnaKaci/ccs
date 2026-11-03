@@ -1,0 +1,597 @@
+/* CCS design consistency layer
+   Shared visual language for the corporate, solutions and commerce routes.
+   Brand: #231F20 / #EF4136 / white; preserve each page's content and behavior.
+*/
+:root {
+  --container-width: 1200px;
+  --ccs-control-radius: 10px;
+  --ccs-card-radius: 16px;
+  --ccs-panel-radius: 20px;
+  --ccs-motion: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.site-shell {
+  --font-main: Gotham, Montserrat, "Avenir Next", "Segoe UI", Arial, sans-serif;
+  --radius-sm: 6px;
+  --radius-md: var(--ccs-control-radius);
+  --radius-lg: var(--ccs-card-radius);
+  font-family: var(--font-main);
+}
+
+.site-shell :is(h1, h2, h3, h4) {
+  text-wrap: balance;
+  letter-spacing: -0.025em;
+}
+
+.site-shell :is(p, li) {
+  overflow-wrap: break-word;
+}
+
+.site-shell :is(button, input, select, textarea, a) {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.site-shell :is(a, button, input, select, textarea):focus-visible {
+  outline: 3px solid rgba(239, 65, 54, 0.7);
+  outline-offset: 3px;
+}
+
+/* The global header should not change identity when moving to the shop. */
+.site-shell .site-header,
+body.dark-mode .site-shell .site-header {
+  min-height: 80px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(23, 20, 22, 0.97);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+}
+
+.site-shell .header-inner {
+  min-height: 80px;
+  gap: 18px;
+}
+
+.site-shell .brand {
+  min-height: 54px;
+}
+
+.site-shell .brand img {
+  width: 110px;
+  height: auto;
+  object-fit: contain;
+}
+
+.site-shell .brand::after {
+  width: 40px;
+  height: 3px;
+  bottom: -5px;
+  box-shadow: none;
+}
+
+.site-shell .nav-link,
+.site-shell .nav-trigger,
+.site-shell.non-shop-ui .nav-link,
+.site-shell.non-shop-ui .nav-trigger,
+.site-shell.commerce-ui .nav-link,
+.site-shell.commerce-ui .nav-trigger,
+.site-shell.commerce-ui .main-nav > .nav-link,
+.site-shell.commerce-ui .nav-group > .nav-trigger {
+  min-height: 80px;
+  padding-inline: 9px;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 12px;
+  font-weight: 750;
+  line-height: 1.2;
+  letter-spacing: 0.035em;
+}
+
+.site-shell .nav-link:hover,
+.site-shell .nav-trigger:hover,
+.site-shell .nav-link.active,
+.site-shell .nav-group.active .nav-trigger,
+.site-shell .nav-group.menu-open .nav-trigger,
+.site-shell.commerce-ui .nav-link:hover,
+.site-shell.commerce-ui .nav-trigger:hover,
+.site-shell.commerce-ui .nav-link.active,
+.site-shell.commerce-ui .nav-group.active .nav-trigger {
+  color: #fff;
+}
+
+.site-shell .nav-link::after,
+.site-shell .nav-trigger::after {
+  height: 3px;
+  background: #ef4136;
+  box-shadow: none;
+}
+
+.site-shell .nav-menu,
+body.dark-mode .site-shell .nav-menu,
+body:not(.dark-mode) .site-shell .nav-menu {
+  min-width: 240px;
+  padding: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 12px;
+  background: #272224;
+  box-shadow: 0 20px 52px rgba(0, 0, 0, 0.28);
+}
+
+.site-shell .nav-menu a,
+body.dark-mode .site-shell .nav-menu a,
+.site-shell.commerce-ui .nav-menu a {
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.site-shell .nav-menu a:hover,
+.site-shell .nav-menu a.active,
+body.dark-mode .site-shell .nav-menu a:hover,
+body.dark-mode .site-shell .nav-menu a.active {
+  background: rgba(239, 65, 54, 0.15);
+  color: #fff;
+}
+
+.site-shell .header-actions {
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.site-shell .header-actions .icon-button,
+.site-shell .header-actions .theme-toggle,
+.site-shell .header-actions .lang-toggle,
+.site-shell .header-actions .cart-pill,
+.site-shell.commerce-ui .header-actions button,
+.site-shell.commerce-ui .header-actions .cart-pill {
+  color: rgba(255, 255, 255, 0.87);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.site-shell .header-actions :is(button, a):hover,
+.site-shell.commerce-ui .header-actions button:hover,
+.site-shell.commerce-ui .header-actions .cart-pill:hover {
+  color: #fff;
+  border-color: rgba(239, 65, 54, 0.5);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.site-shell .search-panel {
+  background: rgba(23, 20, 22, 0.97);
+}
+
+/* One typographic scale and one control geometry across route families. */
+.site-shell .kicker {
+  letter-spacing: 0.105em;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.site-shell .section-heading h2,
+.site-shell .metrics-copy h2,
+.site-shell .shop-hero-content h1 {
+  line-height: 1.12;
+  letter-spacing: -0.04em;
+}
+
+.site-shell.non-shop-ui .section-heading h2,
+.site-shell.non-shop-ui .metrics-copy h2 {
+  font-size: clamp(32px, 4vw, 52px);
+}
+
+.site-shell .section-heading p,
+.site-shell .shop-hero-content p,
+.site-shell .detail-hero p,
+.site-shell .vendor-hero p {
+  line-height: 1.65;
+}
+
+.site-shell.non-shop-ui .primary-action,
+.site-shell.non-shop-ui .secondary-action,
+.site-shell.commerce-ui .primary-action,
+.site-shell.commerce-ui .secondary-action,
+.site-shell.commerce-ui .shop-primary-cta,
+.site-shell.commerce-ui .shop-secondary-cta {
+  min-height: 48px;
+  padding: 11px 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border-radius: var(--ccs-control-radius);
+  font-size: 14px;
+  font-weight: 750;
+  letter-spacing: 0;
+  line-height: 1.3;
+  text-decoration: none;
+  transition:
+    background-color 200ms var(--ccs-motion),
+    border-color 200ms var(--ccs-motion),
+    box-shadow 200ms var(--ccs-motion),
+    transform 200ms var(--ccs-motion);
+}
+
+.site-shell.non-shop-ui .primary-action,
+.site-shell.commerce-ui .primary-action,
+.site-shell.commerce-ui .shop-primary-cta {
+  border-color: #ef4136;
+  background: #ef4136;
+  color: #fff;
+  box-shadow: none;
+}
+
+.site-shell.non-shop-ui .primary-action:hover,
+.site-shell.commerce-ui .primary-action:hover,
+.site-shell.commerce-ui .shop-primary-cta:hover {
+  border-color: #d9362d;
+  background: #d9362d;
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 9px 24px rgba(239, 65, 54, 0.16);
+}
+
+.site-shell.non-shop-ui .secondary-action,
+.site-shell.non-shop-ui .secondary-action.inverse {
+  border-color: rgba(255, 255, 255, 0.27);
+  background: rgba(255, 255, 255, 0.045);
+  color: #fff;
+  box-shadow: none;
+}
+
+.site-shell.non-shop-ui .secondary-action:hover {
+  border-color: #ef4136;
+  background: rgba(239, 65, 54, 0.12);
+  transform: translateY(-2px);
+  box-shadow: none;
+}
+
+.site-shell .hero-actions {
+  gap: 12px;
+}
+
+/* Corporate pages retain the dark tech background, with restrained cards. */
+.site-shell.non-shop-ui .ccs-command-hero {
+  min-height: clamp(620px, 82vh, 790px);
+}
+
+.site-shell.non-shop-ui :is(
+  .service-card,
+  .recommended-card,
+  .case-card,
+  .gis-card,
+  .contact-grid article,
+  .why-grid article,
+  .metric-stat-grid article,
+  .dashboard-status-grid article,
+  .detail-points article,
+  .vendor-value-grid article,
+  .threat-grid article,
+  .infra-grid article,
+  .case-study-card
+) {
+  border-radius: var(--ccs-card-radius);
+  box-shadow: none;
+}
+
+.site-shell.non-shop-ui :is(
+  .detail-hero,
+  .solution-focus,
+  .support-issue-panel,
+  .vendor-hero,
+  .case-detail-hero,
+  .home-cta-section,
+  .vendor-cta
+) {
+  border-radius: var(--ccs-panel-radius);
+}
+
+.site-shell.non-shop-ui :is(.feature-media, .about-media img, .gis-visual img, .solution-focus-media) {
+  border-radius: var(--ccs-card-radius);
+}
+
+.site-shell.non-shop-ui .service-grid {
+  gap: 20px;
+}
+
+.site-shell.non-shop-ui .service-card {
+  padding: 28px;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.site-shell.non-shop-ui .service-card h2 {
+  font-size: clamp(23px, 2.8vw, 30px);
+  line-height: 1.18;
+}
+
+.site-shell.non-shop-ui .service-card:hover,
+.site-shell.non-shop-ui .recommended-card:hover,
+.site-shell.non-shop-ui .case-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.12);
+}
+
+.site-shell.non-shop-ui .service-icon {
+  border-radius: 12px;
+  border-color: rgba(239, 65, 54, 0.24);
+  background: rgba(239, 65, 54, 0.08);
+  color: #ef4136;
+}
+
+/* Use the brand red for repeated decorative card accents rather than
+   assigning a different arbitrary accent to every service card. */
+.site-shell.non-shop-ui .service-card::before,
+.site-shell.non-shop-ui .service-card:nth-child(n)::before {
+  background: #ef4136;
+  box-shadow: none;
+}
+.site-shell.non-shop-ui .service-card:nth-child(n) .service-icon {
+  color: #ef4136;
+  background: rgba(239, 65, 54, 0.08);
+  border-color: rgba(239, 65, 54, 0.24);
+}
+
+/* The catalog follows the same three-column card system as the services. */
+.site-shell.commerce-ui .shop-hero {
+  min-height: 440px;
+}
+.site-shell.commerce-ui .shop-hero-content h1 {
+  max-width: 760px;
+  font-size: clamp(38px, 5vw, 60px);
+}
+.site-shell.commerce-ui .shop-sticky {
+  top: 80px;
+}
+.site-shell.commerce-ui .shop-page .products-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px;
+}
+.site-shell.commerce-ui .product-card,
+body.dark-mode .site-shell.commerce-ui .product-card {
+  min-width: 0;
+  border-radius: var(--ccs-card-radius);
+  border: 1px solid var(--shop-border);
+  box-shadow: none;
+  overflow: hidden;
+  transition:
+    transform 200ms var(--ccs-motion),
+    border-color 200ms var(--ccs-motion),
+    box-shadow 200ms var(--ccs-motion);
+}
+.site-shell.commerce-ui .product-card:hover {
+  border-color: rgba(239, 65, 54, 0.4);
+  transform: translateY(-3px);
+  box-shadow: 0 15px 38px rgba(0, 0, 0, 0.12);
+}
+.site-shell.commerce-ui .product-image,
+body.dark-mode .site-shell.commerce-ui .product-image {
+  height: 228px;
+  padding: 22px;
+  border-radius: 0;
+  background: #fff;
+}
+.site-shell.commerce-ui .product-card h3 {
+  margin-top: 18px;
+  font-size: 18px;
+  line-height: 1.32;
+  letter-spacing: -0.01em;
+  min-height: 70px;
+  max-height: 70px;
+}
+.site-shell.commerce-ui .product-card > button,
+.site-shell.commerce-ui .product-card .product-button {
+  min-height: 44px;
+  border-radius: var(--ccs-control-radius);
+  font-size: 13px;
+  font-weight: 750;
+}
+.site-shell.commerce-ui :is(
+  .cart-item, .cart-summary, .cart-empty, .product-gallery,
+  .product-summary, .product-description-panel, .account-panel,
+  .horizontal-filter, .filter-menu-panel
+) {
+  border-radius: var(--ccs-card-radius);
+}
+.site-shell.commerce-ui :is(
+  input, select, textarea, .shop-search, .filter-open, .horizontal-filter summary
+) {
+  border-radius: var(--ccs-control-radius);
+}
+.site-shell.commerce-ui .shop-control-row {
+  gap: 16px;
+}
+.site-shell.commerce-ui .horizontal-filter {
+  gap: 10px;
+}
+.site-shell.commerce-ui .shop-footer-note {
+  line-height: 1.6;
+}
+
+/* A single footer on every page, with more readable muted links. */
+.site-shell .site-footer {
+  padding: 72px 0 32px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  background: #171416;
+}
+.site-shell .site-footer__grid {
+  gap: 28px;
+}
+.site-shell .footer-logo img {
+  width: 100px;
+}
+.site-shell .footer-brand p,
+.site-shell .footer-column a,
+.site-shell .footer-column span,
+.site-shell .footer-links a {
+  color: rgba(255, 255, 255, 0.76);
+  line-height: 1.6;
+}
+.site-shell .footer-column h2 {
+  font-size: 12px;
+  letter-spacing: 0.055em;
+  font-weight: 800;
+}
+.site-shell .footer-column a:hover,
+.site-shell .footer-links a:hover {
+  color: #ff756d;
+}
+
+/* Mobile navigation uses true collapsed submenus and shared dark surfaces. */
+@media (max-width: 1180px) {
+  .site-shell .main-nav,
+  body.dark-mode .site-shell .main-nav,
+  .site-shell.commerce-ui .main-nav {
+    inset: 80px 0 auto;
+    max-height: calc(100dvh - 80px);
+    padding: 12px 24px 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.13);
+    background: #211d1f;
+    overflow-y: auto;
+  }
+  .site-shell .main-nav .nav-link,
+  .site-shell .main-nav .nav-trigger,
+  .site-shell.non-shop-ui .main-nav .nav-link,
+  .site-shell.non-shop-ui .main-nav .nav-trigger,
+  .site-shell.commerce-ui .main-nav .nav-link,
+  .site-shell.commerce-ui .main-nav .nav-trigger {
+    width: 100%;
+    min-height: 50px;
+    padding-inline: 0;
+    font-size: 13px;
+    text-align: left;
+  }
+  .site-shell .nav-group {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .site-shell .main-nav .nav-menu,
+  body.dark-mode .site-shell .main-nav .nav-menu {
+    display: none;
+    position: static;
+    min-width: 0;
+    padding: 0 0 10px 12px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    opacity: 1;
+    pointer-events: auto;
+    transform: none;
+  }
+  .site-shell .main-nav .nav-group.menu-open > .nav-menu,
+  body.dark-mode .site-shell .main-nav .nav-group.menu-open > .nav-menu {
+    display: block;
+  }
+  .site-shell .nav-menu a {
+    min-height: 42px;
+    display: flex;
+    align-items: center;
+  }
+}
+
+@media (max-width: 1020px) {
+  .site-shell.commerce-ui .shop-page .products-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .site-shell .site-footer__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .site-shell .footer-brand {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 760px) {
+  .site-shell .header-inner {
+    width: calc(100% - 32px);
+    gap: 10px;
+  }
+  .site-shell .site-footer {
+    padding: 56px 0 28px;
+  }
+  .site-shell.non-shop-ui .ccs-command-hero {
+    min-height: 670px;
+  }
+  .site-shell.non-shop-ui .service-grid {
+    grid-template-columns: 1fr;
+  }
+  .site-shell.non-shop-ui .service-card:first-child {
+    grid-column: auto;
+  }
+  .site-shell.non-shop-ui .service-card {
+    min-height: 270px;
+    padding: 24px;
+  }
+  .site-shell.commerce-ui .shop-hero {
+    min-height: 380px;
+  }
+  .site-shell.commerce-ui .shop-hero-content h1 {
+    font-size: clamp(32px, 7vw, 46px);
+  }
+  .site-shell.commerce-ui .shop-control-row {
+    width: calc(100% - 32px);
+  }
+  .site-shell.commerce-ui .product-image {
+    height: 210px;
+  }
+}
+
+@media (max-width: 560px) {
+  .site-shell .header-inner {
+    width: calc(100% - 24px);
+    gap: 6px;
+  }
+  .site-shell .brand img {
+    width: 90px;
+  }
+  .site-shell .header-actions {
+    gap: 3px;
+  }
+  .site-shell .header-actions .icon-button,
+  .site-shell .header-actions .theme-toggle {
+    width: 35px;
+    min-height: 36px;
+  }
+  .site-shell .header-actions .lang-toggle {
+    min-height: 36px;
+    padding: 0 7px;
+  }
+  .site-shell .cart-pill {
+    min-height: 36px;
+    padding: 0 7px;
+  }
+  .site-shell .cart-pill span {
+    display: none;
+  }
+  .site-shell .main-nav {
+    padding-inline: 16px;
+  }
+  .site-shell.commerce-ui .shop-page .products-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  .site-shell.commerce-ui .product-card h3 {
+    min-height: auto;
+    max-height: none;
+  }
+  .site-shell.commerce-ui .product-image {
+    height: 224px;
+  }
+  .site-shell .site-footer__grid {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  .site-shell .footer-brand {
+    grid-column: auto;
+  }
+  .site-shell .footer-links {
+    justify-content: flex-start;
+    gap: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-shell .product-card,
+  .site-shell .service-card,
+  .site-shell :is(.primary-action, .secondary-action) {
+    transform: none;
+    transition: none;
+  }
+}

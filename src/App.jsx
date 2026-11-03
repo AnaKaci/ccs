@@ -43,6 +43,7 @@ import VendorSolutionLayout from './components/vendor/VendorSolutionLayout'
 import { useCart } from './cart'
 import { CSV_CATALOG_META, CSV_PRODUCTS } from './data/catalog'
 import './App.css'
+import './design-consistency.css'
 
 const ROUTE_SEGMENTS = [
   'shop',
@@ -1714,7 +1715,7 @@ function AppLink({ to, navigate, children, className = '', onClick, ...props }) 
 function App() {
   const [route, navigate] = useRoute()
   const [lang, setLang] = useState(() => localStorage.getItem('ccs-language') || 'en')
-  const [darkMode, setDarkMode] = useState(() => localStorage.getItem('theme') === 'dark')
+  const [darkMode, setDarkMode] = useState(() => localStorage.getItem('theme') !== 'light')
   const [shopQuery, setShopQuery] = useState('')
   const { products, loading: productsLoading } = useProducts()
   const cart = useCart(products)
@@ -1823,7 +1824,7 @@ function Header({
     <header className="site-header">
       <div className="header-inner">
         <AppLink to="/" navigate={navigate} className="brand" aria-label="CCS home">
-          <img src={darkMode ? ASSETS.logoDark : ASSETS.logoLight} alt="C.C.S" />
+          <img src={ASSETS.logoDark} alt="C.C.S" />
         </AppLink>
 
         <button
