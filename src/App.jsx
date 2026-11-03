@@ -44,6 +44,7 @@ import { useCart } from './cart'
 import { CSV_CATALOG_META, CSV_PRODUCTS } from './data/catalog'
 import './App.css'
 import './design-consistency.css'
+import './theme-fixes.css'
 
 const ROUTE_SEGMENTS = [
   'shop',
@@ -1824,7 +1825,7 @@ function Header({
     <header className="site-header">
       <div className="header-inner">
         <AppLink to="/" navigate={navigate} className="brand" aria-label="CCS home">
-          <img src={ASSETS.logoDark} alt="C.C.S" />
+          <img src={darkMode ? ASSETS.logoDark : ASSETS.logoLight} alt="C.C.S" />
         </AppLink>
 
         <button
@@ -1909,9 +1910,11 @@ function Header({
             className="theme-toggle"
             type="button"
             aria-label={darkMode ? copy.common.lightMode : copy.common.darkMode}
+            aria-pressed={darkMode}
+            title={darkMode ? copy.common.lightMode : copy.common.darkMode}
             onClick={() => setDarkMode((value) => !value)}
           >
-            {darkMode ? <Moon size={15} /> : <Sun size={15} />}
+            {darkMode ? <Sun size={17} /> : <Moon size={17} />}
             <span />
           </button>
 

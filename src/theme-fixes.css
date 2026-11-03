@@ -1,0 +1,244 @@
+/* CCS theme fixes — loaded after the base and consistency layers.
+   Dark styles are defined in App.css. Corporate light mode must explicitly
+   override the original dark-only presentation and keep good contrast. */
+:root { color-scheme: light; }
+body.dark-mode { color-scheme: dark; }
+
+/* Shared chrome: light and dark work on every route. */
+body:not(.dark-mode) .site-shell .site-header {
+  background: rgba(255,255,255,.97);
+  border-bottom-color: rgba(35,31,32,.12);
+  box-shadow: 0 4px 22px rgba(35,31,32,.035);
+}
+body:not(.dark-mode) .site-shell .nav-link,
+body:not(.dark-mode) .site-shell .nav-trigger,
+body:not(.dark-mode) .site-shell.commerce-ui .nav-link,
+body:not(.dark-mode) .site-shell.commerce-ui .nav-trigger,
+body:not(.dark-mode) .site-shell.commerce-ui .main-nav > .nav-link,
+body:not(.dark-mode) .site-shell.commerce-ui .nav-group > .nav-trigger {
+  color: #393539;
+}
+body:not(.dark-mode) .site-shell :is(.nav-link:hover, .nav-trigger:hover, .nav-link.active),
+body:not(.dark-mode) .site-shell :is(.nav-group.active, .nav-group.menu-open) > .nav-trigger,
+body:not(.dark-mode) .site-shell.commerce-ui :is(.nav-link:hover, .nav-trigger:hover, .nav-link.active) {
+  color: #bd3028;
+}
+body:not(.dark-mode) .site-shell .nav-menu,
+body:not(.dark-mode) .site-shell.commerce-ui .nav-menu,
+body:not(.dark-mode) .site-shell.non-shop-ui .nav-menu {
+  background: #fff;
+  border-color: rgba(35,31,32,.12);
+  box-shadow: 0 18px 42px rgba(35,31,32,.12);
+}
+body:not(.dark-mode) .site-shell .nav-menu a,
+body:not(.dark-mode) .site-shell.commerce-ui .nav-menu a,
+body:not(.dark-mode) .site-shell.non-shop-ui .nav-menu a {
+  color: #393539;
+}
+body:not(.dark-mode) .site-shell .nav-menu :is(a:hover, a.active),
+body:not(.dark-mode) .site-shell.non-shop-ui .nav-menu :is(a:hover, a.active) {
+  color: #b52822;
+  background: rgba(239,65,54,.09);
+}
+body:not(.dark-mode) .site-shell .header-actions :is(.icon-button, .theme-toggle, .lang-toggle, .cart-pill),
+body:not(.dark-mode) .site-shell.commerce-ui .header-actions button,
+body:not(.dark-mode) .site-shell.commerce-ui .header-actions .cart-pill,
+body:not(.dark-mode) .site-shell.non-shop-ui .header-actions button,
+body:not(.dark-mode) .site-shell.non-shop-ui .header-actions .cart-pill {
+  color: #393539;
+  border-color: rgba(35,31,32,.14);
+}
+body:not(.dark-mode) .site-shell .header-actions :is(button,a):hover,
+body:not(.dark-mode) .site-shell.commerce-ui .header-actions button:hover,
+body:not(.dark-mode) .site-shell.non-shop-ui .header-actions button:hover {
+  color: #bd3028;
+  border-color: rgba(239,65,54,.4);
+  background: rgba(239,65,54,.08);
+}
+body:not(.dark-mode) .site-shell .search-panel { background: rgba(245,246,248,.97); }
+body:not(.dark-mode) .site-shell .search-close { color: #231f20; }
+body:not(.dark-mode) .site-shell .quick-results button { border-color: rgba(35,31,32,.16); }
+
+/* Non-shop pages had hardwired dark tokens even when .dark-mode was absent. */
+body:not(.dark-mode) .site-shell.non-shop-ui {
+  --ccs-bg: #f7f8fa;
+  --ccs-bg-deep: #fff;
+  --ccs-surface: #fff;
+  --ccs-surface-solid: #fff;
+  --ccs-white: #231f20;
+  --ccs-text-muted: #565d67;
+  --ccs-border: rgba(35,31,32,.12);
+  --ccs-border-strong: rgba(35,31,32,.2);
+  --ccs-red: #c12d26;
+  color: #231f20;
+  background: #f7f8fa;
+}
+body:not(.dark-mode) .site-shell.non-shop-ui main {
+  background-color: #f7f8fa;
+  background-image:
+    linear-gradient(rgba(35,31,32,.022) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(35,31,32,.022) 1px,transparent 1px);
+  background-size: 72px 72px;
+}
+body:not(.dark-mode) .site-shell.non-shop-ui .section { color: #231f20; }
+body:not(.dark-mode) .site-shell.non-shop-ui :is(.kicker,.text-link) { color: #b52822; }
+
+/* Home hero: light background and light glass panels, not white on white. */
+body:not(.dark-mode) .site-shell.non-shop-ui .ccs-command-hero {
+  color: #231f20;
+  background:
+    radial-gradient(circle at 50% 42%,rgba(239,65,54,.105),transparent 55%),
+    linear-gradient(180deg,#fff,#f6f7f9);
+  border-bottom: 1px solid rgba(35,31,32,.1);
+}
+body:not(.dark-mode) .site-shell.non-shop-ui .ccs-hero-grid {
+  background-image:
+    linear-gradient(rgba(35,31,32,.043) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(35,31,32,.043) 1px,transparent 1px);
+}
+body:not(.dark-mode) .site-shell.non-shop-ui .hero-glass-card {
+  color: #231f20;
+  background: linear-gradient(155deg,rgba(255,255,255,.96),rgba(241,243,247,.92));
+  border-color: rgba(35,31,32,.14);
+  box-shadow: 0 14px 44px rgba(35,31,32,.11);
+}
+body:not(.dark-mode) .site-shell.non-shop-ui :is(.hero-card-head,.hero-card-data span) { color: #65707c; }
+body:not(.dark-mode) .site-shell.non-shop-ui .hero-card-data strong { color: #231f20; }
+body:not(.dark-mode) .site-shell.non-shop-ui .terminal-badge {
+  color: #4c4248; background: rgba(255,255,255,.86); box-shadow: none;
+}
+body:not(.dark-mode) .site-shell.non-shop-ui .ccs-hero-content h1 span { color: #231f20; }
+body:not(.dark-mode) .site-shell.non-shop-ui .ccs-hero-content > p { color: #545963; }
+body:not(.dark-mode) .site-shell.non-shop-ui .hero-system-mark { color: rgba(35,31,32,.5); }
+body:not(.dark-mode) .site-shell.non-shop-ui :is(.secondary-action,.secondary-action.inverse) {
+  color: #231f20; border-color: rgba(35,31,32,.24);
+  background: rgba(255,255,255,.85); box-shadow: none;
+}
+body:not(.dark-mode) .site-shell.non-shop-ui :is(.secondary-action:hover,.secondary-action.inverse:hover) {
+  color: #b52822; border-color: rgba(239,65,54,.5); background: rgba(239,65,54,.08);
+}
+body:not(.dark-mode) .site-shell.non-shop-ui :is(.primary-action,.support-form button) {
+  color: #fff; background: #bd3028; border-color: #bd3028;
+}
+body:not(.dark-mode) .site-shell.non-shop-ui .primary-action:hover {
+  background: #a82821; border-color: #a82821;
+}
+
+/* Home strips, statistics and dashboard. */
+body:not(.dark-mode) .site-shell.non-shop-ui :is(.ccs-ticker,.trusted-strip) {
+  background: #fff; color: #231f20; border-color: rgba(35,31,32,.12);
+}
+body:not(.dark-mode) .site-shell.non-shop-ui :is(.ticker-track > span,.trusted-strip-inner > span) { color: #555b65; }
+body:not(.dark-mode) .site-shell.non-shop-ui .logo-carousel__pagination button:not(.is-active) {
+  background: rgba(35,31,32,.24);
+}
+body:not(.dark-mode) .site-shell.non-shop-ui :is(
+  .metric-stat-grid span, .why-grid span, .dashboard-head span,
+  .dashboard-primary span, .dashboard-status-grid span
+) { color: #69717d; }
+body:not(.dark-mode) .site-shell.non-shop-ui .tilt-dashboard {
+  color: #231f20; border-color: rgba(35,31,32,.14);
+  background:
+    radial-gradient(circle at 88% 12%,rgba(28,154,214,.08),transparent 28%),
+    radial-gradient(circle at 12% 90%,rgba(239,65,54,.08),transparent 32%),
+    #fff;
+  box-shadow: 0 24px 60px rgba(35,31,32,.09);
+}
+body:not(.dark-mode) .site-shell.non-shop-ui .tilt-dashboard::before {
+  background-image:
+    linear-gradient(rgba(35,31,32,.028) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(35,31,32,.028) 1px,transparent 1px);
+}
+body:not(.dark-mode) .site-shell.non-shop-ui .dashboard-status-grid article { background: #f6f7f9; }
+
+/* Corporate page components: same semantic colors as the store in light mode. */
+body:not(.dark-mode) .site-shell.non-shop-ui :is(
+  .metric-stat-grid article,.dashboard-status-grid article,.service-card,
+  .why-grid article,.gis-card,.recommended-card,.case-card,.contact-grid article,
+  .detail-points article,.vendor-value-grid article,.threat-grid article,
+  .infra-grid article,.solution-support-strip article,.case-study-card,
+  .case-detail-nav,.case-story,.detail-hero,.solution-focus,.support-issue-panel,
+  .solution-block,.case-detail-hero,.vendor-hero,.account-panel
+) {
+  color: #231f20;
+  background: #fff;
+  border-color: rgba(35,31,32,.12);
+  box-shadow: 0 10px 30px rgba(35,31,32,.035);
+}
+body:not(.dark-mode) .site-shell.non-shop-ui :is(
+  .section-heading p,.metrics-copy > p,.service-card p,.section-copy p,
+  .detail-hero p,.detail-points p,.solution-focus-head p,
+  .case-hero p,.case-detail-hero p,.case-story p,
+  .vendor-hero p,.vendor-value-grid p,.vendor-content-head p,
+  .vendor-cta p,.support-issue-panel p,.recommended-card p,.case-card p,
+  .gis-card p,.why-grid p,.home-cta-section p,.contact-grid p,.contact-grid a
+) { color: #565d67; }
+body:not(.dark-mode) .site-shell.non-shop-ui :is(
+  .service-card h2,.why-grid h3,.gis-card h3,.recommended-card h3,
+  .case-card h3,.case-study-card h2,.case-detail-hero h1,
+  .solution-focus-head h1,.detail-hero h1
+) { color: #231f20; }
+body:not(.dark-mode) .site-shell.non-shop-ui .service-image img { filter: grayscale(1); }
+body:not(.dark-mode) .site-shell.non-shop-ui :is(.dark-feature-section,.case-hero) {
+  color: #231f20;
+  background:
+    radial-gradient(circle at 18% 50%,rgba(239,65,54,.06),transparent 38%),
+    #f0f2f5;
+  border-color: rgba(35,31,32,.12);
+}
+body:not(.dark-mode) .site-shell.non-shop-ui .capability-list span {
+  color: #404852; background: #fff; border-color: rgba(35,31,32,.12);
+}
+body:not(.dark-mode) .site-shell.non-shop-ui :is(.contact-ribbon,.home-cta-section,.vendor-cta) {
+  color: #231f20;
+  background: linear-gradient(135deg,rgba(239,65,54,.055),transparent 65%),#fff;
+  border-color: rgba(35,31,32,.15);
+  box-shadow: 0 12px 30px rgba(35,31,32,.045);
+}
+body:not(.dark-mode) .site-shell.non-shop-ui .contact-ribbon a { color: #231f20; }
+body:not(.dark-mode) .site-shell.non-shop-ui .contact-grid article { background: #fff; }
+body:not(.dark-mode) .site-shell.non-shop-ui :is(.storage-heading,.storage-row,.case-detail-nav a.active) {
+  color: #231f20; background: #f1f2f5; border-color: rgba(35,31,32,.12);
+}
+body:not(.dark-mode) .site-shell.non-shop-ui .case-detail-nav a { color: #515965; }
+body:not(.dark-mode) .site-shell.non-shop-ui .case-detail-nav a.active {
+  color: #b52822; border-left: 3px solid #c12d26;
+}
+body:not(.dark-mode) .site-shell.non-shop-ui .case-back-link { color: #b52822; }
+body:not(.dark-mode) .site-shell.non-shop-ui :is(.support-form input,.support-form textarea) {
+  color: #231f20; background: #fff; border-color: rgba(35,31,32,.22);
+}
+body:not(.dark-mode) .site-shell.non-shop-ui :is(.support-form input::placeholder,.support-form textarea::placeholder) {
+  color: #68707b;
+}
+body:not(.dark-mode) .site-shell.non-shop-ui .gis-card button {
+  color: #231f20; border-color: rgba(35,31,32,.2); background: #f8f9fa;
+}
+body:not(.dark-mode) .site-shell.non-shop-ui .vendor-content-surface {
+  background: #fff; color: #231f20;
+}
+
+/* Shop tokens are already theme-aware. Fix transitions on the sticky subnav. */
+body:not(.dark-mode) .site-shell.commerce-ui .shop-sticky {
+  background: rgba(255,255,255,.96); border-color: rgba(35,31,32,.12);
+}
+body.dark-mode .site-shell.commerce-ui .shop-sticky {
+  background: rgba(35,31,32,.97);
+}
+@media (max-width: 1180px) {
+  body:not(.dark-mode) .site-shell .main-nav,
+  body:not(.dark-mode) .site-shell.commerce-ui .main-nav,
+  body:not(.dark-mode) .site-shell.non-shop-ui .main-nav {
+    background: #fff; border-color: rgba(35,31,32,.12);
+    box-shadow: 0 18px 36px rgba(35,31,32,.08);
+  }
+  body:not(.dark-mode) .site-shell .nav-group { border-color: rgba(35,31,32,.1); }
+  body:not(.dark-mode) .site-shell .main-nav .nav-menu {
+    background: transparent; border: 0; box-shadow: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-shell :is(.tilt-dashboard,.hero-glass-card,.ccs-hero-glow) {
+    animation: none; transition: none;
+  }
+}

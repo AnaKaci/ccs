@@ -15,6 +15,14 @@
     <title>C.C.S</title>
   </head>
   <body>
+    <script>
+      // Set theme before React starts, preventing a light-to-dark flash on load.
+      try {
+        document.body.classList.toggle('dark-mode', localStorage.getItem('theme') !== 'light');
+      } catch {
+        document.body.classList.add('dark-mode');
+      }
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
