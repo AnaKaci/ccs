@@ -2400,7 +2400,21 @@ function HomePage({ copy, lang, navigate }) {
 
   return (
     <>
-      <section className="ccs-command-hero" aria-label="CCS">
+      <section className="ccs-command-hero ccs-command-hero--video" aria-label="CCS">
+        <div className="ccs-hero-video-panel">
+          <video
+            className="ccs-hero-video"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            aria-hidden="true"
+            tabIndex={-1}
+          >
+            <source src={ASSETS.heroVideo} type="video/mp4" />
+          </video>
+        </div>
         <div className="ccs-hero-grid" aria-hidden="true" />
         <div className="ccs-hero-glow" aria-hidden="true" />
 
