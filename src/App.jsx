@@ -45,6 +45,7 @@ import { CSV_CATALOG_META, CSV_PRODUCTS } from './data/catalog'
 import './App.css'
 import './design-consistency.css'
 import './theme-fixes.css'
+import './professional-redesign.css'
 
 const ROUTE_SEGMENTS = [
   'shop',
@@ -2383,24 +2384,32 @@ function HomePage({ copy, lang, navigate }) {
       body: copy.home.aboutBodyTwo,
     },
   ]
-  const heroPanels = [
-    { icon: ShieldCheck, label: isAl ? 'Mbrojtje' : 'Security', value: isAl ? 'SIGURI' : 'SECURE', tone: 'red' },
-    { icon: Network, label: isAl ? 'Rrjet' : 'Network', value: isAl ? 'LIDHJE' : 'CONNECTED', tone: 'blue' },
-    { icon: Server, label: isAl ? 'Infrastrukture' : 'Infrastructure', value: isAl ? 'SISTEME' : 'SYSTEMS', tone: 'violet' },
-    { icon: Database, label: isAl ? 'Te dhena' : 'Data', value: isAl ? 'STORAGE' : 'STORAGE', tone: 'yellow' },
-    { icon: Layers3, label: 'GIS / ArcGIS', value: isAl ? 'HAPESIRE' : 'SPATIAL', tone: 'blue' },
-  ]
-
   const tickerItems = isAl
     ? ['SIGURI KIBERNETIKE', 'INFRASTRUKTURE RRJETI', 'SERVERA & STORAGE', 'GIS / ARCGIS', 'SUPORT TEKNIK', 'INTEGRIM SISTEMESH']
     : ['CYBERSECURITY', 'NETWORK INFRASTRUCTURE', 'SERVERS & STORAGE', 'GIS / ARCGIS', 'TECHNICAL SUPPORT', 'SYSTEM INTEGRATION']
 
-  const dashboardBars = [46, 72, 58, 86, 64, 78, 52, 92, 68, 82]
-
-
   return (
     <>
       <section className="ccs-command-hero ccs-command-hero--video" aria-label="CCS">
+        <div className="ccs-hero-content">
+          <div className="terminal-badge">
+            {isAl ? 'PARTNERI JUAJ I TEKNOLOGJISE' : 'YOUR TECHNOLOGY PARTNER'}
+          </div>
+          <h1>
+            {isAl ? 'Teknologjia e mirë,' : 'Good technology'}{' '}
+            <span>{isAl ? 'shtyn kufijtë e të pamundurës.' : 'pushes the limits of the impossible.'}</span>
+          </h1>
+          <p>{copy.home.heroText}</p>
+          <div className="hero-actions">
+            <AppLink to="/#services" navigate={navigate} className="primary-action">
+              {isAl ? 'Zbuloni shërbimet' : 'Explore our services'}
+              <ArrowRight size={17} />
+            </AppLink>
+            <a href="mailto:info@ccs.al" className="secondary-action">
+              {isAl ? 'Na kontaktoni' : 'Contact our team'}
+            </a>
+          </div>
+        </div>
         <div className="ccs-hero-video-panel">
           <video
             className="ccs-hero-video"
@@ -2415,117 +2424,56 @@ function HomePage({ copy, lang, navigate }) {
             <source src={ASSETS.heroVideo} type="video/mp4" />
           </video>
         </div>
-        <div className="ccs-hero-grid" aria-hidden="true" />
-        <div className="ccs-hero-glow" aria-hidden="true" />
-
-        <div className="hero-card-fan" aria-hidden="true">
-          {heroPanels.map((panel, index) => {
-            const Icon = panel.icon
-            return (
-              <div className={`hero-glass-card hero-glass-card-${index + 1} tone-${panel.tone}`} key={panel.label}>
-                <div className="hero-card-head">
-                  <span>CCS // 0{index + 1}</span>
-                  <i />
-                </div>
-                <Icon size={30} />
-                <div className="hero-card-data">
-                  <span>{panel.label}</span>
-                  <strong>{panel.value}</strong>
-                </div>
-                <div className="hero-card-lines">
-                  <b />
-                  <b />
-                  <b />
-                </div>
-              </div>
-            )
-          })}
-        </div>
-
-        <div className="ccs-hero-content">
-          <div className="terminal-badge">
-            <span />
-            CCS // {isAl ? 'INFRASTRUKTURE DIGJITALE E SIGURT' : 'SECURE DIGITAL INFRASTRUCTURE'}
-          </div>
-          <h1>
-            <span>{isAl ? 'Teknologjia e mire shtyn' : 'Good technology pushes'}</span>
-            <em>{isAl ? 'kufijte e te pamundures.' : 'the limits of the impossible.'}</em>
-          </h1>
-          <p>{copy.home.heroText}</p>
-          <div className="hero-actions">
-            <AppLink to="/#services" navigate={navigate} className="primary-action ccs-pill">
-              <span>{isAl ? 'Eksploro zgjidhjet' : 'Explore Solutions'}</span>
-              <i><ArrowRight size={17} /></i>
-            </AppLink>
-            <a href="mailto:info@ccs.al" className="secondary-action inverse ccs-pill secondary">
-              <Mail size={18} />
-              {isAl ? 'Flisni me nje ekspert' : 'Talk to an Expert'}
-            </a>
-          </div>
-        </div>
-
         <div className="hero-system-mark" aria-hidden="true">
-          <span>CCS / 1993</span>
-          <span>TIRANA / AL</span>
+          <span>CCS</span>
+          <span>TIRANA, ALBANIA</span>
         </div>
       </section>
 
-      <section className="ccs-ticker" aria-label={isAl ? 'Fushat e sherbimit' : 'Service domains'}>
-        <div className="ticker-track">
-          {[...tickerItems, ...tickerItems].map((item, index) => (
-            <span key={`${item}-${index}`}>
-              <i className={`ticker-dot ticker-dot-${index % 4}`} />
-              {item}
-            </span>
+      <div className="ccs-expertise-strip" aria-label={isAl ? 'Fushat e ekspertizës' : 'Areas of expertise'}>
+        <div className="ccs-expertise-strip__inner">
+          {tickerItems.map((item) => (
+            <span key={item}>{item}</span>
           ))}
         </div>
-      </section>
+      </div>
 
       <section className="section ccs-metrics-section">
         <div className="metrics-copy">
-          <Kicker>{isAl ? 'Model operacional' : 'Operational model'}</Kicker>
-          <h2>{isAl ? 'Teknologji enterprise, e unifikuar.' : 'Enterprise technology, unified.'}</h2>
+          <Kicker>{isAl ? 'Rreth CCS' : 'About CCS'}</Kicker>
+          <h2>{isAl ? 'Ekspertizë teknologjike për biznesin.' : 'Technical expertise for your business.'}</h2>
           <p>
             {isAl
-              ? 'Nje sistem i vetem vizual per te paraqitur sigurine, rrjetin, infrastrukturen, te dhenat dhe suportin.'
-              : 'One visual system for security, networking, infrastructure, data, and support.'}
+              ? 'Që nga viti 1993, CCS ofron zgjidhje dhe shërbime të teknologjisë së informacionit për organizata në Shqipëri, nga infrastruktura e rrjetit te siguria, sistemet dhe suporti.'
+              : 'Since 1993, CCS has provided technology solutions and IT services in Albania, covering network infrastructure, cybersecurity, enterprise systems and technical support.'}
           </p>
-          <div className="metric-stat-grid">
-            <article>
-              <strong>1993</strong>
-              <span>{isAl ? 'THEMELUAR' : 'ESTABLISHED'}</span>
-            </article>
-            <article>
-              <strong>END-TO-END</strong>
-              <span>{isAl ? 'CIKLI I PROJEKTIT' : 'PROJECT LIFECYCLE'}</span>
-            </article>
-          </div>
+          <a className="ccs-inline-link" href="#about">
+            {isAl ? 'Mësoni më shumë për CCS' : 'Learn more about CCS'}
+            <ArrowRight size={17} />
+          </a>
         </div>
-
-        <div className="tilt-stage">
-          <div className="tilt-dashboard">
-            <div className="dashboard-head">
-              <div>
-                <span>CCS // SYSTEM_ID</span>
-                <strong>ENTERPRISE CONTROL SURFACE</strong>
-              </div>
-              <i className="dashboard-live">{isAl ? 'AKTIV' : 'ACTIVE'}</i>
+        <div className="ccs-overview-areas">
+          <article>
+            <span>01</span>
+            <div>
+              <h3>{isAl ? 'Siguri dhe rrjete' : 'Security & networking'}</h3>
+              <p>{isAl ? 'Projektim, mbrojtje dhe lidhje të qëndrueshme.' : 'Network design, protection and connectivity.'}</p>
             </div>
-            <div className="dashboard-primary">
-              <span>{isAl ? 'SHTRESA E INTEGRIMIT' : 'INTEGRATION LAYER'}</span>
-              <strong>{isAl ? 'E UNIFIKUAR' : 'UNIFIED'}</strong>
+          </article>
+          <article>
+            <span>02</span>
+            <div>
+              <h3>{isAl ? 'Sisteme dhe infrastrukturë' : 'Systems & infrastructure'}</h3>
+              <p>{isAl ? 'Servera, storage dhe sisteme IT për biznesin.' : 'Servers, storage and enterprise IT infrastructure.'}</p>
             </div>
-            <div className="dashboard-chart" aria-hidden="true">
-              {dashboardBars.map((height, index) => (
-                <i key={index} style={{ '--bar-height': `${height}%` }} />
-              ))}
+          </article>
+          <article>
+            <span>03</span>
+            <div>
+              <h3>{isAl ? 'GIS dhe suport' : 'GIS & technical support'}</h3>
+              <p>{isAl ? 'Sisteme gjeohapësinore dhe asistencë teknike.' : 'Geospatial systems and ongoing technical assistance.'}</p>
             </div>
-            <div className="dashboard-status-grid">
-              <article><Shield size={17} /><span>SECURITY</span><strong>READY</strong></article>
-              <article><Network size={17} /><span>NETWORK</span><strong>CONNECTED</strong></article>
-              <article><Database size={17} /><span>DATA</span><strong>RESILIENT</strong></article>
-            </div>
-          </div>
+          </article>
         </div>
       </section>
 
@@ -3573,7 +3521,7 @@ function ITSolutionPage({ data, copy, lang, navigate }) {
           >
             <img src={slide.image} alt="" />
             <div>
-              <span>Slide</span>
+              <span>{lang === 'al' ? 'Zgjidhje' : 'Solution'}</span>
               <h2>{titleFor(slide, lang)}</h2>
               <p>{slide.intro}</p>
             </div>
