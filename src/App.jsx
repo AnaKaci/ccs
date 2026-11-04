@@ -47,6 +47,7 @@ import './design-consistency.css'
 import './theme-fixes.css'
 import './professional-redesign.css'
 import './layout-refinement.css'
+import './header-polish.css'
 
 const ROUTE_SEGMENTS = [
   'shop',
@@ -1911,7 +1912,7 @@ function Header({
             <ArrowRight size={15} />
           </AppLink>
           <button
-            className="icon-button"
+            className="icon-button ccs-header-tool ccs-search-tool"
             type="button"
             aria-label={copy.common.shopSearch}
             onClick={() => {
@@ -1919,7 +1920,7 @@ function Header({
               setSearchOpen(true)
             }}
           >
-            <Search size={19} />
+            <Search size={19} strokeWidth={1.9} />
           </button>
 
           {showCart && (
@@ -1931,29 +1932,28 @@ function Header({
           )}
 
           <button
-            className="theme-toggle"
+            className="theme-toggle ccs-header-tool ccs-theme-tool"
             type="button"
             aria-label={darkMode ? copy.common.lightMode : copy.common.darkMode}
             aria-pressed={darkMode}
             title={darkMode ? copy.common.lightMode : copy.common.darkMode}
             onClick={() => setDarkMode((value) => !value)}
           >
-            {darkMode ? <Sun size={17} /> : <Moon size={17} />}
-            <span />
+            {darkMode ? <Sun size={19} strokeWidth={1.9} /> : <Moon size={19} strokeWidth={1.9} />}
           </button>
 
           <button
-            className="lang-toggle"
+            className="lang-toggle ccs-header-tool ccs-language-tool"
             type="button"
-            aria-label={copy.common.language}
+            aria-label={lang === 'en' ? 'Switch to Albanian' : 'Kalo në anglisht'}
             onClick={() => setLang(lang === 'en' ? 'al' : 'en')}
           >
-            <Globe2 size={16} />
-            {lang === 'en' ? 'AL' : 'EN'}
+            <Globe2 className="ccs-language-icon" size={16} strokeWidth={1.9} />
+            <span className="ccs-language-code">{lang === 'en' ? 'AL' : 'EN'}</span>
           </button>
         </div>
         <button
-          className="icon-button mobile-only ccs-mobile-menu-button"
+          className="icon-button mobile-only ccs-mobile-menu-button ccs-header-tool"
           type="button"
           aria-label={menuOpen ? copy.common.closeMenu : copy.common.openMenu}
           aria-controls="ccs-primary-navigation"
@@ -1963,7 +1963,7 @@ function Header({
             setMenuOpen((value) => !value)
           }}
         >
-          {menuOpen ? <X size={23} /> : <Menu size={23} />}
+          {menuOpen ? <X size={21} strokeWidth={2} /> : <Menu size={21} strokeWidth={2} />}
         </button>
       </div>
 

@@ -1,0 +1,185 @@
+/*
+ * CCS mobile header polish
+ * Replaces four individually boxed actions with a compact utility group
+ * and a distinct navigation control. Matches the CCS charcoal/red palette.
+ * Imported after layout-refinement.css to resolve previous breakpoint conflicts.
+ */
+
+@media (max-width: 1180px) {
+  .site-shell .header-inner,
+  .site-shell.non-shop-ui .header-inner {
+    gap: 8px;
+  }
+
+  .site-shell .header-actions {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    gap: 1px;
+    padding: 3px;
+    margin: 0;
+    background: var(--ccs-subtle);
+    border: 1px solid var(--ccs-stroke);
+    border-radius: 10px;
+  }
+
+  /* Override earlier corporate/commerce/light/dark button skins. */
+  body:is(.dark-mode,:not(.dark-mode)) .site-shell.non-shop-ui .header-actions .ccs-header-tool,
+  body:is(.dark-mode,:not(.dark-mode)) .site-shell.commerce-ui .header-actions .ccs-header-tool {
+    appearance: none;
+    -webkit-appearance: none;
+    box-sizing: border-box;
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    min-width: 38px;
+    height: 38px;
+    min-height: 38px;
+    padding: 0;
+    margin: 0;
+    color: var(--ccs-ink);
+    background: transparent;
+    border: 0;
+    border-radius: 7px;
+    box-shadow: none;
+    font-family: var(--font-main);
+    font-size: 12px;
+    font-weight: 750;
+    line-height: 1;
+    letter-spacing: 0;
+    transition: background-color .16s ease,color .16s ease;
+  }
+
+  body:is(.dark-mode,:not(.dark-mode)) .site-shell.non-shop-ui .header-actions .ccs-header-tool:hover,
+  body:is(.dark-mode,:not(.dark-mode)) .site-shell.commerce-ui .header-actions .ccs-header-tool:hover {
+    color: var(--ccs-accent-text);
+    background: var(--ccs-panel);
+    border: 0;
+    box-shadow: none;
+  }
+
+  body:is(.dark-mode,:not(.dark-mode)) .site-shell.non-shop-ui .header-actions .ccs-header-tool:focus-visible,
+  body:is(.dark-mode,:not(.dark-mode)) .site-shell.commerce-ui .header-actions .ccs-header-tool:focus-visible {
+    outline: 2px solid #ef4136;
+    outline-offset: -2px;
+  }
+
+  /* A single typographic language code reads more cleanly on narrow screens. */
+  .site-shell .header-actions .ccs-language-tool .ccs-language-icon {
+    display: none;
+  }
+  .site-shell .header-actions .ccs-language-code {
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: .035em;
+  }
+  .site-shell .header-actions .ccs-theme-tool svg,
+  .site-shell .header-actions .ccs-search-tool svg {
+    width: 19px;
+    height: 19px;
+    stroke-width: 1.9;
+  }
+
+  /* Primary mobile navigation has one clear visual weight, not another box. */
+  .site-shell .ccs-mobile-menu-button.ccs-header-tool,
+  body:is(.dark-mode,:not(.dark-mode)) .site-shell.non-shop-ui .ccs-mobile-menu-button.ccs-header-tool,
+  body:is(.dark-mode,:not(.dark-mode)) .site-shell.commerce-ui .ccs-mobile-menu-button.ccs-header-tool {
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 42px;
+    width: 42px;
+    min-width: 42px;
+    height: 44px;
+    min-height: 44px;
+    padding: 0;
+    margin: 0 0 0 5px;
+    color: #fff;
+    background: #b72c25;
+    border: 0;
+    border-radius: 9px;
+    box-shadow: none;
+    cursor: pointer;
+    transition: background-color .16s ease;
+  }
+  .site-shell .ccs-mobile-menu-button.ccs-header-tool svg {
+    width: 21px;
+    height: 21px;
+    stroke-width: 2;
+  }
+  .site-shell .ccs-mobile-menu-button.ccs-header-tool:hover,
+  .site-shell .ccs-mobile-menu-button.ccs-header-tool[aria-expanded="true"] {
+    background: #96231d;
+    color: #fff;
+  }
+  .site-shell .ccs-mobile-menu-button.ccs-header-tool:focus-visible {
+    outline: 2px solid #ef4136;
+    outline-offset: 3px;
+  }
+}
+
+/* Keep controls visually compact while retaining usable touch targets. */
+@media (max-width: 760px) {
+  .site-shell .header-inner,
+  .site-shell.non-shop-ui .header-inner {
+    gap: 5px;
+  }
+  .site-shell .brand img {
+    width: 94px;
+    max-height: 40px;
+  }
+  .site-shell .header-actions {
+    padding: 2px;
+    gap: 0;
+    border-radius: 9px;
+  }
+  body:is(.dark-mode,:not(.dark-mode)) .site-shell.non-shop-ui .header-actions .ccs-header-tool,
+  body:is(.dark-mode,:not(.dark-mode)) .site-shell.commerce-ui .header-actions .ccs-header-tool {
+    width: 38px;
+    min-width: 38px;
+    height: 40px;
+    min-height: 40px;
+  }
+  .site-shell .ccs-mobile-menu-button.ccs-header-tool,
+  body:is(.dark-mode,:not(.dark-mode)) .site-shell.non-shop-ui .ccs-mobile-menu-button.ccs-header-tool,
+  body:is(.dark-mode,:not(.dark-mode)) .site-shell.commerce-ui .ccs-mobile-menu-button.ccs-header-tool {
+    flex-basis: 42px;
+    width: 42px;
+    min-width: 42px;
+    height: 44px;
+    min-height: 44px;
+    margin-left: 4px;
+  }
+}
+
+/* At very small widths, avoid crowding the logo; the shop can still use its
+   search field on the page and the global search remains in other routes. */
+@media (max-width: 385px) {
+  .site-shell .brand img { width: 82px; }
+  .site-shell .header-inner,
+  .site-shell.non-shop-ui .header-inner { width: calc(100% - 20px); }
+  .site-shell .header-actions { padding: 2px; }
+  body:is(.dark-mode,:not(.dark-mode)) .site-shell.non-shop-ui .header-actions .ccs-header-tool,
+  body:is(.dark-mode,:not(.dark-mode)) .site-shell.commerce-ui .header-actions .ccs-header-tool {
+    width: 36px;
+    min-width: 36px;
+  }
+  .site-shell .ccs-mobile-menu-button.ccs-header-tool,
+  body:is(.dark-mode,:not(.dark-mode)) .site-shell.non-shop-ui .ccs-mobile-menu-button.ccs-header-tool,
+  body:is(.dark-mode,:not(.dark-mode)) .site-shell.commerce-ui .ccs-mobile-menu-button.ccs-header-tool {
+    flex-basis: 40px;
+    width: 40px;
+    min-width: 40px;
+    margin-left: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-shell .header-actions .ccs-header-tool,
+  .site-shell .ccs-mobile-menu-button.ccs-header-tool { transition: none; }
+}
