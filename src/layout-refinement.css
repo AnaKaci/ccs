@@ -1882,3 +1882,23 @@ body:not(.dark-mode) .site-shell.non-shop-ui .ccs-video-only-hero > .ccs-hero-vi
   .site-shell .main-nav .nav-trigger svg { transition: none; }
   .site-shell.non-shop-ui .ccs-video-only-hero > video { animation: none; }
 }
+
+
+/* Single GIS image after removing the unrelated chat animation.
+   Legacy :last-child image rules otherwise incorrectly restrict its width. */
+.site-shell.non-shop-ui .gis-visual--single {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+.site-shell.non-shop-ui .gis-visual--single > img:first-child,
+.site-shell.non-shop-ui .gis-visual--single > img:last-child {
+  display: block;
+  grid-column: 1 / -1;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  max-height: none;
+  margin: 0;
+  object-fit: contain;
+}

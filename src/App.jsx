@@ -110,8 +110,6 @@ const ASSETS = {
   map: 'https://ccs.al/wp-content/uploads/2025/06/map.png',
   serverIcon: 'https://ccs.al/wp-content/uploads/2025/06/server.png',
   headset: 'https://ccs.al/wp-content/uploads/2025/06/customer-service-headset.png',
-  dashboardGif:
-    'https://ccs.al/wp-content/uploads/2025/06/original-435ea7f1fecdb7219320d50c44718f08-ezgif.com-effects-1.gif',
   hpLogo: 'https://ccs.al/wp-content/uploads/2025/04/HP_logo_630x630.png',
   hpPoly: 'https://ccs.al/wp-content/uploads/2025/04/HP-to-acquire-Poly-620x330-1-1-1.png',
   fortinet: 'https://ccs.al/wp-content/uploads/2025/04/fortinet-blob.png',
@@ -2449,17 +2447,6 @@ function HomePage({ copy, lang, navigate }) {
         </div>
       </div>
 
-      <section className="trusted-strip" aria-label={isAl ? 'Ekosistemi teknologjik' : 'Technology ecosystem'}>
-        <div className="trusted-strip-inner">
-          <span>{isAl ? 'Ekosistem teknologjik' : 'Trusted technology ecosystem'}</span>
-          <div>
-            {PARTNERS.slice(0, 8).map(([name, image]) => (
-              <img key={name} src={image} alt={name} />
-            ))}
-          </div>
-        </div>
-      </section>
-
       <section className="section solutions-section" id="services">
         <div className="solutions-head">
           <SectionHeading
@@ -2612,9 +2599,8 @@ function HomePage({ copy, lang, navigate }) {
       </section>
 
       <section className="section gis-section">
-        <div className="gis-visual">
+        <div className="gis-visual gis-visual--single">
           <img src={ASSETS.gis} alt="CCS GIS systems" />
-          <img src={ASSETS.dashboardGif} alt="ArcGIS dashboard preview" />
         </div>
         <div className="gis-copy">
           <SectionHeading
