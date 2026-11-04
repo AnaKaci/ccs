@@ -1,147 +1,145 @@
 /*
- * CCS partner showcase
- * Design follows the existing image-led service bento rather than the
- * former logo-left/text-right tiles. Brand: charcoal #231f20, CCS red #ef4136.
- * Four real vendor logos remain legible on restrained white logo surfaces.
+ * CCS — technology partner cards, stable responsive layout.
+ * Enterprise service-card styling with vendor logos and full-bleed photography.
+ * Two equal columns on desktop, single column on phones.
  */
-
 .site-shell.non-shop-ui .ccs-partner-section {
-  padding-top: clamp(72px, 8vw, 110px);
-  padding-bottom: clamp(78px, 8vw, 112px);
   background: var(--ccs-canvas);
+  padding-top: clamp(70px,7vw,108px);
+  padding-bottom: clamp(72px,7vw,108px);
 }
 
+/* Avoid the previous 12-column spans and mixed grid placement. */
 .site-shell.non-shop-ui .ccs-vendor-grid.ccs-partner-grid {
   display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
-  align-items: stretch;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  grid-auto-flow: row;
   grid-auto-rows: auto;
-  gap: 16px;
+  align-items: stretch;
+  gap: 18px;
   width: 100%;
+  min-width: 0;
 }
-
-.site-shell.non-shop-ui .ccs-vendor-grid.ccs-partner-grid .ccs-partner-card,
-body.dark-mode .site-shell.non-shop-ui .ccs-vendor-grid.ccs-partner-grid .ccs-partner-card,
-body:not(.dark-mode) .site-shell.non-shop-ui .ccs-vendor-grid.ccs-partner-grid .ccs-partner-card {
+.site-shell.non-shop-ui .ccs-vendor-grid.ccs-partner-grid > .ccs-partner-card,
+body.dark-mode .site-shell.non-shop-ui .ccs-vendor-grid.ccs-partner-grid > .ccs-partner-card,
+body:not(.dark-mode) .site-shell.non-shop-ui .ccs-vendor-grid.ccs-partner-grid > .ccs-partner-card {
+  display: block;
   position: relative;
   isolation: isolate;
-  display: block;
-  grid-column: span 6;
+  box-sizing: border-box;
+  grid-column: auto;
+  grid-row: auto;
+  width: 100%;
   min-width: 0;
-  min-height: 372px;
-  overflow: hidden;
+  max-width: 100%;
+  min-height: 356px;
+  height: auto;
+  margin: 0;
   padding: 0;
+  overflow: hidden;
   color: #fff;
   background: #231f20;
-  border: 1px solid rgba(35, 31, 32, .16);
+  border: 1px solid rgba(255,255,255,.13);
   border-radius: 5px;
   box-shadow: none;
   text-decoration: none;
   transform: none;
-  transition: border-color .22s ease, box-shadow .22s ease;
+  transition: border-color .2s ease, box-shadow .2s ease;
 }
-.site-shell.non-shop-ui .ccs-vendor-grid.ccs-partner-grid .ccs-partner-card--1,
-.site-shell.non-shop-ui .ccs-vendor-grid.ccs-partner-grid .ccs-partner-card--4 {
-  grid-column: span 7;
-}
-.site-shell.non-shop-ui .ccs-vendor-grid.ccs-partner-grid .ccs-partner-card--2,
-.site-shell.non-shop-ui .ccs-vendor-grid.ccs-partner-grid .ccs-partner-card--3 {
-  grid-column: span 5;
-}
-
-.site-shell.non-shop-ui .ccs-vendor-grid.ccs-partner-grid .ccs-partner-card:hover {
+.site-shell.non-shop-ui .ccs-partner-grid > .ccs-partner-card:hover {
   border-color: #ef4136;
-  box-shadow: 0 12px 34px rgba(15, 13, 15, .15);
+  box-shadow: 0 12px 30px rgba(0,0,0,.12);
   transform: none;
 }
-.site-shell.non-shop-ui .ccs-partner-card:focus-visible {
+.site-shell.non-shop-ui .ccs-partner-grid > .ccs-partner-card:focus-visible {
   outline: 3px solid #ef4136;
   outline-offset: 3px;
 }
 
+/* Explicit positive paint order prevents the image disappearing behind
+   an opaque card background in desktop browsers. */
 .site-shell.non-shop-ui .ccs-partner-grid .ccs-partner-card__media {
   position: absolute;
   inset: 0;
-  z-index: -1;
+  z-index: 0;
   overflow: hidden;
+  pointer-events: none;
 }
 .site-shell.non-shop-ui .ccs-partner-grid .ccs-partner-card__media img {
-  display: block;
   position: absolute;
   inset: 0;
+  display: block;
   width: 100%;
   height: 100%;
-  min-height: 100%;
   max-width: none;
   max-height: none;
   margin: 0;
   padding: 0;
   object-fit: cover;
   object-position: center;
-  opacity: .68;
-  filter: saturate(.68);
-  transition: transform .48s ease;
+  opacity: .64;
+  filter: saturate(.67);
+  transition: transform .35s ease;
 }
-.site-shell.non-shop-ui .ccs-partner-grid .ccs-partner-card:hover .ccs-partner-card__media img {
-  transform: scale(1.035);
+.site-shell.non-shop-ui .ccs-partner-grid > .ccs-partner-card:hover .ccs-partner-card__media img {
+  transform: scale(1.025);
 }
 .site-shell.non-shop-ui .ccs-partner-grid .ccs-partner-card__media::after {
   content: "";
   position: absolute;
   inset: 0;
+  background: linear-gradient(180deg,rgba(16,14,17,.28) 0%,rgba(16,14,17,.54) 42%,rgba(13,12,15,.96) 100%);
   pointer-events: none;
-  background:
-    linear-gradient(180deg, rgba(15, 14, 18, .34), rgba(17, 15, 18, .58) 45%, rgba(14, 13, 16, .96) 100%),
-    linear-gradient(90deg, rgba(27, 24, 27, .38), transparent 80%);
 }
-.site-shell.non-shop-ui .ccs-partner-grid .ccs-partner-card::after {
+.site-shell.non-shop-ui .ccs-partner-grid > .ccs-partner-card::after {
   content: "";
   position: absolute;
+  z-index: 2;
   top: 0;
   left: 0;
-  width: 68px;
+  width: 54px;
   height: 4px;
   background: #ef4136;
   pointer-events: none;
-  z-index: 2;
 }
 
 .site-shell.non-shop-ui .ccs-partner-grid .ccs-partner-card__inner {
   position: relative;
   z-index: 1;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 372px;
-  height: 100%;
-  box-sizing: border-box;
-  padding: 27px 30px 29px;
+  min-height: 356px;
+  width: 100%;
+  min-width: 0;
+  padding: 26px 29px 27px;
   gap: 36px;
 }
 .site-shell.non-shop-ui .ccs-partner-grid .ccs-partner-card__top {
   display: flex;
-  justify-content: space-between;
   align-items: flex-start;
+  justify-content: space-between;
   gap: 16px;
 }
 .site-shell.non-shop-ui .ccs-partner-grid .ccs-partner-card__logo {
-  display: flex;
-  justify-content: center;
-  align-items: center;
   box-sizing: border-box;
+  display: flex;
   flex: 0 0 auto;
-  width: 162px;
-  height: 82px;
-  max-width: 60%;
+  align-items: center;
+  justify-content: center;
+  width: 156px;
+  height: 78px;
+  max-width: 65%;
   min-width: 0;
   margin: 0;
-  padding: 14px 18px;
+  padding: 12px 18px;
   overflow: hidden;
-  border: 1px solid rgba(255,255,255,.82);
-  border-radius: 4px;
   background: #fff;
-  color: #231f20;
+  border: 1px solid #fff;
+  border-radius: 4px;
   box-shadow: none;
+  color: #231f20;
 }
 .site-shell.non-shop-ui .ccs-partner-grid .ccs-partner-card__logo img {
   display: block;
@@ -152,151 +150,116 @@ body:not(.dark-mode) .site-shell.non-shop-ui .ccs-vendor-grid.ccs-partner-grid .
   margin: 0;
   padding: 0;
   object-fit: contain;
-  object-position: center;
   filter: none;
 }
 .site-shell.non-shop-ui .ccs-partner-grid .ccs-partner-card__index {
   display: inline-block;
-  align-self: flex-start;
   margin: 0;
   padding: 0;
-  color: rgba(255,255,255,.74);
+  color: rgba(255,255,255,.76);
   font-size: 12px;
-  line-height: 1.25;
-  font-weight: 750;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: .07em;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: .06em;
 }
-
 .site-shell.non-shop-ui .ccs-partner-grid .ccs-partner-card__body {
-  max-width: 490px;
+  min-width: 0;
+  max-width: 500px;
 }
 .site-shell.non-shop-ui .ccs-partner-grid .ccs-partner-card__body h3,
 body.dark-mode .site-shell.non-shop-ui .ccs-partner-grid .ccs-partner-card__body h3,
 body:not(.dark-mode) .site-shell.non-shop-ui .ccs-partner-grid .ccs-partner-card__body h3 {
-  margin: 0 0 11px;
+  margin: 0 0 10px;
+  padding: 0;
   color: #fff;
-  font-family: var(--font-main);
+  font-size: clamp(23px,2.2vw,29px);
   font-weight: 750;
-  font-size: clamp(24px, 2.7vw, 31px);
   line-height: 1.2;
-  letter-spacing: -.035em;
+  letter-spacing: -.025em;
 }
 .site-shell.non-shop-ui .ccs-partner-grid .ccs-partner-card__body p,
 body.dark-mode .site-shell.non-shop-ui .ccs-partner-grid .ccs-partner-card__body p,
 body:not(.dark-mode) .site-shell.non-shop-ui .ccs-partner-grid .ccs-partner-card__body p {
   margin: 0;
-  max-width: 460px;
-  color: #e4dfe1;
+  padding: 0;
+  color: #e5e0e2;
   font-size: 14px;
-  font-weight: 450;
   line-height: 1.62;
   overflow-wrap: break-word;
 }
-
 .site-shell.non-shop-ui .ccs-partner-grid .ccs-partner-card__link,
 body.dark-mode .site-shell.non-shop-ui .ccs-partner-grid .ccs-partner-card__link,
 body:not(.dark-mode) .site-shell.non-shop-ui .ccs-partner-grid .ccs-partner-card__link {
   display: inline-flex;
   align-items: center;
   gap: 9px;
-  width: max-content;
-  max-width: 100%;
   min-height: 32px;
+  max-width: 100%;
+  width: auto;
+  margin: 17px 0 0;
   padding: 0;
-  margin: 19px 0 0;
   color: #fff;
   font-size: 13px;
   font-weight: 750;
   line-height: 1.3;
-  text-decoration: none;
 }
 .site-shell.non-shop-ui .ccs-partner-grid .ccs-partner-card__link svg {
-  flex: 0 0 auto;
-  color: #ff8a82;
+  flex-shrink: 0;
+  color: #ff8880;
   transition: transform .2s ease;
 }
-.site-shell.non-shop-ui .ccs-partner-grid .ccs-partner-card:hover .ccs-partner-card__link svg {
+.site-shell.non-shop-ui .ccs-partner-grid > .ccs-partner-card:hover .ccs-partner-card__link svg {
   transform: translateX(4px);
 }
 
+/* Two cards per row on typical desktop/tablet widths. */
+@media (min-width: 981px) {
+  .site-shell.non-shop-ui .ccs-vendor-grid.ccs-partner-grid {
+    grid-template-columns: repeat(2,minmax(0,1fr));
+  }
+  .site-shell.non-shop-ui .ccs-vendor-grid.ccs-partner-grid > .ccs-partner-card {
+    grid-column: auto;
+  }
+}
 @media (max-width: 980px) {
   .site-shell.non-shop-ui .ccs-vendor-grid.ccs-partner-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(2,minmax(0,1fr));
     gap: 14px;
   }
-  .site-shell.non-shop-ui .ccs-vendor-grid.ccs-partner-grid .ccs-partner-card {
-    grid-column: auto;
-    min-height: 350px;
-  }
-  .site-shell.non-shop-ui .ccs-partner-grid .ccs-partner-card__inner {
-    min-height: 350px;
-    padding: 24px;
-  }
-  .site-shell.non-shop-ui .ccs-partner-grid .ccs-partner-card__body h3 {
-    font-size: 25px;
-  }
+  .site-shell.non-shop-ui .ccs-partner-grid .ccs-partner-card__inner { padding: 22px; }
 }
-
 @media (max-width: 760px) {
   .site-shell.non-shop-ui .ccs-partner-section {
-    padding: 57px var(--ccs-mobile-gutter,20px) 65px;
+    padding: 56px var(--ccs-mobile-gutter,20px) 64px;
   }
   .site-shell.non-shop-ui .ccs-vendor-grid.ccs-partner-grid {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: minmax(0,1fr);
     gap: 12px;
   }
-  .site-shell.non-shop-ui .ccs-vendor-grid.ccs-partner-grid .ccs-partner-card,
-  .site-shell.non-shop-ui .ccs-vendor-grid.ccs-partner-grid .ccs-partner-card--1,
-  .site-shell.non-shop-ui .ccs-vendor-grid.ccs-partner-grid .ccs-partner-card--2,
-  .site-shell.non-shop-ui .ccs-vendor-grid.ccs-partner-grid .ccs-partner-card--3,
-  .site-shell.non-shop-ui .ccs-vendor-grid.ccs-partner-grid .ccs-partner-card--4 {
+  .site-shell.non-shop-ui .ccs-vendor-grid.ccs-partner-grid > .ccs-partner-card {
     grid-column: 1;
-    min-height: 310px;
-    width: 100%;
+    min-height: 305px;
   }
   .site-shell.non-shop-ui .ccs-partner-grid .ccs-partner-card__inner {
-    min-height: 310px;
-    padding: 21px 22px 22px;
-    gap: 20px;
+    min-height: 305px;
+    gap: 18px;
+    padding: 20px 21px;
   }
   .site-shell.non-shop-ui .ccs-partner-grid .ccs-partner-card__logo {
-    width: 142px;
-    height: 72px;
+    width: 138px;
+    height: 70px;
     padding: 12px 15px;
   }
-  .site-shell.non-shop-ui .ccs-partner-grid .ccs-partner-card__body h3 {
-    font-size: 25px;
-    margin-bottom: 7px;
-  }
-  .site-shell.non-shop-ui .ccs-partner-grid .ccs-partner-card__body p {
-    font-size: 13px;
-    line-height: 1.56;
-    max-width: 440px;
-  }
-  .site-shell.non-shop-ui .ccs-partner-grid .ccs-partner-card__link {
-    margin-top: 12px;
-    font-size: 13px;
-  }
+  .site-shell.non-shop-ui .ccs-partner-grid .ccs-partner-card__body h3 { font-size: 24px; }
+  .site-shell.non-shop-ui .ccs-partner-grid .ccs-partner-card__body p { font-size: 13px; line-height: 1.55; }
+  .site-shell.non-shop-ui .ccs-partner-grid .ccs-partner-card__link { margin-top: 13px; }
 }
 @media (max-width: 390px) {
-  .site-shell.non-shop-ui .ccs-vendor-grid.ccs-partner-grid .ccs-partner-card {
-    min-height: 300px;
-  }
-  .site-shell.non-shop-ui .ccs-partner-grid .ccs-partner-card__inner {
-    min-height: 300px;
-    padding: 18px;
-  }
-  .site-shell.non-shop-ui .ccs-partner-grid .ccs-partner-card__logo {
-    width: 134px;
-    height: 68px;
-  }
-  .site-shell.non-shop-ui .ccs-partner-grid .ccs-partner-card__body h3 {
-    font-size: 23px;
-  }
+  .site-shell.non-shop-ui .ccs-partner-grid .ccs-partner-card__inner { padding: 18px; }
+  .site-shell.non-shop-ui .ccs-partner-grid .ccs-partner-card__logo { width: 130px; height: 65px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .site-shell.non-shop-ui .ccs-partner-grid .ccs-partner-card,
+  .site-shell.non-shop-ui .ccs-partner-grid > .ccs-partner-card,
   .site-shell.non-shop-ui .ccs-partner-grid .ccs-partner-card__media img,
   .site-shell.non-shop-ui .ccs-partner-grid .ccs-partner-card__link svg {
     transition: none;
