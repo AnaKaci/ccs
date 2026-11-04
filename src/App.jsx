@@ -48,6 +48,7 @@ import './theme-fixes.css'
 import './professional-redesign.css'
 import './layout-refinement.css'
 import './header-polish.css'
+import './partner-cards.css'
 
 const ROUTE_SEGMENTS = [
   'shop',
@@ -544,29 +545,37 @@ const RECOMMENDED = [
     title: 'HP',
     alTitle: 'HP',
     image: ASSETS.hpLogo,
+    backdrop: ASSETS.solutionStorage,
     to: '/products-hp/',
     body: 'Reliable HP workstations, laptops, printers, displays, and business hardware.',
+    alBody: 'Pajisje HP për biznesin: workstation, laptopë, printerë dhe ekrane.',
   },
   {
     title: 'HP Poly',
     alTitle: 'HP Poly',
     image: ASSETS.hpPoly,
+    backdrop: ASSETS.support,
     to: '/hp-poly/',
     body: 'Modern collaboration, conferencing, headsets, and meeting-room devices.',
+    alBody: 'Zgjidhje moderne për bashkëpunim, video-konferenca dhe pajisje për salla takimesh.',
   },
   {
     title: 'Fortinet',
     alTitle: 'Fortinet',
     image: ASSETS.fortinet,
+    backdrop: ASSETS.solutionSecurity,
     to: '/fortinet/',
     body: 'Network protection, firewalls, secure access, and threat intelligence.',
+    alBody: 'Mbrojtje rrjeti, firewall, akses i sigurt dhe inteligjencë ndaj kërcënimeve.',
   },
   {
     title: 'Cisco',
     alTitle: 'Cisco',
     image: ASSETS.cisco,
+    backdrop: ASSETS.solutionNetwork,
     to: '/cisco/',
     body: 'Enterprise networking, switching, wireless, and collaboration systems.',
+    alBody: 'Rrjete për biznesin, switching, wireless dhe sisteme bashkëpunimi.',
   },
 ]
 
@@ -2642,23 +2651,42 @@ function HomePage({ copy, lang, navigate }) {
         />
       </section>
 
-      <section className="section recommended-section">
+      <section className="section recommended-section ccs-partner-section">
         <SectionHeading
-          eyebrow={isAl ? 'Zgjidhje nga furnizuesit' : 'Vendor solutions'}
-          title={copy.home.recommendedTitle}
-          text={copy.home.recommendedIntro}
+          eyebrow={isAl ? 'Partnerët teknologjikë' : 'Technology partners'}
+          title={isAl ? 'Zgjidhje nga partnerët tanë' : 'Solutions from our technology partners'}
+          text={isAl
+            ? 'Eksploroni zgjidhjet profesionale të HP, HP Poly, Fortinet dhe Cisco.'
+            : 'Explore enterprise solutions from HP, HP Poly, Fortinet and Cisco.'}
         />
-        <div className="recommended-grid ccs-vendor-grid">
-          {RECOMMENDED.map((item) => (
-            <AppLink to={item.to} navigate={navigate} className="recommended-card" key={item.title}>
-              <div className="ccs-vendor-grid__mark"><img src={item.image} alt={item.title} loading="lazy" /></div>
-              <div className="ccs-vendor-grid__content">
-                <h3>{titleFor(item, lang)}</h3>
-                <p>{item.body}</p>
-                <span>
-                  {copy.common.learnMore}
-                  <ArrowRight size={16} />
-                </span>
+        <div className="recommended-grid ccs-vendor-grid ccs-partner-grid">
+          {RECOMMENDED.map((item, index) => (
+            <AppLink
+              to={item.to}
+              navigate={navigate}
+              className={`recommended-card ccs-partner-card ccs-partner-card--${index + 1}`}
+              key={item.title}
+            >
+              <div className="ccs-partner-card__media" aria-hidden="true">
+                <img src={item.backdrop} alt="" loading="lazy" />
+              </div>
+              <div className="ccs-partner-card__inner">
+                <div className="ccs-partner-card__top">
+                  <span className="ccs-partner-card__logo">
+                    <img src={item.image} alt={`${item.title} logo`} loading="lazy" />
+                  </span>
+                  <span className="ccs-partner-card__index" aria-hidden="true">
+                    {String(index + 1).padStart(2, '0')}
+                  </span>
+                </div>
+                <div className="ccs-partner-card__body">
+                  <h3>{titleFor(item, lang)}</h3>
+                  <p>{lang === 'al' ? item.alBody : item.body}</p>
+                  <strong className="ccs-partner-card__link">
+                    {copy.common.learnMore}
+                    <ArrowRight size={17} />
+                  </strong>
+                </div>
               </div>
             </AppLink>
           ))}
