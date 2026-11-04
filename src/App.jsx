@@ -1803,6 +1803,28 @@ function Header({
     if (!menuOpen) setOpenDropdown(null)
   }, [menuOpen])
 
+  // Close any open mobile navigation when the route changes.
+  useEffect(() => {
+    setMenuOpen(false)
+    setOpenDropdown(null)
+    setSearchOpen(false)
+  }, [route.path])
+
+  // A fully open mobile menu should not scroll the page behind it.
+  useEffect(() => {
+    if (!menuOpen) return undefined
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    const onEscape = (event) => {
+      if (event.key === 'Escape') setMenuOpen(false)
+    }
+    document.addEventListener('keydown', onEscape)
+    return () => {
+      document.body.style.overflow = previousOverflow
+      document.removeEventListener('keydown', onEscape)
+    }
+  }, [menuOpen])
+
   const isActiveTo = (to) => {
     const [path, hash] = to.split('#')
     const normalizedPath = path || '/'
@@ -1830,16 +1852,9 @@ function Header({
           <img src={darkMode ? ASSETS.logoDark : ASSETS.logoLight} alt="C.C.S" />
         </AppLink>
 
-        <button
-          className="icon-button mobile-only"
-          type="button"
-          aria-label={menuOpen ? copy.common.closeMenu : copy.common.openMenu}
-          onClick={() => setMenuOpen((value) => !value)}
-        >
-          {menuOpen ? <X size={22} /> : <Menu size={22} />}
-        </button>
 
-        <nav className={`main-nav ${menuOpen ? 'is-open' : ''}`} aria-label="Main navigation">
+
+        <nav id="ccs-primary-navigation" className={`main-nav ${menuOpen ? 'is-open' : ''}`} aria-label="Main navigation">
           {NAV_GROUPS.map((group) => {
             const groupOpen = openDropdown === group.labelKey
             return group.children ? (
@@ -1899,7 +1914,10 @@ function Header({
             className="icon-button"
             type="button"
             aria-label={copy.common.shopSearch}
-            onClick={() => setSearchOpen(true)}
+            onClick={() => {
+              setMenuOpen(false)
+              setSearchOpen(true)
+            }}
           >
             <Search size={19} />
           </button>
@@ -1934,6 +1952,19 @@ function Header({
             {lang === 'en' ? 'AL' : 'EN'}
           </button>
         </div>
+        <button
+          className="icon-button mobile-only ccs-mobile-menu-button"
+          type="button"
+          aria-label={menuOpen ? copy.common.closeMenu : copy.common.openMenu}
+          aria-controls="ccs-primary-navigation"
+          aria-expanded={menuOpen}
+          onClick={() => {
+            setSearchOpen(false)
+            setMenuOpen((value) => !value)
+          }}
+        >
+          {menuOpen ? <X size={23} /> : <Menu size={23} />}
+        </button>
       </div>
 
       {searchOpen && (
@@ -2395,54 +2426,19 @@ function HomePage({ copy, lang, navigate }) {
 
   return (
     <>
-      <section className="ccs-command-hero ccs-command-hero--video" aria-label="CCS">
-        <div className="ccs-hero-content">
-          <div className="terminal-badge">
-            <span className="ccs-eyebrow-line" aria-hidden="true" />
-            {isAl ? 'PARTNERI JUAJ I TEKNOLOGJISË' : 'YOUR TECHNOLOGY PARTNER'}
-          </div>
-          <h1>
-            {isAl ? 'Teknologjia e mirë,' : 'Good technology'}{' '}
-            <span>{isAl ? 'shtyn kufijtë e të pamundurës.' : 'pushes the limits of the impossible.'}</span>
-          </h1>
-          <p>{copy.home.heroText}</p>
-          <div className="hero-actions">
-            <AppLink to="/#services" navigate={navigate} className="primary-action">
-              {isAl ? 'Zbuloni shërbimet' : 'Explore our services'}
-              <ArrowRight size={17} />
-            </AppLink>
-            <a href="mailto:info@ccs.al" className="secondary-action">
-              {isAl ? 'Na kontaktoni' : 'Contact our team'}
-            </a>
-          </div>
-          <div className="ccs-hero-credibility">
-            <strong>1993</strong>
-            <span>{isAl ? 'Teknologji dhe shërbime IT në Shqipëri' : 'Technology and IT services in Albania'}</span>
-          </div>
-        </div>
-        <div className="ccs-hero-video-panel">
-          <video
-            className="ccs-hero-video"
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="metadata"
-            aria-hidden="true"
-            tabIndex={-1}
-          >
-            <source src={ASSETS.heroVideo} type="video/mp4" />
-          </video>
-          <div className="ccs-video-corner" aria-hidden="true" />
-          <div className="ccs-video-caption">
-            <span>{isAl ? 'RRJETET / SISTEMET / SIGURIA' : 'NETWORKS / SYSTEMS / SECURITY'}</span>
-            <span>CCS</span>
-          </div>
-        </div>
-        <div className="hero-system-mark" aria-hidden="true">
-          <span>CCS</span>
-          <span>TIRANA, ALBANIA</span>
-        </div>
+      <section className="ccs-command-hero ccs-command-hero--video ccs-video-only-hero" aria-label={isAl ? 'Video prezantuese CCS' : 'CCS company video'}>
+        <video
+          className="ccs-hero-video ccs-hero-video--full"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          aria-hidden="true"
+          tabIndex={-1}
+        >
+          <source src={ASSETS.heroVideo} type="video/mp4" />
+        </video>
       </section>
 
       <div className="ccs-expertise-strip" aria-label={isAl ? 'Fushat e ekspertizës' : 'Areas of expertise'}>
