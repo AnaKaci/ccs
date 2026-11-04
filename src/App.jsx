@@ -46,6 +46,7 @@ import './App.css'
 import './design-consistency.css'
 import './theme-fixes.css'
 import './professional-redesign.css'
+import './layout-refinement.css'
 
 const ROUTE_SEGMENTS = [
   'shop',
@@ -1890,6 +1891,10 @@ function Header({
         </nav>
 
         <div className="header-actions">
+          <AppLink to="/#contact" navigate={navigate} className="ccs-header-cta">
+            {lang === 'al' ? 'Flisni me ne' : 'Get in touch'}
+            <ArrowRight size={15} />
+          </AppLink>
           <button
             className="icon-button"
             type="button"
@@ -2393,7 +2398,8 @@ function HomePage({ copy, lang, navigate }) {
       <section className="ccs-command-hero ccs-command-hero--video" aria-label="CCS">
         <div className="ccs-hero-content">
           <div className="terminal-badge">
-            {isAl ? 'PARTNERI JUAJ I TEKNOLOGJISE' : 'YOUR TECHNOLOGY PARTNER'}
+            <span className="ccs-eyebrow-line" aria-hidden="true" />
+            {isAl ? 'PARTNERI JUAJ I TEKNOLOGJISË' : 'YOUR TECHNOLOGY PARTNER'}
           </div>
           <h1>
             {isAl ? 'Teknologjia e mirë,' : 'Good technology'}{' '}
@@ -2409,6 +2415,10 @@ function HomePage({ copy, lang, navigate }) {
               {isAl ? 'Na kontaktoni' : 'Contact our team'}
             </a>
           </div>
+          <div className="ccs-hero-credibility">
+            <strong>1993</strong>
+            <span>{isAl ? 'Teknologji dhe shërbime IT në Shqipëri' : 'Technology and IT services in Albania'}</span>
+          </div>
         </div>
         <div className="ccs-hero-video-panel">
           <video
@@ -2423,6 +2433,11 @@ function HomePage({ copy, lang, navigate }) {
           >
             <source src={ASSETS.heroVideo} type="video/mp4" />
           </video>
+          <div className="ccs-video-corner" aria-hidden="true" />
+          <div className="ccs-video-caption">
+            <span>{isAl ? 'RRJETET / SISTEMET / SIGURIA' : 'NETWORKS / SYSTEMS / SECURITY'}</span>
+            <span>CCS</span>
+          </div>
         </div>
         <div className="hero-system-mark" aria-hidden="true">
           <span>CCS</span>
@@ -2437,45 +2452,6 @@ function HomePage({ copy, lang, navigate }) {
           ))}
         </div>
       </div>
-
-      <section className="section ccs-metrics-section">
-        <div className="metrics-copy">
-          <Kicker>{isAl ? 'Rreth CCS' : 'About CCS'}</Kicker>
-          <h2>{isAl ? 'Ekspertizë teknologjike për biznesin.' : 'Technical expertise for your business.'}</h2>
-          <p>
-            {isAl
-              ? 'Që nga viti 1993, CCS ofron zgjidhje dhe shërbime të teknologjisë së informacionit për organizata në Shqipëri, nga infrastruktura e rrjetit te siguria, sistemet dhe suporti.'
-              : 'Since 1993, CCS has provided technology solutions and IT services in Albania, covering network infrastructure, cybersecurity, enterprise systems and technical support.'}
-          </p>
-          <a className="ccs-inline-link" href="#about">
-            {isAl ? 'Mësoni më shumë për CCS' : 'Learn more about CCS'}
-            <ArrowRight size={17} />
-          </a>
-        </div>
-        <div className="ccs-overview-areas">
-          <article>
-            <span>01</span>
-            <div>
-              <h3>{isAl ? 'Siguri dhe rrjete' : 'Security & networking'}</h3>
-              <p>{isAl ? 'Projektim, mbrojtje dhe lidhje të qëndrueshme.' : 'Network design, protection and connectivity.'}</p>
-            </div>
-          </article>
-          <article>
-            <span>02</span>
-            <div>
-              <h3>{isAl ? 'Sisteme dhe infrastrukturë' : 'Systems & infrastructure'}</h3>
-              <p>{isAl ? 'Servera, storage dhe sisteme IT për biznesin.' : 'Servers, storage and enterprise IT infrastructure.'}</p>
-            </div>
-          </article>
-          <article>
-            <span>03</span>
-            <div>
-              <h3>{isAl ? 'GIS dhe suport' : 'GIS & technical support'}</h3>
-              <p>{isAl ? 'Sisteme gjeohapësinore dhe asistencë teknike.' : 'Geospatial systems and ongoing technical assistance.'}</p>
-            </div>
-          </article>
-        </div>
-      </section>
 
       <section className="trusted-strip" aria-label={isAl ? 'Ekosistemi teknologjik' : 'Technology ecosystem'}>
         <div className="trusted-strip-inner">
@@ -2505,29 +2481,32 @@ function HomePage({ copy, lang, navigate }) {
           </AppLink>
         </div>
 
-        <div className="service-grid">
-          {SERVICES.map((service) => {
+        <div className="service-grid ccs-bento-services">
+          {SERVICES.map((service, index) => {
             const Icon = service.icon
             return (
               <AppLink
                 to={service.to}
                 navigate={navigate}
-                className="service-card"
+                className={`service-card ccs-service-tile ccs-service-tile--${index + 1}`}
                 key={service.key}
               >
-                <span className="service-icon">
-                  <Icon size={24} />
-                </span>
-                <div className="service-card-copy">
-                  <h2>{titleFor(service, lang)}</h2>
-                  <p>{lang === 'al' ? service.alShort : service.short}</p>
-                  <strong>
-                    {copy.common.learnMore}
-                    <ArrowRight size={16} />
-                  </strong>
+                <div className="ccs-service-tile__media" aria-hidden="true">
+                  <img src={service.image} alt="" loading="lazy" />
                 </div>
-                <div className="service-image">
-                  <img src={service.image} alt="" />
+                <div className="ccs-service-tile__content">
+                  <div className="ccs-service-tile__top">
+                    <span className="ccs-service-tile__number">{String(index + 1).padStart(2, '0')}</span>
+                    <span className="service-icon"><Icon size={23} /></span>
+                  </div>
+                  <div className="ccs-service-tile__copy">
+                    <h2>{titleFor(service, lang)}</h2>
+                    <p>{lang === 'al' ? service.alShort : service.short}</p>
+                    <strong>
+                      {copy.common.learnMore}
+                      <ArrowRight size={17} />
+                    </strong>
+                  </div>
                 </div>
               </AppLink>
             )
@@ -2597,6 +2576,45 @@ function HomePage({ copy, lang, navigate }) {
         </div>
       </section>
 
+      <section className="section case-preview-section">
+        <div className="case-preview-head">
+          <SectionHeading
+            eyebrow={copy.nav.caseStudies}
+            title={isAl ? 'Implementime ne industri kritike.' : 'Work across critical industries.'}
+            text={
+              isAl
+                ? 'Raste qe tregojne implementime IT dhe GIS ne industri te ndryshme.'
+                : 'Selected case studies from IT infrastructure, cybersecurity, telecom, energy, defense, agriculture, and GIS work.'
+            }
+          />
+          <AppLink to="/case-studies/" navigate={navigate} className="text-link">
+            {copy.nav.caseStudies}
+            <ArrowRight size={16} />
+          </AppLink>
+        </div>
+        <div className="case-grid ccs-case-gallery">
+          {CASE_STUDIES.slice(0, 3).map((item, index) => (
+            <AppLink
+              to={item.path}
+              navigate={navigate}
+              className={`case-card ccs-case-gallery__item ccs-case-gallery__item--${index + 1}`}
+              key={item.path}
+            >
+              <div className="ccs-case-gallery__art">
+                <span>{String(index + 1).padStart(2, '0')}</span>
+                <img src={item.image} alt="" loading="lazy" />
+              </div>
+              <div className="ccs-case-gallery__copy">
+                <span className="ccs-case-gallery__industry">{item.industry}</span>
+                <h3>{item.title}</h3>
+                <p>{item.body}</p>
+                <strong>{isAl ? 'Shiko projektin' : 'Explore case study'} <ArrowRight size={17}/></strong>
+              </div>
+            </AppLink>
+          ))}
+        </div>
+      </section>
+
       <section className="section gis-section">
         <div className="gis-visual">
           <img src={ASSETS.gis} alt="CCS GIS systems" />
@@ -2628,18 +2646,6 @@ function HomePage({ copy, lang, navigate }) {
         </div>
       </section>
 
-      <section className="contact-ribbon">
-        <h2>{copy.home.serviceContactTitle}</h2>
-        <a href="mailto:info@ccs.al">
-          <Mail size={18} />
-          info@ccs.al
-        </a>
-        <a href="tel:+35542259005">
-          <Phone size={18} />
-          + 04 225 9005
-        </a>
-      </section>
-
       <section className="section partners-section" id="partners">
         <SectionHeading
           eyebrow={isAl ? 'Partneret' : 'Partner ecosystem'}
@@ -2660,44 +2666,18 @@ function HomePage({ copy, lang, navigate }) {
           title={copy.home.recommendedTitle}
           text={copy.home.recommendedIntro}
         />
-        <div className="recommended-grid">
+        <div className="recommended-grid ccs-vendor-grid">
           {RECOMMENDED.map((item) => (
             <AppLink to={item.to} navigate={navigate} className="recommended-card" key={item.title}>
-              <img src={item.image} alt={item.title} loading="lazy" />
-              <h3>{titleFor(item, lang)}</h3>
-              <p>{item.body}</p>
-              <span>
-                {copy.common.learnMore}
-                <ArrowRight size={16} />
-              </span>
-            </AppLink>
-          ))}
-        </div>
-      </section>
-
-      <section className="section case-preview-section">
-        <div className="case-preview-head">
-          <SectionHeading
-            eyebrow={copy.nav.caseStudies}
-            title={isAl ? 'Implementime ne industri kritike.' : 'Work across critical industries.'}
-            text={
-              isAl
-                ? 'Raste qe tregojne implementime IT dhe GIS ne industri te ndryshme.'
-                : 'Selected case studies from IT infrastructure, cybersecurity, telecom, energy, defense, agriculture, and GIS work.'
-            }
-          />
-          <AppLink to="/case-studies/" navigate={navigate} className="text-link">
-            {copy.nav.caseStudies}
-            <ArrowRight size={16} />
-          </AppLink>
-        </div>
-        <div className="case-grid">
-          {CASE_STUDIES.slice(0, 3).map((item) => (
-            <AppLink to={item.path} navigate={navigate} className="case-card" key={item.path}>
-              <img src={item.image} alt="" loading="lazy" />
-              <span>{item.industry}</span>
-              <h3>{item.title}</h3>
-              <p>{item.body}</p>
+              <div className="ccs-vendor-grid__mark"><img src={item.image} alt={item.title} loading="lazy" /></div>
+              <div className="ccs-vendor-grid__content">
+                <h3>{titleFor(item, lang)}</h3>
+                <p>{item.body}</p>
+                <span>
+                  {copy.common.learnMore}
+                  <ArrowRight size={16} />
+                </span>
+              </div>
             </AppLink>
           ))}
         </div>
