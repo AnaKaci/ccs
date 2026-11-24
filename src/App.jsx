@@ -127,7 +127,7 @@ const ASSETS = {
   iso27001: 'https://ccs.al/wp-content/uploads/2025/02/Logo-ISO-27001-1.png',
 }
 
-const COMMERCE_ROUTE_PREFIXES = ['/shop/', '/products/', '/products-hp/', '/hp-poly/', '/product/', '/product-category/', '/cart/', '/checkout/', '/account/', '/profile/']
+const COMMERCE_ROUTE_PREFIXES = ['/shop/', '/products/', '/products-hp/', '/hp-poly/', '/product/', '/product-category/', '/cart/', '/checkout/']
 
 function isCommerceRoute(path) {
   return COMMERCE_ROUTE_PREFIXES.some((prefix) => path === prefix || path.startsWith(prefix))
@@ -865,8 +865,6 @@ const SOLUTION_CONTENT = {
 }
 
 const AUTH_PAGES = {
-  '/profile/': ['Profile', 'View and manage your customer profile.'],
-  '/account/': ['Account', 'Review account details and saved information.'],
   '/checkout/': ['Checkout', 'Complete your order details.'],
 }
 
