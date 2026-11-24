@@ -46,7 +46,7 @@ import HPSyndication from './components/syndication/HPSyndication'
 import VendorSolutionLayout from './components/vendor/VendorSolutionLayout'
 import { useCart } from './cart'
 import { useSiteMotion } from './motion'
-import { CSV_CATALOG_META, CSV_PRODUCTS } from './data/catalog'
+import { CSV_PRODUCTS } from './data/catalog'
 import './App.css'
 import './design-consistency.css'
 import './theme-fixes.css'
@@ -914,90 +914,231 @@ function descriptionLines(html) {
     .filter(Boolean)
 }
 
-function storePriceLabel(prices) {
-  if (!prices?.price) return ''
-  const amount = Number(prices.price)
-  if (!Number.isFinite(amount) || amount <= 0) return ''
-
-  return `${new Intl.NumberFormat('sq-AL', {
-    maximumFractionDigits: prices.currency_minor_unit || 0,
-  }).format(amount)} ${prices.currency_symbol || prices.currency_code || ''}`.trim()
-}
-
 function inferProductKind(categories = []) {
   const links = categories.map((category) => category.link || '').join(' ')
   const slugs = categories.map((category) => category.slug)
 
   if (links.includes('/software/') || slugs.includes('software')) return 'software'
   if (links.includes('/hardware/') || slugs.includes('hardware')) return 'hardware'
-  if (slugs.some((slug) => ['security', 'backup', 'office', 'productivity-business-applications'].includes(slug))) {
+  if (
+    slugs.some((slug) =>
+      ['security', 'backup', 'office', 'email', 'gis', 'productivity-business-applications', 'data-analysis-siem-solutions'].includes(slug),
+    )
+  ) {
     return 'software'
   }
   return 'hardware'
 }
 
 function inferProductCategory(categories = [], kind = 'hardware') {
-  const slugs = categories.map((category) => category.slug)
   if (kind === 'software') return 'software'
-  if (slugs.some((slug) => ['desktop', 'aio'].includes(slug))) return 'desktop'
-  if (slugs.includes('laptop')) return 'laptop'
-  if (slugs.some((slug) => ['monitor', 'monitors'].includes(slug))) return 'monitor'
-  if (slugs.some((slug) => ['printer', 'printers'].includes(slug))) return 'printer'
-  if (slugs.some((slug) => ['network', 'adapter', 'charger-adapter'].includes(slug))) return 'network'
-  if (slugs.includes('accessories')) return 'accessories'
-  return 'hardware'
+  const slugs = categories.map((category) => category.slug)
+  const links = categories.map((category) => category.link || '').join(' ')
+  const has = (...keys) => keys.some((key) => slugs.includes(key) || links.includes(`/${key}/`))
+
+  if (has('desktop', 'desktops', 'aio')) return 'desktop'
+  if (has('laptop', 'laptops', 'notebook')) return 'laptop'
+  if (has('monitor', 'monitors')) return 'monitor'
+  if (has('printer', 'printers', 'printer-mfp')) return 'printer'
+  return 'accessories'
 }
 
-function normalizeStoreProduct(item) {
-  const categories = item.categories || []
-  const brands = item.brands || []
-  const kind = inferProductKind(categories)
-  const category = inferProductCategory(categories, kind)
-  const description = descriptionLines(item.description || item.short_description || '')
-  const priceLabel = kind === 'software' ? '' : storePriceLabel(item.prices)
-  const priceValue = kind === 'software' ? null : Number(item.prices?.price || 0)
-  const image = item.images?.[0]?.src || ASSETS.favicon
-  const tokens = [
-    kind,
-    category,
-    item.slug,
-    item.name,
-    ...categories.flatMap((cat) => [cat.slug, cat.name]),
-    ...brands.flatMap((brand) => [brand.slug, brand.name]),
-    ...description,
-  ]
-    .join(' ')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, ' ')
-    .split(/\s+/)
-    .filter(Boolean)
+function formatLekLabel(amount) {
+  return `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(amount)} LEK`
+}
+
+function storeAmount(prices, value) {
+  const amount = Number(value)
+  if (!Number.isFinite(amount) || amount <= 0) return null
+  return amount / 10 ** (prices?.currency_minor_unit || 0)
+}
+
+function cleanAttributeValue(value = '') {
+  return stripHtml(String(value)).replace(/^["'\s]+|["'\s]+$/g, '')
+}
+
+function normalizeStoreVariation(variation, parent, entry, attributeName) {
+  const prices = variation.prices || {}
+  const price = storeAmount(prices, prices.price)
+  const regularPrice = storeAmount(prices, prices.regular_price)
+  const attributeValue = cleanAttributeValue(entry?.attributes?.[0]?.value || variation.variation || '')
+  const images = (variation.images || []).map((image) => image.src).filter(Boolean)
+  const ownImages = images.length && images[0] !== parent.image ? images : []
 
   return {
-    id: item.id,
-    slug: item.slug,
-    name: stripHtml(item.name),
-    price: priceValue,
-    priceLabel,
-    image,
-    gallery: item.images?.map((entry) => entry.src).filter(Boolean) || [image],
-    tokens,
-    category,
-    kind,
-    brand: brands[0]?.name || 'CCS',
-    categories,
-    brands,
-    description,
-    originalUrl: item.permalink,
-    onSale: item.on_sale,
-    regularPriceLabel:
-      kind === 'software' || item.prices?.regular_price === item.prices?.price
-        ? ''
-        : storePriceLabel({ ...item.prices, price: item.prices?.regular_price }),
+    id: variation.id,
+    name: attributeValue ? `${parent.name} - ${attributeValue}` : parent.name,
+    price,
+    priceLabel: price ? formatLekLabel(price) : '',
+    regularPrice,
+    regularPriceLabel: regularPrice && price && regularPrice > price ? formatLekLabel(regularPrice) : '',
+    attributeName: entry?.attributes?.[0]?.name || attributeName || '',
+    attributeValue,
+    image: ownImages[0] || '',
+    gallery: ownImages,
+    inStock: variation.is_in_stock !== false,
   }
 }
 
+function normalizeStoreProduct(item, variations = []) {
+  const categories = (item.categories || []).map((category) => ({
+    name: stripHtml(category.name),
+    slug: category.slug,
+    link: category.link,
+  }))
+  const brands = (item.brands || []).map((brand) => ({ name: stripHtml(brand.name), slug: brand.slug }))
+  const kind = inferProductKind(categories)
+  const category = inferProductCategory(categories, kind)
+  const name = stripHtml(item.name)
+  const description = descriptionLines(item.description || item.short_description || '')
+  const prices = item.prices || {}
+  const isVariable = item.type === 'variable'
+  const price =
+    kind === 'software'
+      ? null
+      : storeAmount(prices, isVariable ? prices.price_range?.min_amount ?? prices.price : prices.price)
+  const regularPrice = kind === 'software' ? null : storeAmount(prices, prices.regular_price)
+  const images = (item.images || []).map((image) => image.src).filter(Boolean)
+  const image = images[0] || ASSETS.favicon
+  const inStock = item.is_in_stock !== false
+  const variationAttribute = (item.attributes || []).find((attribute) => attribute.has_variations)
+  const attributeName = variationAttribute?.name || ''
+  const parentShape = { name, image }
+  const variationById = new Map(variations.map((variation) => [variation.id, variation]))
+  const variants = isVariable
+    ? (item.variations || [])
+        .map((entry) => {
+          const variation = variationById.get(entry.id)
+          return variation ? normalizeStoreVariation(variation, parentShape, entry, attributeName) : null
+        })
+        .filter(Boolean)
+    : []
+  const brandTokens = brands.map((brand) => normalizeFilterToken(brand.slug || brand.name)).filter(Boolean)
+  const tokens = [
+    ...new Set(
+      [
+        kind,
+        category,
+        item.slug,
+        name,
+        ...categories.flatMap((entry) => [entry.slug, entry.name]),
+        ...brands.flatMap((brand) => [brand.slug, brand.name]),
+        ...description,
+      ]
+        .join(' ')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, ' ')
+        .split(/\s+/)
+        .filter(Boolean)
+        .concat(brandTokens, inStock ? ['instock'] : [], price ? [] : ['quote']),
+    ),
+  ]
+
+  return {
+    id: item.id,
+    sourceType: 'live',
+    slug: item.slug,
+    sku: item.sku || '',
+    name,
+    kind,
+    category,
+    brand: brands[0]?.name || (kind === 'software' ? 'Software' : 'CCS'),
+    brands,
+    categories,
+    price,
+    priceLabel: price ? (isVariable && variants.length > 1 ? `From ${formatLekLabel(price)}` : formatLekLabel(price)) : '',
+    regularPriceLabel:
+      !isVariable && regularPrice && price && regularPrice > price ? formatLekLabel(regularPrice) : '',
+    image,
+    gallery: images.length ? images : [image],
+    description,
+    specs: [],
+    searchText: [name, ...brands.map((brand) => brand.name), ...categories.map((entry) => entry.name), item.sku, ...description]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase(),
+    tokens,
+    inStock,
+    onSale: Boolean(item.on_sale),
+    variants,
+    attributeName,
+    attributeValues: variationAttribute?.terms?.map((term) => term.name).join(', ') || '',
+    originalUrl: item.permalink,
+  }
+}
+
+async function fetchAllStorePages(params) {
+  const first = await fetch(storeProductsUrl({ ...params, page: '1' }))
+  if (!first.ok) throw new Error(`Product API failed: ${first.status}`)
+  const totalPages = Math.min(Number(first.headers.get('X-WP-TotalPages')) || 1, 20)
+  const rest = await Promise.all(
+    Array.from({ length: totalPages - 1 }, (_, index) =>
+      fetch(storeProductsUrl({ ...params, page: String(index + 2) })).then((response) => {
+        if (!response.ok) throw new Error(`Product API failed: ${response.status}`)
+        return response.json()
+      }),
+    ),
+  )
+  return [await first.json(), ...rest].flat()
+}
+
+async function fetchLiveCatalog() {
+  const [items, variations] = await Promise.all([
+    fetchAllStorePages({ orderby: 'menu_order', order: 'asc' }),
+    fetchAllStorePages({ type: 'variation' }).catch(() => []),
+  ])
+  const variationsByParent = new Map()
+  variations.forEach((variation) => {
+    const list = variationsByParent.get(variation.parent) || []
+    list.push(variation)
+    variationsByParent.set(variation.parent, list)
+  })
+  return items
+    .filter((item) => item.type !== 'variation')
+    .map((item) => normalizeStoreProduct(item, variationsByParent.get(item.id) || []))
+}
+
+const LIVE_CATALOG_CACHE_KEY = 'ccs-live-catalog-v1'
+
+function readCachedCatalog() {
+  try {
+    const cached = JSON.parse(window.localStorage.getItem(LIVE_CATALOG_CACHE_KEY) || 'null')
+    return Array.isArray(cached?.products) && cached.products.length ? cached.products : null
+  } catch {
+    return null
+  }
+}
+
+// Products come live from WooCommerce (ccs.al). The last live list is cached so the
+// shop renders instantly; the bundled CSV export is only a fallback if WordPress is unreachable.
 function useProducts() {
-  return { products: CSV_PRODUCTS, loading: false }
+  const [state, setState] = useState(() => {
+    const cached = typeof window === 'undefined' ? null : readCachedCatalog()
+    return { products: cached || CSV_PRODUCTS, source: cached ? 'cache' : 'bundled', loading: true }
+  })
+
+  useEffect(() => {
+    let active = true
+    fetchLiveCatalog()
+      .then((products) => {
+        if (!active || !products.length) return
+        setState({ products, source: 'live', loading: false })
+        try {
+          window.localStorage.setItem(LIVE_CATALOG_CACHE_KEY, JSON.stringify({ savedAt: Date.now(), products }))
+        } catch {
+          // Storage full or blocked: the live list still renders for this visit.
+        }
+      })
+      .catch((error) => {
+        console.warn('[CCS] Live WooCommerce products unavailable, using saved catalogue.', error)
+        if (active) setState((current) => ({ ...current, loading: false }))
+      })
+    return () => {
+      active = false
+    }
+  }, [])
+
+  return state
 }
 
 const AVAILABILITY_FILTER = {
@@ -3312,7 +3453,7 @@ function ShopPage({
               {productsLoading && !products.length
                 ? 'Loading products...'
                 : category === 'all' && !query && !Object.values(filters).some((value) => value?.length)
-                  ? `${CSV_CATALOG_META.catalogProductCount} products · ${CSV_CATALOG_META.variationCount} configurations`
+                  ? `${products.length} products · ${products.reduce((sum, item) => sum + (item.variants?.length || 0), 0)} configurations`
                   : `${filteredProducts.length} products`}
             </span>
             {(query || Object.values(filters).some((value) => value?.length) || category !== 'all') && (
