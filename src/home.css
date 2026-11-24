@@ -1648,26 +1648,38 @@ body:is(.dark-mode, :not(.dark-mode)) .site-shell:is(.non-shop-ui, .commerce-ui)
 
 /* ---------- Shop: product cards ---------- */
 
-.sp-card {
+.sp-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.site-shell .sp-card {
   position: relative;
   display: flex;
   flex-direction: column;
   min-width: 0;
+  overflow: hidden;
   border: 1px solid var(--ccs-stroke, rgba(35, 31, 32, 0.12));
   border-radius: 6px;
   background: var(--ccs-panel, #fff);
   color: var(--ccs-ink, #231f20);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  box-shadow: none;
+  transition: border-color 0.2s ease, box-shadow 0.25s ease, transform 0.25s ease;
 }
 
-.sp-card:hover {
+.site-shell .sp-card:hover {
   border-color: var(--ccs-stroke-strong, rgba(35, 31, 32, 0.24));
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.1);
-  transform: translateY(-2px);
+  box-shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.28);
+  transform: translateY(-3px);
 }
 
 .sp-card__link {
   display: flex;
+  flex: 1;
   flex-direction: column;
   color: inherit;
   text-decoration: none;
@@ -1675,18 +1687,18 @@ body:is(.dark-mode, :not(.dark-mode)) .site-shell:is(.non-shop-ui, .commerce-ui)
 
 .sp-card__link:focus-visible {
   outline: 2px solid #ef4136;
-  outline-offset: 2px;
-  border-radius: 6px;
+  outline-offset: -2px;
 }
 
+/* Image: edge to edge on white */
 .sp-card__media {
+  position: relative;
   display: grid;
   place-items: center;
-  aspect-ratio: 4 / 3;
-  margin: 8px 8px 0;
-  padding: 18px;
+  aspect-ratio: 1 / 1;
+  padding: 14%;
   overflow: hidden;
-  border-radius: 4px;
+  border-bottom: 1px solid var(--ccs-stroke, rgba(35, 31, 32, 0.1));
   background: #fff;
 }
 
@@ -1694,23 +1706,52 @@ body:is(.dark-mode, :not(.dark-mode)) .site-shell:is(.non-shop-ui, .commerce-ui)
   width: 100%;
   height: 100%;
   object-fit: contain;
-  transition: transform 0.35s ease;
+  transition: transform 0.4s ease;
 }
 
-.sp-card:hover .sp-card__media img {
-  transform: scale(1.04);
+.site-shell .sp-card:hover .sp-card__media img {
+  transform: scale(1.05);
 }
 
-.sp-card__brand {
-  margin: 16px 16px 6px;
+.sp-card__badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  max-width: calc(100% - 20px);
+  overflow: hidden;
+  padding: 4px 8px;
+  border-radius: 3px;
+  background: #f1f2f4;
+  color: #4b4f58;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Text */
+.sp-card__info {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px 12px;
+}
+
+.site-shell .sp-card__brand {
+  margin: 0;
   color: var(--ccs-caption, #62666c);
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
-.sp-card__name {
+.site-shell .sp-card__name {
   display: -webkit-box;
-  margin: 0 16px;
+  min-height: 2.7em;
+  margin: 0;
   overflow: hidden;
   color: var(--ccs-ink, #231f20);
   font-size: 15px;
@@ -1719,64 +1760,45 @@ body:is(.dark-mode, :not(.dark-mode)) .site-shell:is(.non-shop-ui, .commerce-ui)
   letter-spacing: -0.01em;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-  min-height: 2.7em;
 }
 
 .sp-card__link:hover .sp-card__name {
-  text-decoration: underline;
-  text-decoration-color: #ef4136;
-  text-underline-offset: 3px;
+  color: #ef4136;
 }
 
-.sp-card__tags {
-  display: flex;
-  flex-wrap: wrap;
+.sp-card__variants {
+  display: inline-flex;
+  align-items: center;
   gap: 6px;
-  margin: 12px 16px 0;
-  padding: 0;
-  list-style: none;
-}
-
-.sp-card__tags li {
-  max-width: 100%;
-  overflow: hidden;
-  padding: 3px 8px;
-  border-radius: 3px;
-  background: var(--ccs-subtle, rgba(127, 127, 127, 0.1));
-  color: var(--ccs-body, #505155);
+  color: var(--ccs-caption, #62666c);
   font-size: 12px;
-  font-weight: 500;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  font-weight: 600;
 }
 
-.sp-card__foot {
+/* Footer */
+.site-shell .sp-card__foot {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  margin-top: auto;
-  padding: 16px;
+  margin: 0 16px;
+  padding: 12px 0 14px;
+  border-top: 1px solid var(--ccs-stroke, rgba(35, 31, 32, 0.1));
 }
 
-.sp-card__tags + .sp-card__foot,
-.sp-card__link + .sp-card__foot {
-  margin-top: auto;
-  padding-top: 18px;
-}
-
-.sp-card__price {
+.site-shell .sp-card__price {
   display: grid;
+  gap: 1px;
   min-width: 0;
 }
 
-.sp-card__price small {
+.site-shell .sp-card__price small {
   color: var(--ccs-caption, #62666c);
   font-size: 11px;
   font-weight: 600;
 }
 
-.sp-card__price strong {
+.site-shell .sp-card__price strong {
   color: var(--ccs-ink, #231f20);
   font-size: 17px;
   font-weight: 800;
@@ -1784,54 +1806,99 @@ body:is(.dark-mode, :not(.dark-mode)) .site-shell:is(.non-shop-ui, .commerce-ui)
   white-space: nowrap;
 }
 
-.sp-card__inquiry {
-  color: var(--ccs-caption, #62666c);
-  font-size: 13px;
-  font-weight: 600;
+.site-shell .sp-card__inquiry {
+  color: var(--ccs-ink, #231f20);
+  font-size: 14px;
+  font-weight: 700;
 }
 
-.site-shell .sp-card .sp-card__action {
-  display: inline-flex;
+.site-shell .sp-card .sp-card__icon-btn {
+  position: relative;
+  display: grid;
+  place-items: center;
   flex: none;
-  align-items: center;
-  gap: 6px;
+  width: 40px;
+  height: 40px;
   min-height: 0;
   margin: 0;
-  box-shadow: none;
-  font-size: 13px;
-  font-weight: 700;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.site-shell .sp-card .sp-card__action--text {
-  padding: 8px 0;
-  border: 0;
-  background: none;
-  color: var(--ccs-accent-text, #ef4136);
-}
-
-.site-shell .sp-card .sp-card__action--text:hover {
-  color: var(--ccs-ink, #231f20);
-}
-
-.site-shell .sp-card .sp-card__action--cart {
-  justify-content: center;
-  width: auto;
-  padding: 9px 12px;
-  border: 0;
-  border-radius: 999px;
+  padding: 0;
+  border: 1px solid #ef4136;
+  border-radius: 6px;
   background: #ef4136;
   color: #fff;
-  transition: background 0.2s ease;
+  box-shadow: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
 
-.site-shell .sp-card .sp-card__action--cart:hover {
+.site-shell .sp-card .sp-card__icon-btn:hover {
+  border-color: #d8362c;
   background: #d8362c;
 }
 
-.site-shell .sp-card .sp-card__action--cart.is-added {
+.site-shell .sp-card .sp-card__icon-btn.is-added {
+  border-color: #231f20;
   background: #231f20;
+}
+
+.site-shell .sp-card .sp-card__icon-btn--ghost {
+  border-color: var(--ccs-stroke-strong, rgba(35, 31, 32, 0.24));
+  background: transparent;
+  color: var(--ccs-ink, #231f20);
+}
+
+.site-shell .sp-card .sp-card__icon-btn--ghost:hover,
+.site-shell .sp-card:hover .sp-card__icon-btn--ghost {
+  border-color: #ef4136;
+  background: #ef4136;
+  color: #fff;
+}
+
+.site-shell .sp-card .sp-card__icon-btn:focus-visible {
+  outline: 2px solid #ef4136;
+  outline-offset: 2px;
+}
+
+@media (max-width: 760px) {
+  .sp-card__info {
+    padding: 10px 10px 8px;
+  }
+
+  .site-shell .sp-card__name {
+    font-size: 13px;
+  }
+
+  .site-shell .sp-card__foot {
+    margin: 0 10px;
+    padding: 10px 0 12px;
+  }
+
+  .site-shell .sp-card__price strong {
+    font-size: 15px;
+  }
+
+  .site-shell .sp-card .sp-card__icon-btn {
+    width: 36px;
+    height: 36px;
+  }
+
+  .sp-card__badge {
+    top: 6px;
+    left: 6px;
+    font-size: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-shell .sp-card,
+  .sp-card__media img {
+    transition: none;
+  }
+
+  .site-shell .sp-card:hover {
+    transform: none;
+  }
 }
 
 /* ---------- Shop: show more ---------- */
@@ -1930,28 +1997,6 @@ body:is(.dark-mode, :not(.dark-mode)) .site-shell:is(.non-shop-ui, .commerce-ui)
     gap: 10px;
   }
 
-  .sp-card__media {
-    margin: 6px 6px 0;
-    padding: 10px;
-  }
-
-  .sp-card__brand {
-    margin: 10px 10px 4px;
-  }
-
-  .sp-card__name {
-    margin: 0 10px;
-    font-size: 13px;
-  }
-
-  .sp-card__foot {
-    gap: 8px;
-    padding: 10px;
-  }
-
-  .site-shell .sp-card .sp-card__action--cart {
-    width: 100%;
-  }
 }
 
 /* ---------- Shop toolbar: search + sort ---------- */

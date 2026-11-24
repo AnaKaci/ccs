@@ -1582,30 +1582,6 @@ function useRoute() {
   return [route, navigate]
 }
 
-const SPEC_LABELS = {
-  intelcorei3: 'Core i3',
-  intelcorei5: 'Core i5',
-  intelcorei7: 'Core i7',
-  intelxeon: 'Xeon',
-  '4gbddr4': '4GB RAM',
-  '8gbddr4': '8GB RAM',
-  '16gbddr4': '16GB RAM',
-  '32gbddr4': '32GB RAM',
-  ssd: 'SSD',
-  hddsata: 'HDD SATA',
-  win10pro: 'Win 10 Pro',
-  freedos: 'FreeDOS',
-  '256gb': '256GB',
-  '500gb': '500GB',
-  '512gb': '512GB',
-  '1tb': '1TB',
-  a4bwlaser: 'B&W Laser',
-  a4colorlaser: 'Color Laser',
-  a4colorinkjet: 'Color Inkjet',
-  '1year': '1 year',
-  '3years': '3 years',
-}
-
 function cleanTextLines(lines = []) {
   return lines
     .flatMap((line) => String(line ?? '').split(/\\n|\n/))
@@ -1625,21 +1601,6 @@ function splitSpecLines(lines = []) {
     }
   })
   return { rows, paragraphs }
-}
-
-function productSpecs(item) {
-  if (Array.isArray(item.specs) && item.specs.length) {
-    return cleanTextLines(item.specs).slice(0, 5)
-  }
-
-  if (Array.isArray(item.description) && item.description.length) {
-    return cleanTextLines(item.description).slice(0, 5)
-  }
-
-  return item.tokens
-    .map((token) => SPEC_LABELS[token])
-    .filter(Boolean)
-    .slice(0, 5)
 }
 
 function titleFor(item, lang) {
@@ -3820,7 +3781,7 @@ function FilterMenu({
   )
 }
 
-function AddToCartButton({ copy, onAdd, className = '', iconSize = 16 }) {
+function AddToCartButton({ copy, onAdd, className = '', iconSize = 16, compact = false }) {
   const [added, setAdded] = useState(false)
 
   useEffect(() => {
@@ -3839,8 +3800,14 @@ function AddToCartButton({ copy, onAdd, className = '', iconSize = 16 }) {
         setAdded(true)
       }}
     >
-      <ShoppingCart size={iconSize} />
-      {added ? copy.common.addedToCart : copy.common.addToCart}
+      {added && compact ? <Check size={iconSize} aria-hidden="true" /> : <ShoppingCart size={iconSize} aria-hidden="true" />}
+      {compact ? (
+        <span className="sp-sr">{added ? copy.common.addedToCart : copy.common.addToCart}</span>
+      ) : added ? (
+        copy.common.addedToCart
+      ) : (
+        copy.common.addToCart
+      )}
     </button>
   )
 }
@@ -3849,10 +3816,10 @@ function ProductCard({ item, copy, navigate, addToCart }) {
   const isAl = langForCopy(copy) === 'al'
   const isInquiry = item.kind === 'software' || !item.priceLabel
   const variantCount = item.variants?.length || 0
-  const tags = productSpecs(item)
-    .filter((spec) => spec.length <= 28)
-    .slice(0, 3)
   const brand = item.brand || (item.kind === 'software' ? 'Software' : item.category)
+  const categoryLabel = item.categories?.[0]?.name
+    ? stripHtml(item.categories[0].name).split('>').pop().trim()
+    : copy.shop?.[item.category] || item.category
   const href = `/product/${item.slug}/`
 
   return (
@@ -3860,44 +3827,49 @@ function ProductCard({ item, copy, navigate, addToCart }) {
       <AppLink to={href} navigate={navigate} className="sp-card__link">
         <span className="sp-card__media">
           <img src={item.image} alt="" loading="lazy" />
+          {categoryLabel && <span className="sp-card__badge">{categoryLabel}</span>}
         </span>
-        <span className="sp-card__brand">{brand}</span>
-        <h3 className="sp-card__name">{item.name}</h3>
+        <span className="sp-card__info">
+          <span className="sp-card__brand">{brand}</span>
+          <h3 className="sp-card__name">{item.name}</h3>
+          {variantCount > 0 && (
+            <span className="sp-card__variants">
+              <Layers3 size={13} aria-hidden="true" />
+              {variantCount} {isAl ? 'konfigurime' : 'configurations'}
+            </span>
+          )}
+        </span>
       </AppLink>
-      {tags.length > 0 && (
-        <ul className="sp-card__tags">
-          {tags.map((tag, index) => (
-            <li key={`${index}-${tag}`}>{tag}</li>
-          ))}
-        </ul>
-      )}
       <div className="sp-card__foot">
         <div className="sp-card__price">
           {isInquiry ? (
-            <span className="sp-card__inquiry">{isAl ? 'Cmim sipas kerkeses' : 'Price on request'}</span>
+            <>
+              <small>{isAl ? 'Cmimi' : 'Price'}</small>
+              <span className="sp-card__inquiry">{isAl ? 'Sipas kerkeses' : 'On request'}</span>
+            </>
           ) : (
             <>
-              {variantCount > 0 && <small>{isAl ? 'Nga' : 'From'}</small>}
-              <strong>{item.priceLabel}</strong>
+              <small>{variantCount > 0 ? (isAl ? 'Nga' : 'From') : isAl ? 'Cmimi' : 'Price'}</small>
+              <strong>{String(item.priceLabel).replace(/^(from|nga)\s+/i, '')}</strong>
             </>
           )}
         </div>
-        {variantCount > 0 ? (
-          <AppLink to={href} navigate={navigate} className="sp-card__action sp-card__action--text">
-            <Layers3 size={15} aria-hidden="true" />
-            {variantCount} {isAl ? 'konfigurime' : 'options'}
-          </AppLink>
-        ) : isInquiry ? (
-          <AppLink to={href} navigate={navigate} className="sp-card__action sp-card__action--text">
-            {isAl ? 'Detaje' : 'Details'}
-            <ArrowRight size={15} aria-hidden="true" />
+        {isInquiry || variantCount > 0 ? (
+          <AppLink
+            to={href}
+            navigate={navigate}
+            className="sp-card__icon-btn sp-card__icon-btn--ghost"
+            aria-label={`${isAl ? 'Shiko' : 'View'} ${item.name}`}
+          >
+            <ArrowRight size={18} aria-hidden="true" />
           </AppLink>
         ) : (
           <AddToCartButton
             copy={copy}
             onAdd={() => addToCart(item)}
-            className="sp-card__action sp-card__action--cart"
-            iconSize={17}
+            className="sp-card__icon-btn"
+            iconSize={18}
+            compact
           />
         )}
       </div>
