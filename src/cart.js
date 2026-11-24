@@ -150,6 +150,10 @@ Please contact me regarding availability and ordering.
 Thank you.`
 }
 
+export function buildEmailUrl(lines) {
+  return `mailto:info@ccs.al?subject=${encodeURIComponent('Product inquiry')}&body=${encodeURIComponent(buildWhatsAppMessage(lines))}`
+}
+
 export function buildWhatsAppUrl(lines) {
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(buildWhatsAppMessage(lines))}`
 }

@@ -14,7 +14,6 @@ import {
   Database,
   Factory,
   Filter,
-  Globe2,
   Handshake,
   Headphones,
   Keyboard,
@@ -1587,6 +1586,11 @@ function iconForCategory(category) {
   return Cpu
 }
 
+const LANGUAGE_FLAGS = {
+  en: 'https://upload.wikimedia.org/wikipedia/en/a/ae/Flag_of_the_United_Kingdom.svg',
+  al: 'https://upload.wikimedia.org/wikipedia/commons/3/36/Flag_of_Albania.svg',
+}
+
 const SHOP_CATEGORIES = ['all', 'hardware', 'software', 'desktop', 'laptop', 'monitor', 'printer', 'accessories']
 
 function shopCategoryPath(category) {
@@ -1930,10 +1934,16 @@ function Header({
             className="lang-toggle ccs-header-tool ccs-language-tool"
             type="button"
             aria-label={lang === 'en' ? 'Switch to Albanian' : 'Kalo në anglisht'}
+            title={lang === 'en' ? 'Shqip' : 'English'}
             onClick={() => setLang(lang === 'en' ? 'al' : 'en')}
           >
-            <Globe2 className="ccs-language-icon" size={16} strokeWidth={1.9} />
-            <span className="ccs-language-code">{lang === 'en' ? 'AL' : 'EN'}</span>
+            <img
+              className="ccs-language-flag"
+              src={lang === 'en' ? LANGUAGE_FLAGS.al : LANGUAGE_FLAGS.en}
+              alt=""
+              width="22"
+              height="15"
+            />
           </button>
         </div>
         <button
