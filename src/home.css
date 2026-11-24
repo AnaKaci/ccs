@@ -5120,3 +5120,309 @@ body:not(.dark-mode) .site-shell.commerce-ui .horizontal-filter summary {
 .hp-intro__card {
   z-index: 2;
 }
+
+/* =====================================================================
+   Tighter vertical rhythm across the site
+   ===================================================================== */
+
+.hp {
+  --hp-pad: clamp(44px, 5vw, 80px);
+}
+
+.hp .hp-intro {
+  padding-top: clamp(36px, 4vw, 64px);
+}
+
+.hp .hp-intro .hp-facts {
+  margin-top: clamp(32px, 4vw, 56px);
+  padding-bottom: clamp(32px, 4vw, 56px);
+}
+
+.hp .hp-head,
+.hp .hp-certs-head {
+  margin-bottom: clamp(24px, 3vw, 40px);
+  padding-bottom: clamp(18px, 2vw, 28px);
+}
+
+.hp .hp-certs-head {
+  margin-bottom: 0;
+}
+
+.hp .hp-bleed {
+  min-height: clamp(460px, 40vw, 680px);
+}
+
+.hp .hp-marquee {
+  margin-top: clamp(32px, 4vw, 56px);
+}
+
+.hp .hp-section--certs .hp-marquee--certs {
+  margin-top: clamp(20px, 2.4vw, 32px);
+}
+
+#partners.hp-section,
+.hp .hp-section--certs {
+  padding-bottom: clamp(36px, 4vw, 64px);
+}
+
+.hp .hp-section--certs {
+  padding-top: clamp(36px, 4vw, 64px);
+}
+
+.hp .hp-contact {
+  padding-block: clamp(48px, 5.5vw, 88px);
+}
+
+.sol-section {
+  padding-block: clamp(44px, 5vw, 80px);
+}
+
+.sol-hero__inner {
+  padding: clamp(44px, 5vw, 80px) 0 clamp(28px, 3vw, 44px);
+}
+
+.sol-cta {
+  padding-block: clamp(40px, 4.5vw, 72px);
+}
+
+.cs-hero__inner {
+  padding: clamp(48px, 5.5vw, 96px) 0 clamp(40px, 4.5vw, 72px);
+}
+
+.cs-detail-hero {
+  padding: clamp(36px, 4.5vw, 72px) 0 clamp(40px, 4.5vw, 72px);
+}
+
+.cs-next__link {
+  padding: clamp(28px, 3.5vw, 52px) 0;
+}
+
+.pd-top {
+  padding-bottom: clamp(40px, 4.5vw, 72px);
+}
+
+.pd-details,
+.pd-related {
+  padding-block: clamp(40px, 4.5vw, 72px);
+}
+
+.sp-more {
+  margin-top: 32px;
+}
+
+.ft {
+  padding-top: clamp(32px, 3.5vw, 52px);
+}
+
+.site-shell .section {
+  padding-block: clamp(44px, 5vw, 72px);
+}
+
+/* Hero video: show the whole frame on phones and tablets */
+@media (max-width: 900px) {
+  body .site-shell .hp .ccs-command-hero.ccs-video-only-hero {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    aspect-ratio: 1920 / 954;
+    padding: 0 !important;
+    background: #000;
+  }
+
+  body .site-shell .hp .ccs-video-only-hero .ccs-hero-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+}
+
+/* ---------- Homepage section divider bars ---------- */
+
+.hp-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-bottom: clamp(24px, 3vw, 40px);
+  padding-top: 14px;
+  border-top: 1px solid var(--hp-line-strong);
+}
+
+.hp-bar__mark {
+  position: absolute;
+  top: -2px;
+  left: 0;
+  width: clamp(56px, 6vw, 96px);
+  height: 3px;
+  background: var(--hp-brand);
+}
+
+.hp-bar__label {
+  color: var(--hp-body);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+/* Sections open with their bar, so trim the top padding a little */
+.hp > .hp-section,
+.hp > .hp-band {
+  padding-top: clamp(28px, 3.5vw, 56px);
+}
+
+.hp .hp-bleed__copy {
+  padding-top: clamp(28px, 3.5vw, 56px);
+  justify-content: flex-start;
+}
+
+.hp .hp-bleed__copy .hp-bar {
+  margin-bottom: clamp(24px, 3vw, 40px);
+}
+
+/* On the dark security band */
+.hp-band .hp-bar {
+  border-top-color: rgba(255, 255, 255, 0.22);
+}
+
+.hp-band .hp-bar__label {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+/* Section tones: clear alternation, full width */
+body.dark-mode .hp > #services,
+body.dark-mode .hp > #partners {
+  background: #1b1819;
+}
+
+body.dark-mode .hp > .hp-intro,
+body.dark-mode .hp > .hp-section--gis,
+body.dark-mode .hp > #certification {
+  background: #231f20;
+}
+
+body.dark-mode .hp > #about {
+  background: #2b2628;
+}
+
+body:not(.dark-mode) .site-shell .hp > .hp-section--gis {
+  background: #ffffff;
+}
+
+body:not(.dark-mode) .site-shell .hp > #about {
+  background: #ffffff;
+}
+
+body:not(.dark-mode) .site-shell .hp > #certification {
+  background: #ffffff;
+}
+
+/* The bar is the separator; no second rule under homepage headings */
+.hp > section .hp-bar ~ .hp-head,
+.hp > #certification .hp-certs-head {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+/* ---------- Partner tiles: logo-led ---------- */
+
+.hp .hp-vendors {
+  gap: 16px;
+}
+
+.hp .hp-vendor.hp-vendor--logo {
+  justify-content: flex-start;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--hp-line);
+  border-radius: 0;
+  background: var(--hp-surface);
+  color: var(--hp-ink);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.hp .hp-vendor.hp-vendor--logo:hover {
+  border-color: #ef4136;
+  box-shadow: 0 20px 44px -18px rgba(23, 21, 22, 0.35);
+  transform: translateY(-3px);
+}
+
+.hp-vendor__stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: clamp(170px, 13vw, 220px);
+  border-bottom: 1px solid var(--hp-line);
+  background: #ffffff;
+}
+
+.hp-vendor__stage::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 0;
+  height: 3px;
+  background: #ef4136;
+  transition: width 0.35s ease;
+}
+
+.hp-vendor--logo:hover .hp-vendor__stage::after {
+  width: 100%;
+}
+
+.hp-vendor__stage img {
+  width: auto;
+  max-width: 58%;
+  height: auto;
+  max-height: 72px;
+  object-fit: contain;
+  transition: transform 0.35s ease;
+}
+
+.hp-vendor--logo:hover .hp-vendor__stage img {
+  transform: scale(1.06);
+}
+
+.hp .hp-vendor--logo .hp-vendor__body {
+  flex: 1;
+  align-content: start;
+  padding: clamp(20px, 2vw, 28px);
+}
+
+.hp .hp-vendor--logo .hp-vendor__body strong {
+  color: var(--hp-ink);
+  font-size: clamp(20px, 1.6vw, 24px);
+}
+
+.hp .hp-vendor--logo .hp-vendor__body > span:not(.hp-vendor__cta) {
+  color: var(--hp-body);
+}
+
+.hp .hp-vendor--logo .hp-vendor__cta {
+  margin-top: auto;
+  padding-top: 8px;
+  color: var(--hp-ink);
+}
+
+.hp .hp-vendor--logo .hp-vendor__cta svg {
+  color: #ef4136;
+}
+
+body.dark-mode .hp .hp-vendor.hp-vendor--logo {
+  background: #2b2628;
+}
+
+body.dark-mode .hp .hp-vendor__stage {
+  background: #f7f6f5;
+}
+
+/* Contact band eyebrow: plain label, no pill border */
+.hp .hp-contact__eyebrow {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+}

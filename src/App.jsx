@@ -585,6 +585,12 @@ const RECOMMENDED = [
   },
 ]
 
+const VENDOR_LOGOS = {
+  HP: PARTNER_LOGOS.hp,
+  Fortinet: PARTNER_LOGOS.fortinet,
+  Cisco: PARTNER_LOGOS.cisco,
+}
+
 const CERTIFICATIONS = [
   ['ISO 45001', ASSETS.iso45001],
   ['ISO 20000', ASSETS.iso20000],
@@ -2500,6 +2506,15 @@ function LogoCarousel({ items, ariaLabel, paginationLabel, pageLabel }) {
   )
 }
 
+function SectionBar({ label }) {
+  return (
+    <div className="hp-bar" aria-hidden="true">
+      <span className="hp-bar__mark" />
+      <span className="hp-bar__label">{label}</span>
+    </div>
+  )
+}
+
 function LogoMarquee({ items, label, variant = 'partners', speed = 40 }) {
   const minItems = 14
   const repeat = Math.max(1, Math.ceil(minItems / items.length))
@@ -2624,6 +2639,7 @@ function HomePage({ copy, lang, navigate }) {
 
       <section className="hp-section hp-section--services" id="services">
         <div className="hp-wrap">
+          <SectionBar label={isAl ? 'Sherbimet' : 'Services'} />
           <header className="hp-head">
             <h2>{isAl ? 'Cfare bejme' : 'What we do'}</h2>
             <p>
@@ -2673,7 +2689,7 @@ function HomePage({ copy, lang, navigate }) {
           <img src={ASSETS.aboutOne} alt={isAl ? 'Zyrat e CCS ne Tirane' : 'CCS office reception in Tirana'} />
         </div>
         <div className="hp-bleed__copy">
-          <span className="hp-label">{copy.home.aboutTitle}</span>
+          <SectionBar label={copy.home.aboutTitle} />
           <h2>{isAl ? 'Partner teknologjie per infrastrukture dhe siguri.' : 'Three decades building the systems Albania runs on.'}</h2>
           <ul className="hp-principles">
             {principles.map((item) => (
@@ -2687,9 +2703,11 @@ function HomePage({ copy, lang, navigate }) {
       </section>
 
       <section className="hp-band" style={{ '--hp-band-image': `url(${ASSETS.solutionSecurity})` }}>
+        <div className="hp-wrap">
+          <SectionBar label={isAl ? 'Siguria' : 'Security'} />
+        </div>
         <div className="hp-wrap hp-band__inner">
           <div className="hp-band__copy">
-            <span className="hp-label">{isAl ? 'Siguri dhe infrastrukture' : 'Cybersecurity and infrastructure'}</span>
             <h2>{isAl ? 'Zgjidhje te integruara per sisteme kritike.' : 'Integrated protection for critical systems.'}</h2>
             <p>
               {isAl
@@ -2713,9 +2731,11 @@ function HomePage({ copy, lang, navigate }) {
       </section>
 
       <section className="hp-section hp-section--gis">
+        <div className="hp-wrap">
+          <SectionBar label="GIS / ArcGIS" />
+        </div>
         <div className="hp-wrap hp-gis-split">
           <div className="hp-gis-split__copy">
-            <span className="hp-label">GIS / ArcGIS</span>
             <h2>{copy.home.gisTitle}</h2>
             <p>
               {isAl
@@ -2744,6 +2764,7 @@ function HomePage({ copy, lang, navigate }) {
 
       <section className="hp-section hp-section--alt" id="partners">
         <div className="hp-wrap">
+          <SectionBar label={isAl ? 'Partneret' : 'Partners'} />
           <header className="hp-head">
             <h2>{isAl ? 'Partneret teknologjike' : 'Technology partners'}</h2>
             <p>
@@ -2754,11 +2775,9 @@ function HomePage({ copy, lang, navigate }) {
           </header>
           <div className="hp-vendors">
             {RECOMMENDED.map((item) => (
-              <AppLink to={item.to} navigate={navigate} className="hp-vendor" key={item.title}>
-                <img className="hp-vendor__bg" src={item.backdrop} alt="" loading="lazy" />
-                <span className="hp-vendor__shade" aria-hidden="true" />
-                <span className="hp-vendor__logo">
-                  <img src={item.image} alt="" loading="lazy" />
+              <AppLink to={item.to} navigate={navigate} className="hp-vendor hp-vendor--logo" key={item.title}>
+                <span className="hp-vendor__stage">
+                  <img src={VENDOR_LOGOS[item.title] || item.image} alt={`${item.title} logo`} loading="lazy" />
                 </span>
                 <span className="hp-vendor__body">
                   <strong>{titleFor(item, lang)}</strong>
@@ -2776,6 +2795,9 @@ function HomePage({ copy, lang, navigate }) {
       </section>
 
       <section className="hp-section hp-section--certs" id="certification">
+        <div className="hp-wrap">
+          <SectionBar label={isAl ? 'Standardet' : 'Standards'} />
+        </div>
         <div className="hp-wrap hp-certs-head">
           <h2>{copy.home.certificationsTitle}</h2>
           <p>{isAl ? 'Sisteme menaxhimi te certifikuara sipas standardeve nderkombetare.' : 'Quality, security, service and continuity management certified to international standards.'}</p>
