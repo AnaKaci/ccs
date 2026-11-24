@@ -6,6 +6,7 @@ import {
   Check,
   ChevronDown,
   Clock,
+  Cloud,
   Cpu,
   Database,
   Filter,
@@ -1591,16 +1592,34 @@ const SPEC_LABELS = {
   '3years': '3 years',
 }
 
+function cleanTextLines(lines = []) {
+  return lines
+    .flatMap((line) => String(line ?? '').split(/\\n|\n/))
+    .map((line) => line.replace(/\s+/g, ' ').trim())
+    .filter(Boolean)
+}
+
+function splitSpecLines(lines = []) {
+  const rows = []
+  const paragraphs = []
+  cleanTextLines(lines).forEach((line) => {
+    const match = line.match(/^([^:]{2,40}):\s*(.+)$/)
+    if (match && line.length <= 160) {
+      rows.push([match[1].trim(), match[2].replace(/^`/, '').trim()])
+    } else {
+      paragraphs.push(line)
+    }
+  })
+  return { rows, paragraphs }
+}
+
 function productSpecs(item) {
   if (Array.isArray(item.specs) && item.specs.length) {
-    return item.specs.slice(0, 5)
+    return cleanTextLines(item.specs).slice(0, 5)
   }
 
   if (Array.isArray(item.description) && item.description.length) {
-    return item.description
-      .map((line) => line.replace(/\s+/g, ' ').trim())
-      .filter(Boolean)
-      .slice(0, 5)
+    return cleanTextLines(item.description).slice(0, 5)
   }
 
   return item.tokens
@@ -1746,10 +1765,9 @@ function App() {
   }, [route, lang])
 
   const commerceMode = isCommerceRoute(route.path)
-  const wideLayout = route.path === '/' || route.path === '/shop/' || route.path === '/products/'
 
   return (
-    <div className={`site-shell ${commerceMode ? 'commerce-ui' : 'non-shop-ui'}${wideLayout ? ' page-wide' : ''}`}>
+    <div className={`site-shell page-wide ${commerceMode ? 'commerce-ui' : 'non-shop-ui'}`}>
       <Header
         copy={copy}
         route={route}
@@ -3311,157 +3329,233 @@ function ProductDetailPage({
     )
   }
 
-  const specs = productSpecs(resolvedProduct)
-  const description = resolvedProduct.description?.length ? resolvedProduct.description : specs
+  const isAl = lang === 'al'
   const isSoftware = resolvedProduct.kind === 'software'
   const needsQuote = isSoftware || !resolvedProduct.priceLabel
   const displayPriceLabel = selectedVariant?.priceLabel || resolvedProduct.priceLabel
   const displayRegularPriceLabel = selectedVariant?.regularPriceLabel || resolvedProduct.regularPriceLabel
+  const { rows: specRows, paragraphs } = splitSpecLines(
+    resolvedProduct.description?.length ? resolvedProduct.description : resolvedProduct.specs,
+  )
+  const brandName = resolvedProduct.brands?.[0]?.name || resolvedProduct.brand
+  const categoryName = resolvedProduct.categories?.[0]?.name
+    ? stripHtml(resolvedProduct.categories[0].name).split('>').pop().trim()
+    : isSoftware
+      ? copy.nav.software
+      : copy.nav.hardware
+  const highlights = specRows.slice(0, 4)
+  const whatsappText = encodeURIComponent(
+    `${isAl ? 'Jam i interesuar per' : 'I am interested in'}: ${resolvedProduct.name}${selectedVariant?.attributeValue ? ` (${selectedVariant.attributeValue})` : ''}`,
+  )
   const related = products
     .filter((item) => item.slug !== resolvedProduct.slug && item.kind === resolvedProduct.kind)
-    .slice(0, 4)
+    .sort((x, y) => Number(y.category === resolvedProduct.category) - Number(x.category === resolvedProduct.category))
+    .slice(0, 5)
+  const mainImage = gallery[activeImage] || selectedVariant?.image || resolvedProduct.image
 
   return (
-    <section className="product-detail-page">
-      <div className="product-breadcrumb">
-        <AppLink to="/" navigate={navigate}>
-          {copy.nav.home}
-        </AppLink>
-        <span>/</span>
-        <AppLink
-          to={isSoftware ? '/product-category/software/' : '/product-category/hardware/'}
-          navigate={navigate}
-        >
-          {isSoftware ? copy.nav.software : copy.nav.hardware}
-        </AppLink>
-        <span>/</span>
-        <strong>{resolvedProduct.name}</strong>
-      </div>
+    <div className="hp pd">
+      <div className="sol-wrap">
+        <nav className="pd-crumbs" aria-label={isAl ? 'Gjurma' : 'Breadcrumb'}>
+          <AppLink to="/" navigate={navigate}>{copy.nav.home}</AppLink>
+          <span aria-hidden="true">/</span>
+          <AppLink to="/shop/" navigate={navigate}>{isAl ? 'Dyqani' : 'Shop'}</AppLink>
+          <span aria-hidden="true">/</span>
+          <AppLink
+            to={isSoftware ? '/product-category/software/' : '/product-category/hardware/'}
+            navigate={navigate}
+          >
+            {isSoftware ? copy.nav.software : copy.nav.hardware}
+          </AppLink>
+          <span aria-hidden="true">/</span>
+          <span aria-current="page">{resolvedProduct.name}</span>
+        </nav>
 
-      <div className="product-detail-grid">
-        <div className="product-gallery">
-          <div className="product-gallery-main">
-            <img src={gallery[activeImage] || selectedVariant?.image || resolvedProduct.image} alt={resolvedProduct.name} />
-          </div>
-          {gallery.length > 1 && (
-            <div className="product-thumbnails">
-              {gallery.map((image, index) => (
-                <button
-                  type="button"
-                  className={index === activeImage ? 'active' : ''}
-                  key={image}
-                  onClick={() => setActiveImage(index)}
-                >
-                  <img src={image} alt="" />
-                </button>
-              ))}
+        <div className="pd-top">
+          <div className="pd-gallery">
+            <div className="pd-gallery__main">
+              <img src={mainImage} alt={resolvedProduct.name} />
             </div>
-          )}
-        </div>
-
-        <article className="product-summary">
-          <Kicker>{isSoftware ? copy.nav.software : copy.nav.hardware}</Kicker>
-          <h1>{resolvedProduct.name}</h1>
-          <div className="product-summary-tags">
-            {resolvedProduct.brands?.slice(0, 2).map((brand) => (
-              <span key={brand.slug || brand.name}>{brand.name}</span>
-            ))}
-            {resolvedProduct.categories?.slice(0, 3).map((category) => (
-              <span key={category.slug || category.name}>{stripHtml(category.name)}</span>
-            ))}
-          </div>
-
-          {variants.length > 0 && (
-            <div className="product-variant-selector">
-              <span>{resolvedProduct.attributeName || (lang === 'al' ? 'Konfigurimi' : 'Configuration')}</span>
-              <div>
-                {variants.map((variant) => (
-                  <button type="button" className={selectedVariant?.id === variant.id ? 'active' : ''} key={variant.id}
-                    onClick={() => { setSelectedVariantId(variant.id); setActiveImage(0) }}>
-                    <strong>{variant.attributeValue || variant.name}</strong>
-                    <small>{variant.priceLabel}</small>
+            {gallery.length > 1 && (
+              <div className="pd-gallery__thumbs" role="list">
+                {gallery.map((image, index) => (
+                  <button
+                    type="button"
+                    role="listitem"
+                    className={index === activeImage ? 'is-active' : ''}
+                    key={image}
+                    onClick={() => setActiveImage(index)}
+                    aria-label={`${isAl ? 'Imazhi' : 'Image'} ${index + 1}`}
+                  >
+                    <img src={image} alt="" />
                   </button>
                 ))}
               </div>
-            </div>
-          )}
-
-          {needsQuote ? (
-            <div className="software-price-note">
-              {lang === 'al'
-                ? 'Cmimi percaktohet sipas licencimit, perdoruesve dhe konfigurimit.'
-                : 'Pricing depends on licensing, users, and configuration.'}
-            </div>
-          ) : (
-            <div className="detail-price">
-              {displayRegularPriceLabel && <del>{displayRegularPriceLabel}</del>}
-              <strong>{displayPriceLabel}</strong>
-            </div>
-          )}
-
-          <div className="detail-actions">
-            {needsQuote ? (
-              <a
-                href={`mailto:info@ccs.al?subject=Inquiry for ${encodeURIComponent(resolvedProduct.name)}`}
-                className="primary-action"
-              >
-                <Mail size={17} />
-                {lang === 'al' ? 'Kerko oferte' : 'Request quote'}
-              </a>
-            ) : (
-              <AddToCartButton
-                copy={copy}
-                className="primary-action"
-                iconSize={17}
-                onAdd={() => addToCart(resolvedProduct, selectedVariant)}
-              />
             )}
-            <a
-              href="https://wa.me/355684088507?text=Jam+i+interesuar+p%C3%ABr+produktet+tuaja"
-              className="secondary-action"
-            >
-              <Phone size={17} />
-              WhatsApp
-            </a>
           </div>
 
-          <p className="product-help">
-            {lang === 'al'
-              ? 'Per me shume informacion mbi kete produkt, kontaktoni ekipin CCS.'
-              : 'For more information about this product, contact the CCS team.'}
-          </p>
-        </article>
+          <article className="pd-summary">
+            <div className="pd-summary__meta">
+              {brandName && <span className="pd-brand">{brandName}</span>}
+              <span>{categoryName}</span>
+            </div>
+            <h1>{resolvedProduct.name}</h1>
+            {resolvedProduct.sku && (
+              <p className="pd-sku">
+                {isAl ? 'Kodi' : 'SKU'}: {resolvedProduct.sku}
+              </p>
+            )}
+
+            <div className="pd-price">
+              {needsQuote ? (
+                <>
+                  <strong className="pd-price__quote">{isAl ? 'Cmim sipas kerkeses' : 'Price on request'}</strong>
+                  <span>
+                    {isAl
+                      ? 'Cmimi percaktohet sipas licencimit, perdoruesve dhe konfigurimit.'
+                      : 'Pricing depends on licensing, users, and configuration.'}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <strong>{displayPriceLabel}</strong>
+                  {displayRegularPriceLabel && <del>{displayRegularPriceLabel}</del>}
+                </>
+              )}
+              {resolvedProduct.inStock === true && (
+                <span className="pd-stock">{isAl ? 'Ne stok' : 'In stock'}</span>
+              )}
+            </div>
+
+            {variants.length > 0 && (
+              <div className="pd-variants">
+                <span className="pd-label">
+                  {resolvedProduct.attributeName || (isAl ? 'Konfigurimi' : 'Configuration')}
+                </span>
+                <div>
+                  {variants.map((variant) => (
+                    <button
+                      type="button"
+                      className={selectedVariant?.id === variant.id ? 'is-active' : ''}
+                      aria-pressed={selectedVariant?.id === variant.id}
+                      key={variant.id}
+                      onClick={() => {
+                        setSelectedVariantId(variant.id)
+                        setActiveImage(0)
+                      }}
+                    >
+                      <strong>{String(variant.attributeValue || variant.name).replace(/^["'\s]+|["'\s]+$/g, '')}</strong>
+                      <small>{variant.priceLabel}</small>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="pd-actions">
+              {needsQuote ? (
+                <a
+                  href={`mailto:info@ccs.al?subject=${encodeURIComponent(`Inquiry for ${resolvedProduct.name}`)}`}
+                  className="hp-btn hp-btn--primary"
+                >
+                  <Mail size={18} aria-hidden="true" />
+                  {isAl ? 'Kerko oferte' : 'Request a quote'}
+                </a>
+              ) : (
+                <AddToCartButton
+                  copy={copy}
+                  className="hp-btn hp-btn--primary pd-cart"
+                  iconSize={18}
+                  onAdd={() => addToCart(resolvedProduct, selectedVariant)}
+                />
+              )}
+              <a
+                href={`https://wa.me/355684088507?text=${whatsappText}`}
+                className="hp-btn pd-btn--outline"
+                target="_blank"
+                rel="noreferrer"
+              >
+                <Phone size={18} aria-hidden="true" />
+                WhatsApp
+              </a>
+            </div>
+
+            {highlights.length > 0 && (
+              <dl className="pd-highlights">
+                {highlights.map(([key, value]) => (
+                  <div key={key}>
+                    <dt>{key}</dt>
+                    <dd>{value}</dd>
+                  </div>
+                ))}
+              </dl>
+            )}
+
+            <ul className="pd-help">
+              <li>
+                <Mail size={16} aria-hidden="true" />
+                <span>
+                  {isAl ? 'Pyetje? ' : 'Questions? '}
+                  <a href="mailto:info@ccs.al">info@ccs.al</a>
+                </span>
+              </li>
+              <li>
+                <Phone size={16} aria-hidden="true" />
+                <a href="tel:+35542259005">+ 04 225 9005</a>
+              </li>
+            </ul>
+          </article>
+        </div>
       </div>
 
-      <div className="product-description-panel">
-        <div>
-          <Kicker>{lang === 'al' ? 'Pershkrimi' : 'Description'}</Kicker>
-          <h2>{resolvedProduct.name}</h2>
-        </div>
-        <div className="product-description-list">
-          {description.map((line, index) => (
-            <p key={`${index}-${line}`}>{line}</p>
-          ))}
-        </div>
-      </div>
-
-      {related.length > 0 && (
-        <section className="related-products">
-          <SectionHeading title={lang === 'al' ? 'Produkte te ngjashme' : 'Related products'} />
-          <div className="products-grid">
-            {related.map((item) => (
-              <ProductCard
-                key={item.id}
-                item={item}
-                copy={copy}
-                navigate={navigate}
-                addToCart={addToCart}
-              />
-            ))}
+      {(specRows.length > 0 || paragraphs.length > 0) && (
+        <section className="pd-details">
+          <div className="sol-wrap pd-details__inner">
+            {paragraphs.length > 0 && (
+              <div className="pd-overview">
+                <h2>{isAl ? 'Pershkrimi' : 'Overview'}</h2>
+                {paragraphs.map((line, index) => (
+                  <p key={`${index}-${line.slice(0, 20)}`}>{line}</p>
+                ))}
+              </div>
+            )}
+            {specRows.length > 0 && (
+              <div className="pd-specs">
+                <h2>{isAl ? 'Specifikimet' : 'Specifications'}</h2>
+                <dl>
+                  {specRows.map(([key, value], index) => (
+                    <div key={`${index}-${key}`}>
+                      <dt>{key}</dt>
+                      <dd>{value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+            )}
           </div>
         </section>
       )}
-    </section>
+
+      {related.length > 0 && (
+        <section className="pd-related">
+          <div className="sol-wrap">
+            <header className="hp-head">
+              <h2>{isAl ? 'Produkte te ngjashme' : 'You may also like'}</h2>
+              <p />
+              <AppLink to="/shop/" navigate={navigate} className="hp-link">
+                {copy.common.viewShop}
+                <ArrowRight size={15} aria-hidden="true" />
+              </AppLink>
+            </header>
+            <div className="pd-related__grid">
+              {related.map((item) => (
+                <ProductCard key={item.id} item={item} copy={copy} navigate={navigate} addToCart={addToCart} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+    </div>
   )
 }
 
@@ -3734,227 +3828,573 @@ function DetailPage({ data, copy, lang, navigate }) {
   )
 }
 
+const SOLUTION_ICONS = {
+  'Ransomware Attacks': Shield,
+  'Phishing Attacks': Mail,
+  'DDoS Attacks': Network,
+  'Business Continuity & Reliability': Database,
+  'Scalability & Flexibility': Layers3,
+  'Cybersecurity & Compliance': ShieldCheck,
+  'On-Premise Storage': Server,
+  'Cloud Storage': Cloud,
+  'Hybrid Storage': Layers3,
+}
+
 function ITSolutionPage({ data, copy, lang, navigate }) {
+  const isAl = lang === 'al'
   const focus = SOLUTION_CONTENT[data.solutionKey]
+  const others = IT_SOLUTION_SLIDES.filter((slide) => slide.key !== data.solutionKey)
+  const title = titleFor(data, lang)
 
   return (
-    <section className="solution-page">
-      <div className="solution-showcase" aria-label={copy.nav.itSolution}>
-        {IT_SOLUTION_SLIDES.map((slide) => (
-          <AppLink
-            to={slide.to}
-            navigate={navigate}
-            className={`solution-slide ${slide.key === data.solutionKey ? 'active' : ''}`}
-            key={slide.key}
-          >
-            <img src={slide.image} alt="" />
-            <div>
-              <span>{lang === 'al' ? 'Zgjidhje' : 'Solution'}</span>
-              <h2>{titleFor(slide, lang)}</h2>
-              <p>{slide.intro}</p>
-            </div>
-          </AppLink>
-        ))}
-      </div>
+    <div className="hp sol">
+      <section className="sol-hero" style={{ '--sol-image': `url(${data.image})` }}>
+        <div className="sol-wrap sol-hero__inner">
+          <nav className="sol-crumbs" aria-label={isAl ? 'Gjurma' : 'Breadcrumb'}>
+            <AppLink to="/" navigate={navigate}>{copy.nav.home}</AppLink>
+            <span aria-hidden="true">/</span>
+            <span>{copy.nav.itSolution}</span>
+          </nav>
+          <h1>{title}</h1>
+          <p>{isAl && data.alIntro ? data.alIntro : data.intro}</p>
+          <div className="sol-hero__actions">
+            <a href="#sol-contact" className="hp-btn hp-btn--primary">
+              {data.solutionKey === 'support'
+                ? isAl ? 'Raportoni nje problem' : 'Report an issue'
+                : isAl ? 'Flisni me nje inxhinier' : 'Talk to an engineer'}
+              <ArrowRight size={17} aria-hidden="true" />
+            </a>
+          </div>
+        </div>
+        <div className="sol-tabs">
+          <div className="sol-wrap sol-tabs__inner" role="list">
+            {IT_SOLUTION_SLIDES.map((slide) => {
+              const Icon = PAGE_DATA[slide.to]?.icon || ShieldCheck
+              const active = slide.key === data.solutionKey
+              return (
+                <AppLink
+                  to={slide.to}
+                  navigate={navigate}
+                  key={slide.key}
+                  role="listitem"
+                  className={`sol-tab${active ? ' is-active' : ''}`}
+                  aria-current={active ? 'page' : undefined}
+                >
+                  <Icon size={18} aria-hidden="true" />
+                  {titleFor(slide, lang)}
+                </AppLink>
+              )
+            })}
+          </div>
+        </div>
+      </section>
 
-      <div className="solution-focus">
-        <div className="solution-focus-head">
-          <Kicker>{copy.nav.itSolution}</Kicker>
-          <h1>{titleFor(data, lang)}</h1>
-          <p>{lang === 'al' && data.alIntro ? data.alIntro : data.intro}</p>
+      <section className="sol-section">
+        <div className="sol-wrap sol-deliver">
+          <div className="sol-deliver__head">
+            <span className="hp-label">{isAl ? 'Cfare ofrojme' : 'What we deliver'}</span>
+            <h2>{focus.title}</h2>
+            <p>{focus.subtitle}</p>
+          </div>
+          <ul className="sol-points">
+            {(data.points || []).map((point) => (
+              <li key={point}>
+                <Check size={18} aria-hidden="true" />
+                <span>{point}</span>
+              </li>
+            ))}
+          </ul>
         </div>
-        <div className="solution-focus-media">
-          <img src={data.image} alt="" />
-        </div>
-      </div>
+      </section>
+
+      {data.solutionKey !== 'support' && (
+        <section className="sol-section sol-section--alt">
+          <div className="sol-wrap">
+            <SolutionBlock focus={focus} type={data.solutionKey} lang={lang} />
+          </div>
+        </section>
+      )}
 
       {data.solutionKey === 'support' ? (
         <SupportIssuePanel lang={lang} />
       ) : (
-        <SolutionBlock focus={focus} type={data.solutionKey} />
+        <section className="sol-cta" id="sol-contact">
+          <div className="sol-wrap sol-cta__inner">
+            <div>
+              <h2>{isAl ? `Keni nevoje per ${title}?` : `Planning a ${title.toLowerCase()} project?`}</h2>
+              <p>
+                {isAl
+                  ? 'Ekipi i CCS ju ndihmon nga vleresimi deri te implementimi dhe suporti.'
+                  : 'Our engineers can help from assessment and design through to implementation and ongoing support.'}
+              </p>
+            </div>
+            <div className="sol-cta__actions">
+              <a
+                href={`mailto:info@ccs.al?subject=${encodeURIComponent(`${title} enquiry`)}`}
+                className="hp-btn hp-btn--dark"
+              >
+                <Mail size={18} aria-hidden="true" />
+                info@ccs.al
+              </a>
+              <a href="tel:+35542259005" className="hp-btn hp-btn--outline-light">
+                <Phone size={18} aria-hidden="true" />
+                + 04 225 9005
+              </a>
+            </div>
+          </div>
+        </section>
       )}
 
-      <div className="solution-support-strip">
-        {[
-          'For Network and Security',
-          'For Servers and Storage',
-          'For Infrastructure',
-        ].map((label) => (
-          <article key={label}>
-            <h3>{label}</h3>
-            <p>Contact us for any problem related to this service area.</p>
-            <AppLink to="/support/" navigate={navigate}>
-              Support
-              <ArrowRight size={15} />
-            </AppLink>
-          </article>
-        ))}
-      </div>
-    </section>
+      <section className="sol-section">
+        <div className="sol-wrap">
+          <header className="hp-head">
+            <h2>{isAl ? 'Zgjidhje te tjera' : 'Explore other solutions'}</h2>
+            <p>
+              {isAl
+                ? 'CCS mbulon te gjithe ciklin e IT: rrjet, siguri, servera, infrastrukture dhe suport.'
+                : 'CCS covers the full IT lifecycle, from networks and security to servers, infrastructure and support.'}
+            </p>
+          </header>
+          <div className="sol-others">
+            {others.map((slide) => (
+              <AppLink to={slide.to} navigate={navigate} className="sol-other" key={slide.key}>
+                <img src={slide.image} alt="" loading="lazy" />
+                <span className="sol-other__shade" aria-hidden="true" />
+                <span className="sol-other__body">
+                  <strong>{titleFor(slide, lang)}</strong>
+                  <span>{slide.intro}</span>
+                  <span className="sol-other__cta">
+                    {copy.common.learnMore}
+                    <ArrowRight size={16} aria-hidden="true" />
+                  </span>
+                </span>
+              </AppLink>
+            ))}
+          </div>
+        </div>
+      </section>
+    </div>
   )
 }
 
-function SolutionBlock({ focus, type }) {
+function SolutionBlock({ focus, type, lang }) {
+  const isAl = lang === 'al'
+
   if (type === 'storage') {
     return (
-      <section className="solution-block">
-        <SectionHeading title={focus.title} text={focus.subtitle} />
-        <div className="storage-compare">
-          <div className="storage-row storage-heading">
-            <strong>Storage Type</strong>
-            <strong>Key Benefits</strong>
-          </div>
-          {focus.rows.map(([typeName, benefits]) => (
-            <div className="storage-row" key={typeName}>
-              <strong>{typeName}</strong>
-              <p>{benefits}</p>
-            </div>
-          ))}
+      <>
+        <header className="hp-head">
+          <h2>{isAl ? 'Zgjidhni modelin e duhur' : 'Choose the right storage model'}</h2>
+          <p>{focus.subtitle}</p>
+        </header>
+        <div className="sol-compare">
+          {focus.rows.map(([typeName, benefits]) => {
+            const Icon = SOLUTION_ICONS[typeName] || Server
+            return (
+              <article key={typeName}>
+                <span className="sol-icon">
+                  <Icon size={22} aria-hidden="true" />
+                </span>
+                <h3>{typeName}</h3>
+                <ul>
+                  {benefits
+                    .split('. ')
+                    .map((line) => line.replace(/\.$/, '').trim())
+                    .filter(Boolean)
+                    .map((line) => (
+                      <li key={line}>
+                        <Check size={16} aria-hidden="true" />
+                        {line}
+                      </li>
+                    ))}
+                </ul>
+              </article>
+            )
+          })}
         </div>
-      </section>
+      </>
     )
   }
 
+  const isNetwork = type === 'network'
+
   return (
-    <section className="solution-block">
-      <SectionHeading title={focus.title} text={focus.subtitle} />
-      <div className={type === 'network' ? 'threat-grid' : 'infra-grid'}>
-        {focus.cards.map((card) => (
-          <article key={card.title}>
-            <ShieldCheck size={22} />
-            <h3>{card.title}</h3>
-            {card.kicker && <strong>{card.kicker}</strong>}
-            <p>{card.body}</p>
-          </article>
-        ))}
+    <>
+      <header className="hp-head">
+        <h2>
+          {isNetwork
+            ? isAl ? 'Kercenimet qe ndalojme' : 'Threats we stop'
+            : isAl ? 'Cfare fitoni' : 'What you gain'}
+        </h2>
+        <p>{focus.subtitle}</p>
+      </header>
+      <div className="sol-cards">
+        {focus.cards.map((card) => {
+          const Icon = SOLUTION_ICONS[card.title] || ShieldCheck
+          const tech = card.kicker
+            ? card.kicker.replace(/^Mitigated by:\s*/i, '').split(/\s*&\s*/)
+            : []
+          return (
+            <article key={card.title}>
+              <span className="sol-icon">
+                <Icon size={22} aria-hidden="true" />
+              </span>
+              <h3>{card.title}</h3>
+              <p>{card.body}</p>
+              {tech.length > 0 && (
+                <div className="sol-tech">
+                  <small>{isAl ? 'Teknologjite' : 'Mitigated by'}</small>
+                  <ul>
+                    {tech.map((name) => (
+                      <li key={name}>{name}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </article>
+          )
+        })}
       </div>
-    </section>
+    </>
   )
 }
 
 function SupportIssuePanel({ lang }) {
+  const isAl = lang === 'al'
+  const [form, setForm] = useState({ name: '', email: '', area: '', details: '' })
+  const [sent, setSent] = useState(false)
+  const areas = isAl
+    ? ['Rrjet & Siguri', 'Servera & Storage', 'Infrastrukture', 'GIS', 'Tjeter']
+    : ['Network & Security', 'Servers & Storage', 'Infrastructure', 'GIS', 'Other']
+  const update = (key) => (event) => setForm((current) => ({ ...current, [key]: event.target.value }))
+
+  const submit = (event) => {
+    event.preventDefault()
+    const subject = `Support request${form.area ? ` - ${form.area}` : ''}`
+    const body = [
+      `Name: ${form.name}`,
+      `Email: ${form.email}`,
+      form.area ? `Area: ${form.area}` : '',
+      '',
+      form.details,
+    ]
+      .filter((line, index) => line || index === 3)
+      .join('\n')
+    window.location.href = `mailto:info@ccs.al?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
+    setSent(true)
+  }
+
   return (
-    <section className="support-issue-panel">
-      <div>
-        <Kicker>{lang === 'al' ? 'Suport' : 'Support'}</Kicker>
-        <h2>{lang === 'al' ? 'Na dergoni problemin tuaj' : 'Write an issue to contact us about your problem'}</h2>
-        <p>
-          {lang === 'al'
-            ? 'Plotesoni formen dhe ekipi CCS do tju kontaktoje per ndihme teknike.'
-            : 'Fill in the form and the CCS team will contact you for technical assistance.'}
-        </p>
+    <section className="sol-section sol-section--alt" id="sol-contact">
+      <div className="sol-wrap sol-support">
+        <div className="sol-support__info">
+          <span className="hp-label">{isAl ? 'Suport' : 'Support'}</span>
+          <h2>{isAl ? 'Na tregoni per problemin' : 'Tell us about the issue'}</h2>
+          <p>
+            {isAl
+              ? 'Plotesoni formen dhe ekipi CCS do t’ju kontaktoje per ndihme teknike.'
+              : 'Fill in the form and the CCS team will get back to you with technical assistance.'}
+          </p>
+          <ul className="sol-support__contacts">
+            <li>
+              <Mail size={18} aria-hidden="true" />
+              <a href="mailto:info@ccs.al">info@ccs.al</a>
+            </li>
+            <li>
+              <Phone size={18} aria-hidden="true" />
+              <a href="tel:+35542259005">+ 04 225 9005</a>
+            </li>
+            <li>
+              <Clock size={18} aria-hidden="true" />
+              <span>{isAl ? 'E hene - E premte, 08:30 - 17:00' : 'Monday - Friday, 08:30 - 17:00'}</span>
+            </li>
+          </ul>
+        </div>
+
+        <form className="sol-form" onSubmit={submit}>
+          <div className="sol-form__row">
+            <label>
+              <span>{isAl ? 'Emri' : 'Name'}</span>
+              <input type="text" name="name" required autoComplete="name" value={form.name} onChange={update('name')} />
+            </label>
+            <label>
+              <span>Email</span>
+              <input type="email" name="email" required autoComplete="email" value={form.email} onChange={update('email')} />
+            </label>
+          </div>
+          <fieldset className="sol-form__areas">
+            <legend>{isAl ? 'Fusha' : 'Area'}</legend>
+            {areas.map((area) => (
+              <label key={area} className={form.area === area ? 'is-active' : ''}>
+                <input
+                  type="radio"
+                  name="area"
+                  value={area}
+                  checked={form.area === area}
+                  onChange={update('area')}
+                />
+                {area}
+              </label>
+            ))}
+          </fieldset>
+          <label>
+            <span>{isAl ? 'Detaje rreth problemit' : 'Details about the issue'}</span>
+            <textarea name="details" rows="6" required value={form.details} onChange={update('details')} />
+          </label>
+          <div className="sol-form__foot">
+            <button type="submit" className="hp-btn hp-btn--primary">
+              {isAl ? 'Dergo kerkesen' : 'Send request'}
+              <ArrowRight size={17} aria-hidden="true" />
+            </button>
+            <p>
+              {sent
+                ? isAl
+                  ? 'Programi juaj i emailit u hap me kerkesen gati per dergim.'
+                  : 'Your email app has opened with the request ready to send.'
+                : isAl
+                  ? 'Kjo hap programin tuaj te emailit me kerkesen te plotesuar.'
+                  : 'This opens your email app with the request filled in.'}
+            </p>
+          </div>
+        </form>
       </div>
-      <form className="support-form">
-        <label>
-          Name
-          <input type="text" name="name" />
-        </label>
-        <label>
-          Email
-          <input type="email" name="email" />
-        </label>
-        <label>
-          Details about the issue
-          <textarea name="details" rows="5" />
-        </label>
-        <button type="button">Submit</button>
-      </form>
+    </section>
+  )
+}
+
+function CaseContactBand({ lang }) {
+  const isAl = lang === 'al'
+  return (
+    <section className="sol-cta">
+      <div className="sol-wrap sol-cta__inner">
+        <div>
+          <h2>{isAl ? 'Keni nje sfide te ngjashme?' : 'Facing a similar challenge?'}</h2>
+          <p>
+            {isAl
+              ? 'Tregojini ekipit te CCS per projektin tuaj dhe do t’ju ndihmojme te gjeni zgjidhjen e duhur.'
+              : 'Tell the CCS team about your project and we will help you find the right approach.'}
+          </p>
+        </div>
+        <div className="sol-cta__actions">
+          <a href="mailto:info@ccs.al?subject=Project%20enquiry" className="hp-btn hp-btn--dark">
+            <Mail size={18} aria-hidden="true" />
+            info@ccs.al
+          </a>
+          <a href="tel:+35542259005" className="hp-btn hp-btn--outline-light">
+            <Phone size={18} aria-hidden="true" />
+            + 04 225 9005
+          </a>
+        </div>
+      </div>
     </section>
   )
 }
 
 function CaseStudiesPage({ copy, lang, navigate }) {
-  return (
-    <section className="case-studies-page">
-      <div className="case-hero">
-        <div>
-          <Kicker>C.C.S</Kicker>
-          <h1>{copy.nav.caseStudies}</h1>
-          <p>
-            {lang === 'al'
-              ? 'Keto raste tregojne implementime te suksesshme IT dhe GIS ne industri te ndryshme.'
-              : 'These case studies demonstrate the successful implementation of advanced IT and GIS solutions across various industries.'}
-          </p>
-        </div>
-      </div>
+  const isAl = lang === 'al'
+  const [industry, setIndustry] = useState('all')
+  const industries = [...new Set(CASE_STUDIES.map((item) => item.industry))]
+  const visible = industry === 'all' ? CASE_STUDIES : CASE_STUDIES.filter((item) => item.industry === industry)
+  const [featured, ...rest] = visible
 
-      <div className="case-study-grid">
-        {CASE_STUDIES.map((item) => (
-          <AppLink to={item.path} navigate={navigate} className="case-study-card" key={item.path}>
-            <img src={item.image} alt="" />
-            <span>{item.industry}</span>
-            <h2>{item.title}</h2>
-            <p>{item.body}</p>
-            <strong>
-              View Case
-              <ArrowRight size={16} />
-            </strong>
-          </AppLink>
-        ))}
-      </div>
-    </section>
+  return (
+    <div className="hp sol cs">
+      <section className="cs-hero">
+        <div className="sol-wrap cs-hero__inner">
+          <div>
+            <span className="cs-hero__eyebrow">{isAl ? 'Puna jone' : 'Our work'}</span>
+            <h1>{copy.nav.caseStudies}</h1>
+            <p>
+              {isAl
+                ? 'Keto raste tregojne implementime te suksesshme IT dhe GIS ne industri te ndryshme.'
+                : 'Real IT, cybersecurity and GIS projects delivered by CCS for organisations in critical industries.'}
+            </p>
+          </div>
+          <dl className="cs-hero__stats">
+            <div>
+              <dt>{isAl ? 'Raste studimi' : 'Case studies'}</dt>
+              <dd>{CASE_STUDIES.length}</dd>
+            </div>
+            <div>
+              <dt>{isAl ? 'Industri' : 'Industries'}</dt>
+              <dd>{industries.length}</dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+
+      <section className="sol-section cs-list">
+        <div className="sol-wrap">
+          <div className="cs-filter" role="group" aria-label={isAl ? 'Filtro sipas industrise' : 'Filter by industry'}>
+            {['all', ...industries].map((name) => (
+              <button
+                type="button"
+                key={name}
+                className={industry === name ? 'is-active' : ''}
+                aria-pressed={industry === name}
+                onClick={() => setIndustry(name)}
+              >
+                {name === 'all' ? (isAl ? 'Te gjitha' : 'All industries') : name}
+                <span>
+                  {name === 'all' ? CASE_STUDIES.length : CASE_STUDIES.filter((item) => item.industry === name).length}
+                </span>
+              </button>
+            ))}
+          </div>
+
+          {featured && (
+            <AppLink to={featured.path} navigate={navigate} className="cs-feature">
+              <span className="cs-art cs-art--large" aria-hidden="true">
+                <img src={featured.image} alt="" />
+              </span>
+              <span className="cs-feature__body">
+                <span className="cs-tag">{featured.industry}</span>
+                <strong>{featured.title}</strong>
+                <span className="cs-feature__text">{featured.body}</span>
+                <span className="cs-more">
+                  {isAl ? 'Lexo rastin' : 'Read case study'}
+                  <ArrowRight size={17} aria-hidden="true" />
+                </span>
+              </span>
+            </AppLink>
+          )}
+
+          {rest.length > 0 && (
+            <div className="cs-grid">
+              {rest.map((item) => (
+                <AppLink to={item.path} navigate={navigate} className="cs-card" key={item.path}>
+                  <span className="cs-art" aria-hidden="true">
+                    <img src={item.image} alt="" loading="lazy" />
+                  </span>
+                  <span className="cs-card__body">
+                    <span className="cs-tag">{item.industry}</span>
+                    <strong>{item.title}</strong>
+                    <span className="cs-card__text">{item.body}</span>
+                    <span className="cs-more">
+                      {isAl ? 'Lexo rastin' : 'Read case study'}
+                      <ArrowRight size={16} aria-hidden="true" />
+                    </span>
+                  </span>
+                </AppLink>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      <CaseContactBand lang={lang} />
+    </div>
   )
 }
 
 function CaseStudyDetail({ item, lang, navigate }) {
-  return (
-    <section className="case-detail-page">
-      <AppLink to="/case-studies/" navigate={navigate} className="case-back-link">
-        <ArrowRight size={17} />
-        Back
-      </AppLink>
-      <div className="case-detail-hero">
-        <img src={item.image} alt="" />
-        <div>
-          <Kicker>{item.industry}</Kicker>
-          <h1>{item.title}</h1>
-          <p>{item.body}</p>
-        </div>
-      </div>
+  const isAl = lang === 'al'
+  const index = CASE_STUDIES.findIndex((caseStudy) => caseStudy.path === item.path)
+  const next = CASE_STUDIES[(index + 1) % CASE_STUDIES.length]
+  const others = CASE_STUDIES.filter((caseStudy) => caseStudy.path !== item.path)
+  const steps = [
+    [isAl ? 'Permbledhje' : 'Overview', item.body],
+    [
+      isAl ? 'Sfida' : 'Challenge',
+      isAl
+        ? 'Organizata kishte nevoje per sisteme me te sigurta, me te shkallezueshme dhe me te lehta per tu menaxhuar.'
+        : 'The organization needed more secure, scalable, and manageable systems for critical operations.',
+    ],
+    [
+      isAl ? 'Zgjidhja' : 'Solution',
+      isAl
+        ? 'CCS projektoi, implementoi dhe optimizoi zgjidhjen duke kombinuar infrastrukture, siguri dhe dokumentim teknik.'
+        : 'CCS designed, implemented, and optimized the solution by combining infrastructure, security, and technical documentation.',
+    ],
+    [
+      isAl ? 'Ndikimi' : 'Impact',
+      isAl
+        ? 'Rezultati ishte performance me e mire, mbrojtje me e forte dhe nje baze me e qendrueshme per zhvillim.'
+        : 'The result was better performance, stronger protection, and a more stable foundation for growth.',
+    ],
+  ]
 
-      <div className="case-detail-layout">
-        <aside className="case-detail-nav">
-          {CASE_STUDIES.map((caseStudy) => (
-            <AppLink
-              to={caseStudy.path}
-              navigate={navigate}
-              className={caseStudy.path === item.path ? 'active' : ''}
-              key={caseStudy.path}
-            >
-              {caseStudy.title}
+  return (
+    <div className="hp sol cs">
+      <section className="cs-hero cs-hero--detail">
+        <div className="sol-wrap cs-detail-hero">
+          <div>
+            <AppLink to="/case-studies/" navigate={navigate} className="cs-back">
+              <ArrowRight size={16} aria-hidden="true" />
+              {isAl ? 'Te gjitha rastet' : 'All case studies'}
             </AppLink>
-          ))}
-        </aside>
-        <article className="case-story">
-          {[
-            ['Overview', item.body],
-            [
-              'Challenge',
-              lang === 'al'
-                ? 'Organizata kishte nevoje per sisteme me te sigurta, me te shkallezueshme dhe me te lehta per tu menaxhuar.'
-                : 'The organization needed more secure, scalable, and manageable systems for critical operations.',
-            ],
-            [
-              'Solution',
-              lang === 'al'
-                ? 'CCS projektoi, implementoi dhe optimizoi zgjidhjen duke kombinuar infrastrukture, siguri dhe dokumentim teknik.'
-                : 'CCS designed, implemented, and optimized the solution by combining infrastructure, security, and technical documentation.',
-            ],
-            [
-              'Impact',
-              lang === 'al'
-                ? 'Rezultati ishte performance me e mire, mbrojtje me e forte dhe nje baze me e qendrueshme per zhvillim.'
-                : 'The result was better performance, stronger protection, and a more stable foundation for growth.',
-            ],
-          ].map(([heading, body]) => (
-            <section key={heading}>
-              <h2>{heading}</h2>
-              <p>{body}</p>
-            </section>
-          ))}
-        </article>
-      </div>
-    </section>
+            <span className="cs-tag cs-tag--light">{item.industry}</span>
+            <h1>{item.title}</h1>
+            <p>{item.body}</p>
+          </div>
+          <span className="cs-art cs-art--hero" aria-hidden="true">
+            <img src={item.image} alt="" />
+          </span>
+        </div>
+      </section>
+
+      <section className="sol-section">
+        <div className="sol-wrap cs-detail">
+          <ol className="cs-steps">
+            {steps.map(([heading, body]) => (
+              <li key={heading}>
+                <h2>{heading}</h2>
+                <p>{body}</p>
+              </li>
+            ))}
+          </ol>
+
+          <aside className="cs-aside">
+            <div className="cs-facts">
+              <h2>{isAl ? 'Detajet e projektit' : 'Project details'}</h2>
+              <dl>
+                <div>
+                  <dt>{isAl ? 'Industria' : 'Industry'}</dt>
+                  <dd>{item.industry}</dd>
+                </div>
+                <div>
+                  <dt>{isAl ? 'Partneri' : 'Delivered by'}</dt>
+                  <dd>CCS Albania</dd>
+                </div>
+              </dl>
+              <a href="mailto:info@ccs.al?subject=Project%20enquiry" className="hp-btn hp-btn--primary">
+                {isAl ? 'Diskutoni projektin tuaj' : 'Discuss your project'}
+                <ArrowRight size={17} aria-hidden="true" />
+              </a>
+            </div>
+
+            <nav className="cs-related" aria-label={isAl ? 'Raste te tjera' : 'More case studies'}>
+              <h2>{isAl ? 'Raste te tjera' : 'More case studies'}</h2>
+              {others.map((caseStudy) => (
+                <AppLink to={caseStudy.path} navigate={navigate} key={caseStudy.path}>
+                  <span className="cs-art cs-art--tiny" aria-hidden="true">
+                    <img src={caseStudy.image} alt="" loading="lazy" />
+                  </span>
+                  <span>
+                    <small>{caseStudy.industry}</small>
+                    {caseStudy.title}
+                  </span>
+                </AppLink>
+              ))}
+            </nav>
+          </aside>
+        </div>
+      </section>
+
+      <section className="cs-next">
+        <AppLink to={next.path} navigate={navigate} className="sol-wrap cs-next__link">
+          <span>
+            <small>{isAl ? 'Rasti tjeter' : 'Next case study'}</small>
+            <strong>{next.title}</strong>
+          </span>
+          <span className="cs-next__arrow" aria-hidden="true">
+            <ArrowRight size={26} />
+          </span>
+        </AppLink>
+      </section>
+
+      <CaseContactBand lang={lang} />
+    </div>
   )
 }
 
