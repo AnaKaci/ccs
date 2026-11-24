@@ -1,25 +1,33 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
+  AppWindow,
   ArrowRight,
   BriefcaseBusiness,
   Building2,
   Check,
   ChevronDown,
+  Award,
+  CalendarCheck,
   Clock,
   Cloud,
   Cpu,
   Database,
+  Factory,
   Filter,
   Globe2,
+  Handshake,
   Headphones,
+  Keyboard,
   Laptop,
   Layers3,
+  LayoutGrid,
   Mail,
   MapPin,
   Menu,
   Monitor,
   Moon,
   Network,
+  PcCase,
   Phone,
   Printer,
   Search,
@@ -169,8 +177,8 @@ const NAV_GROUPS = [
   {
     labelKey: 'products',
     children: [
-      { labelKey: 'software', to: '/product-category/software/' },
       { labelKey: 'hardware', to: '/product-category/hardware/' },
+      { labelKey: 'software', to: '/product-category/software/' },
       { labelKey: 'hpProducts', to: '/products-hp/' },
     ],
   },
@@ -1633,14 +1641,22 @@ function titleFor(item, lang) {
 }
 
 function iconForCategory(category) {
+  if (category === 'all') return LayoutGrid
   if (category === 'hardware') return Cpu
-  if (category === 'software') return ShieldCheck
+  if (category === 'software') return AppWindow
+  if (category === 'desktop') return PcCase
   if (category === 'laptop') return Laptop
   if (category === 'monitor') return Monitor
   if (category === 'printer') return Printer
   if (category === 'network') return Wifi
-  if (category === 'accessories') return Layers3
+  if (category === 'accessories') return Keyboard
   return Cpu
+}
+
+const SHOP_CATEGORIES = ['all', 'hardware', 'software', 'desktop', 'laptop', 'monitor', 'printer', 'accessories']
+
+function shopCategoryPath(category) {
+  return category === 'all' ? '/shop/' : `/product-category/${category}/`
 }
 
 function seoForRoute(route, lang) {
@@ -2170,7 +2186,8 @@ function RouteRenderer({
   }
 
   if (route.path.startsWith('/product-category/')) {
-    const initialKind = route.path.includes('/software/') ? 'software' : 'hardware'
+    const slug = route.path.split('/').filter(Boolean)[1]
+    const initialKind = SHOP_CATEGORIES.includes(slug) && slug !== 'all' ? slug : 'hardware'
     return (
       <ShopPage
         copy={copy}
@@ -2512,11 +2529,12 @@ function HomePage({ copy, lang, navigate }) {
   const [activeModal, setActiveModal] = useState(null)
   const [activeService, setActiveService] = useState(0)
   const isAl = lang === 'al'
+  const yearsActive = new Date().getFullYear() - 1993
   const facts = [
-    { value: '1993', label: isAl ? 'Viti i themelimit ne Tirane' : 'Founded in Tirana' },
-    { value: String(CERTIFICATIONS.length), label: isAl ? 'Certifikime ISO' : 'ISO-certified management systems' },
-    { value: String(PARTNERS.length), label: isAl ? 'Partnere teknologjie' : 'Global technology partners' },
-    { value: String(new Set(CASE_STUDIES.map((item) => item.industry)).size), label: isAl ? 'Industri kritike' : 'Critical industries served' },
+    { icon: CalendarCheck, value: '1993', label: isAl ? 'Viti i themelimit ne Tirane' : 'Founded in Tirana' },
+    { icon: Award, value: String(CERTIFICATIONS.length), label: isAl ? 'Certifikime ISO' : 'ISO-certified management systems' },
+    { icon: Handshake, value: String(PARTNERS.length), label: isAl ? 'Partnere teknologjie' : 'Global technology partners' },
+    { icon: Factory, value: String(new Set(CASE_STUDIES.map((item) => item.industry)).size), label: isAl ? 'Industri kritike' : 'Critical industries served' },
   ]
   const principles = [
     { title: isAl ? 'Cikel i plote projekti' : 'Full project lifecycle', body: copy.home.lifecycle },
@@ -2543,16 +2561,16 @@ function HomePage({ copy, lang, navigate }) {
       </section>
 
       <section className="hp-intro" aria-label={isAl ? 'Rreth CCS' : 'About CCS'}>
-        <div className="hp-wrap">
-          <h1 className="hp-display">
-            {isAl ? (
-              <>Infrastrukture, siguri dhe sisteme <em>qe punojne</em> per organizatat shqiptare.</>
-            ) : (
-              <>Infrastructure, security and systems <em>that hold up</em> for Albania&rsquo;s critical organisations.</>
-            )}
-          </h1>
-          <div className="hp-intro__foot">
-            <p>{copy.home.aboutLead}</p>
+        <div className="hp-wrap hp-intro__grid">
+          <div className="hp-intro__copy">
+            <h1 className="hp-display">
+              {isAl ? (
+                <>Infrastrukture, siguri dhe sisteme <em>qe punojne</em> per organizatat shqiptare.</>
+              ) : (
+                <>Infrastructure, security and systems <em>that hold up</em> for Albania&rsquo;s critical organisations.</>
+              )}
+            </h1>
+            <p className="hp-intro__lead">{copy.home.aboutLead}</p>
             <div className="hp-intro__actions">
               <a href="#contact" className="hp-btn hp-btn--primary">
                 {isAl ? 'Kontaktoni ekipin' : 'Talk to our engineers'}
@@ -2563,15 +2581,45 @@ function HomePage({ copy, lang, navigate }) {
               </AppLink>
             </div>
           </div>
-        </div>
-        <dl className="hp-facts">
-          {facts.map((fact) => (
-            <div key={fact.label}>
-              <dt>{fact.label}</dt>
-              <dd>{fact.value}</dd>
+
+          <div className="hp-intro__visual">
+            <img src={ASSETS.aboutTwo} alt={isAl ? 'Ambienti i punes ne zyrat e CCS ne Tirane' : 'The CCS office in Tirana'} />
+            <div className="hp-intro__badge">
+              <strong>{yearsActive}</strong>
+              <span>{isAl ? 'vite ne IT ne Shqiperi' : 'years delivering IT in Albania'}</span>
             </div>
-          ))}
-        </dl>
+            <nav className="hp-intro__card" aria-label={isAl ? 'Sherbimet' : 'Services'}>
+              <span className="hp-intro__card-title">{isAl ? 'Sherbimet tona' : 'What we do'}</span>
+              {SERVICES.map((service) => {
+                const Icon = service.icon
+                return (
+                  <AppLink to={service.to} navigate={navigate} key={service.key}>
+                    <span className="hp-intro__card-icon">
+                      <Icon size={17} aria-hidden="true" />
+                    </span>
+                    {titleFor(service, lang)}
+                    <ArrowRight size={15} aria-hidden="true" />
+                  </AppLink>
+                )
+              })}
+            </nav>
+          </div>
+        </div>
+
+        <div className="hp-wrap">
+          <dl className="hp-facts">
+            {facts.map((fact) => {
+              const Icon = fact.icon
+              return (
+                <div key={fact.label}>
+                  <Icon size={22} aria-hidden="true" />
+                  <dd>{fact.value}</dd>
+                  <dt>{fact.label}</dt>
+                </div>
+              )
+            })}
+          </dl>
+        </div>
       </section>
 
       <section className="hp-section hp-section--services" id="services">
@@ -2623,7 +2671,6 @@ function HomePage({ copy, lang, navigate }) {
       <section className="hp-bleed" id="about">
         <div className="hp-bleed__media">
           <img src={ASSETS.aboutOne} alt={isAl ? 'Zyrat e CCS ne Tirane' : 'CCS office reception in Tirana'} />
-          <img className="hp-bleed__inset" src={ASSETS.aboutTwo} alt={isAl ? 'Ambienti i punes CCS' : 'CCS workspace'} />
         </div>
         <div className="hp-bleed__copy">
           <span className="hp-label">{copy.home.aboutTitle}</span>
@@ -2846,6 +2893,108 @@ function langForCopy(copy) {
 }
 
 const SHOP_PAGE_SIZE = 20
+const SHOP_HERO_INTERVAL = 6500
+
+function ShopHeroCarousel({ slides, label }) {
+  const [index, setIndex] = useState(0)
+  const [paused, setPaused] = useState(false)
+  const count = slides.length
+  const go = (next) => setIndex((next + count) % count)
+
+  useEffect(() => {
+    if (paused || count < 2) return undefined
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return undefined
+    const timer = window.setTimeout(() => setIndex((current) => (current + 1) % count), SHOP_HERO_INTERVAL)
+    return () => window.clearTimeout(timer)
+  }, [index, paused, count])
+
+  return (
+    <section
+      className={`shc${paused ? ' is-paused' : ''}`}
+      aria-roledescription="carousel"
+      aria-label={label}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onFocus={() => setPaused(true)}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setPaused(false)
+      }}
+      onKeyDown={(event) => {
+        if (event.key === 'ArrowLeft') go(index - 1)
+        if (event.key === 'ArrowRight') go(index + 1)
+      }}
+    >
+      {slides.map((slide, slideIndex) => {
+        const active = slideIndex === index
+        return (
+          <div
+            className={`shc-slide${active ? ' is-active' : ''}`}
+            key={slide.key}
+            role="group"
+            aria-roledescription="slide"
+            aria-label={`${slideIndex + 1} / ${count}`}
+            aria-hidden={!active}
+          >
+            <img className="shc-slide__img" src={slide.image} alt="" loading={slideIndex === 0 ? 'eager' : 'lazy'} />
+            <span className="shc-slide__shade" aria-hidden="true" />
+            <div className="shc-slide__content">
+              <span className="shc-slide__eyebrow">{slide.eyebrow}</span>
+              {slideIndex === 0 ? <h1>{slide.title}</h1> : <h2>{slide.title}</h2>}
+              <p>{slide.text}</p>
+              <div className="shc-slide__actions">
+                {slide.actions.map((action) =>
+                  action.href ? (
+                    <a
+                      key={action.label}
+                      href={action.href}
+                      className={`hp-btn ${action.primary ? 'hp-btn--primary' : 'shc-btn--ghost'}`}
+                      tabIndex={active ? undefined : -1}
+                      target={action.external ? '_blank' : undefined}
+                      rel={action.external ? 'noreferrer' : undefined}
+                    >
+                      {action.label}
+                      {action.primary && <ArrowRight size={17} aria-hidden="true" />}
+                    </a>
+                  ) : (
+                    <button
+                      type="button"
+                      key={action.label}
+                      className={`hp-btn ${action.primary ? 'hp-btn--primary' : 'shc-btn--ghost'}`}
+                      tabIndex={active ? undefined : -1}
+                      onClick={action.onClick}
+                    >
+                      {action.label}
+                      {action.primary && <ArrowRight size={17} aria-hidden="true" />}
+                    </button>
+                  ),
+                )}
+              </div>
+            </div>
+          </div>
+        )
+      })}
+
+      {count > 1 && (
+        <div className="shc-controls">
+          <div className="shc-dots">
+            {slides.map((slide, slideIndex) => (
+              <button
+                type="button"
+                key={slide.key}
+                className={slideIndex === index ? 'is-active' : ''}
+                aria-label={`${slideIndex + 1} / ${count}`}
+                aria-current={slideIndex === index ? 'true' : undefined}
+                onClick={() => go(slideIndex)}
+              >
+                <span style={{ animationDuration: `${SHOP_HERO_INTERVAL}ms` }} />
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </section>
+  )
+}
 
 function ShopPage({
   copy,
@@ -2866,21 +3015,6 @@ function ShopPage({
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [visibleCount, setVisibleCount] = useState(SHOP_PAGE_SIZE)
   const isAl = langForCopy(copy) === 'al'
-  const brandCount = useMemo(
-    () => new Set(products.map((item) => item.brand).filter(Boolean)).size,
-    [products],
-  )
-  const heroProducts = useMemo(() => {
-    const picks = []
-    const seenCategories = new Set()
-    products.forEach((item) => {
-      if (picks.length >= 4 || !item.image || !item.priceLabel || item.kind === 'software') return
-      if (seenCategories.has(item.category)) return
-      seenCategories.add(item.category)
-      picks.push(item)
-    })
-    return picks
-  }, [products])
   const scrollToProducts = () => {
     document.getElementById('shop-search')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
@@ -2980,136 +3114,105 @@ function ShopPage({
   const clearFilters = () => {
     setFilters({})
     setQuery('')
-    setCategory('all')
     setSort('')
+    if (category !== 'all') goCategory('all')
   }
 
-  const categories = ['all', 'hardware', 'software', 'desktop', 'laptop', 'monitor', 'printer', 'accessories']
+  const categories = SHOP_CATEGORIES
+  const goCategory = (item) => {
+    setCategory(item)
+    navigate(shopCategoryPath(item), { keepScroll: true })
+  }
 
   return (
     <div className="shop-page">
-      <section className="sh-hero" aria-labelledby="shop-hero-title">
-        <div className="sh-hero__grid" aria-hidden="true" />
-        <div className="sh-hero__inner">
-          <div className="sh-hero__copy">
-            <span className="sh-hero__eyebrow">{isAl ? 'Dyqani CCS' : 'CCS Shop'}</span>
-            <h1 id="shop-hero-title">{copy.shop.welcome}</h1>
-            <p>{copy.shop.capture}</p>
-
-            <form
-              className="sh-hero__search"
-              role="search"
-              onSubmit={(event) => {
-                event.preventDefault()
-                scrollToProducts()
-              }}
-            >
-              <Search size={20} aria-hidden="true" />
-              <input
-                type="search"
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder={copy.common.searchPlaceholder}
-                aria-label={copy.common.searchPlaceholder}
-              />
-              <button type="submit">{isAl ? 'Kerko' : 'Search'}</button>
-            </form>
-
-            <div className="sh-hero__chips" aria-label={isAl ? 'Kategori te shpejta' : 'Quick categories'}>
-              {['laptop', 'desktop', 'monitor', 'printer', 'software'].map((item) => {
-                const Icon = iconForCategory(item)
-                return (
-                  <button
-                    type="button"
-                    key={item}
-                    onClick={() => {
-                      setCategory(item)
-                      scrollToProducts()
-                    }}
-                  >
-                    <Icon size={15} aria-hidden="true" />
-                    {copy.shop[item]}
-                  </button>
-                )
-              })}
-            </div>
-
-            <dl className="sh-hero__stats">
-              <div>
-                <dt>{isAl ? 'Produkte' : 'Products'}</dt>
-                <dd>{CSV_CATALOG_META.catalogProductCount}</dd>
-              </div>
-              <div>
-                <dt>{isAl ? 'Marka' : 'Brands'}</dt>
-                <dd>{brandCount}</dd>
-              </div>
-              <div>
-                <dt>{isAl ? 'Vite eksperience' : 'Years in IT'}</dt>
-                <dd>{new Date().getFullYear() - 1993}</dd>
-              </div>
-            </dl>
-
-            <a
-              className="sh-hero__whatsapp"
-              href="https://wa.me/355684088507?text=Jam+i+interesuar+p%C3%ABr+produktet+tuaja"
-              target="_blank"
-              rel="noreferrer"
-              title={copy.shop.whatsapp}
-            >
-              <span className="sh-hero__pulse" aria-hidden="true" />
-              {isAl ? 'Keni nevoje per oferte? Bisedoni ne WhatsApp' : 'Need a quote? Chat with us on WhatsApp'}
-              <ArrowRight size={16} aria-hidden="true" />
-            </a>
-          </div>
-
-          <div className="sh-hero__showcase">
-            <ul className="sh-hero__tiles">
-              {heroProducts.map((item, index) => (
-                <li key={item.id} className={`sh-tile sh-tile--${index + 1}`}>
-                  <AppLink to={`/product/${item.slug}/`} navigate={navigate}>
-                    <span className="sh-tile__img">
-                      <img src={item.image} alt="" />
-                    </span>
-                    <span className="sh-tile__meta">
-                      <small>{item.brand}</small>
-                      <strong>{item.name}</strong>
-                      <em>{item.priceLabel}</em>
-                    </span>
-                  </AppLink>
-                </li>
-              ))}
-            </ul>
-            <ul className="sh-hero__brands" aria-label={isAl ? 'Markat' : 'Brands'}>
-              {[
-                ['HP', PARTNER_LOGOS.hp],
-                ['Cisco', PARTNER_LOGOS.cisco],
-                ['Fortinet', PARTNER_LOGOS.fortinet],
-                ['Lenovo', PARTNER_LOGOS.lenovo],
-                ['Xerox', PARTNER_LOGOS.xerox],
-              ].map(([name, src]) => (
-                <li key={name}>
-                  <img src={src} alt={name} />
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </section>
+      <ShopHeroCarousel
+        label={isAl ? 'Dyqani CCS' : 'CCS Shop'}
+        slides={[
+          {
+            key: 'welcome',
+            image: ASSETS.shopHero,
+            eyebrow: isAl ? 'Dyqani CCS' : 'CCS Shop',
+            title: copy.shop.welcome,
+            text: copy.shop.capture,
+            actions: [
+              { label: isAl ? 'Shfleto produktet' : 'Browse products', primary: true, onClick: scrollToProducts },
+              {
+                label: isAl ? 'Bisedoni ne WhatsApp' : 'Chat on WhatsApp',
+                href: 'https://wa.me/355684088507?text=Jam+i+interesuar+p%C3%ABr+produktet+tuaja',
+                external: true,
+              },
+            ],
+          },
+          {
+            key: 'hardware',
+            image: ASSETS.solutionStorage,
+            eyebrow: copy.shop.hardware,
+            title: isAl ? 'Pajisje per biznesin' : 'Hardware built for business',
+            text: isAl
+              ? 'Laptope, desktop, monitore, printere dhe aksesore nga HP, Xerox dhe te tjere.'
+              : 'Laptops, desktops, monitors, printers and accessories from HP, Xerox and more.',
+            actions: [
+              {
+                label: isAl ? 'Shiko hardware' : 'Shop hardware',
+                primary: true,
+                onClick: () => {
+                  goCategory('hardware')
+                  scrollToProducts()
+                },
+              },
+              {
+                label: isAl ? 'Laptope' : 'Laptops',
+                onClick: () => {
+                  goCategory('laptop')
+                  scrollToProducts()
+                },
+              },
+            ],
+          },
+          {
+            key: 'software',
+            image: ASSETS.solutionSecurity,
+            eyebrow: copy.shop.software,
+            title: isAl ? 'Siguri dhe software per ndermarrje' : 'Security and enterprise software',
+            text: isAl
+              ? 'Zgjidhje nga Fortinet, Cisco, Microsoft, ArcGIS dhe te tjere, me cmim sipas licencimit.'
+              : 'Solutions from Fortinet, Cisco, Microsoft, ArcGIS and more, priced to your licensing needs.',
+            actions: [
+              {
+                label: isAl ? 'Shiko software' : 'Explore software',
+                primary: true,
+                onClick: () => {
+                  goCategory('software')
+                  scrollToProducts()
+                },
+              },
+              { label: isAl ? 'Kerko oferte' : 'Request a quote', href: 'mailto:info@ccs.al?subject=Software%20quote' },
+            ],
+          },
+        ]}
+      />
 
       <div className="shop-sticky" id="shop-search">
         <div className="category-tabs" aria-label="Product categories">
           {categories.map((item) => {
             const Icon = iconForCategory(item)
+            const active = category === item
             return (
-              <button
-                type="button"
-                className={category === item ? 'active' : ''}
-                onClick={() => setCategory(item)}
+              <AppLink
+                to={shopCategoryPath(item)}
+                navigate={navigate}
+                className={active ? 'active' : ''}
+                aria-current={active ? 'page' : undefined}
+                onClick={(event) => {
+                  event.preventDefault()
+                  goCategory(item)
+                }}
                 key={item}
               >
-                <Icon size={17} />
+                <Icon size={17} aria-hidden="true" />
                 {copy.shop[item]}
-              </button>
+              </AppLink>
             )
           })}
         </div>
@@ -3237,9 +3340,6 @@ function ShopPage({
         </div>
       </section>
 
-      <section className="shop-footer-note">
-        <p>{copy.shop.footer}</p>
-      </section>
     </div>
   )
 }

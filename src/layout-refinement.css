@@ -1773,7 +1773,7 @@ body:not(.dark-mode) .site-shell.non-shop-ui .ccs-video-only-hero > .ccs-hero-vi
     scrollbar-width: none;
   }
   .site-shell.commerce-ui .category-tabs::-webkit-scrollbar { display: none; }
-  .site-shell.commerce-ui .category-tabs button {
+  .site-shell.commerce-ui .category-tabs :is(button, a) {
     flex: 0 0 auto;
     min-height: 54px;
     padding: 0 3px;

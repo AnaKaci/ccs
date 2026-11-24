@@ -1468,7 +1468,7 @@ body.dark-mode .shop-sticky {
   scrollbar-width: thin;
 }
 
-.category-tabs button {
+.category-tabs :is(button, a) {
   flex: 0 0 auto;
   min-height: 66px;
   padding: 0;
@@ -1484,7 +1484,7 @@ body.dark-mode .shop-sticky {
   font-weight: 780;
 }
 
-.category-tabs button.active {
+.category-tabs :is(button, a).active {
   color: var(--color-text);
   border-bottom-color: var(--color-brand-red);
 }
@@ -4864,12 +4864,12 @@ body.dark-mode .commerce-ui .shop-sticky {
   border-bottom-color: var(--shop-border);
 }
 
-.commerce-ui .category-tabs button {
+.commerce-ui .category-tabs :is(button, a) {
   color: var(--shop-body);
 }
 
-.commerce-ui .category-tabs button:hover,
-.commerce-ui .category-tabs button.active {
+.commerce-ui .category-tabs :is(button, a):hover,
+.commerce-ui .category-tabs :is(button, a).active {
   color: var(--shop-text);
 }
 

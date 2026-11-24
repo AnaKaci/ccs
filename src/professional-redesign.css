@@ -884,13 +884,13 @@ body:not(.dark-mode) .site-shell.commerce-ui .shop-sticky {
   box-shadow: none;
   backdrop-filter: none;
 }
-.site-shell.commerce-ui .category-tabs button {
+.site-shell.commerce-ui .category-tabs :is(button, a) {
   color: var(--ccs-body);
   border-radius: 0;
   font-size: 13px;
   font-weight: 650;
 }
-.site-shell.commerce-ui .category-tabs button.active {
+.site-shell.commerce-ui .category-tabs :is(button, a).active {
   color: var(--ccs-accent-text);
   border-bottom-color: #ef4136;
 }
