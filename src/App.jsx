@@ -46,6 +46,7 @@ import FortinetSyndication from './components/syndication/FortinetSyndication'
 import HPSyndication from './components/syndication/HPSyndication'
 import VendorSolutionLayout from './components/vendor/VendorSolutionLayout'
 import { useCart } from './cart'
+import { useSiteMotion } from './motion'
 import { CSV_CATALOG_META, CSV_PRODUCTS } from './data/catalog'
 import './App.css'
 import './design-consistency.css'
@@ -56,46 +57,20 @@ import './header-polish.css'
 import './partner-cards.css'
 import './home.css'
 
-const ROUTE_SEGMENTS = [
-  'shop',
-  'products',
-  'products-hp',
-  'product',
-  'product-category',
-  'hp-poly',
-  'fortinet',
-  'cisco',
-  'network-security',
-  'servers-storage',
-  'infrastructure',
-  'support',
-  'case-studies',
-  'case-study-1',
-  'case-study-2',
-  'case-study-3',
-  'case-study-4',
-  'case-study-5',
-  'case-study-6',
-  'cart',
-  'checkout',
-  'account',
-  'profile',
-  'register',
-  'password-reset',
-  'log-in',
-]
+// The folder the site is served from ("/" locally, e.g. "/ccs/" on a subfolder host),
+// derived from this module's own URL so unknown paths are never mistaken for the base.
+const APP_BASE = (() => {
+  try {
+    const modulePath = new URL(import.meta.url).pathname
+    const index = modulePath.search(/\/(assets|src)\//)
+    return index >= 0 ? modulePath.slice(0, index + 1) : '/'
+  } catch {
+    return '/'
+  }
+})()
 
 function publicAsset(name) {
-  const root =
-    typeof window === 'undefined'
-      ? '/'
-      : (() => {
-          const parts = window.location.pathname.split('/').filter(Boolean)
-          const routeIndex = parts.findIndex((part) => ROUTE_SEGMENTS.includes(part))
-          const rootParts = routeIndex === -1 ? parts : parts.slice(0, routeIndex)
-          return rootParts.length ? `/${rootParts.join('/')}/` : '/'
-        })()
-  return `${root}${name}`
+  return `${APP_BASE}${name}`
 }
 
 const ASSETS = {
@@ -153,9 +128,7 @@ const ASSETS = {
   iso27001: 'https://ccs.al/wp-content/uploads/2025/02/Logo-ISO-27001-1.png',
 }
 
-const KNOWN_ROUTE_SEGMENTS = new Set(ROUTE_SEGMENTS)
-
-const COMMERCE_ROUTE_PREFIXES = ['/shop/', '/products/', '/products-hp/', '/hp-poly/', '/product/', '/product-category/', '/cart/', '/checkout/', '/account/', '/profile/', '/register/', '/password-reset/', '/log-in/']
+const COMMERCE_ROUTE_PREFIXES = ['/shop/', '/products/', '/products-hp/', '/hp-poly/', '/product/', '/product-category/', '/cart/', '/checkout/', '/account/', '/profile/']
 
 function isCommerceRoute(path) {
   return COMMERCE_ROUTE_PREFIXES.some((prefix) => path === prefix || path.startsWith(prefix))
@@ -893,11 +866,8 @@ const SOLUTION_CONTENT = {
 }
 
 const AUTH_PAGES = {
-  '/log-in/': ['Log In', 'Access your CCS account area.'],
-  '/register/': ['Register', 'Create a CCS account profile.'],
   '/profile/': ['Profile', 'View and manage your customer profile.'],
   '/account/': ['Account', 'Review account details and saved information.'],
-  '/password-reset/': ['Password Reset', 'Reset your account password securely.'],
   '/checkout/': ['Checkout', 'Complete your order details.'],
 }
 
@@ -1487,22 +1457,19 @@ function productMatchesFilter(item, group, token) {
 }
 
 function normalizePathname(pathname) {
-  const parts = pathname.split('/').filter(Boolean)
-  const routeIndex = parts.findIndex((part) => KNOWN_ROUTE_SEGMENTS.has(part))
+  const relative = pathname.startsWith(APP_BASE) ? pathname.slice(APP_BASE.length) : pathname
+  const parts = relative.split('/').filter(Boolean)
 
-  if (routeIndex === -1) {
+  if (!parts.length || (parts.length === 1 && parts[0] === 'index.html')) {
     return '/'
   }
 
-  const routeParts = parts.slice(routeIndex)
-  return `/${routeParts.join('/')}${pathname.endsWith('/') ? '/' : ''}`
+  // Always compare routes with a trailing slash so "/shop" and "/shop/" match.
+  return `/${parts.join('/')}/`
 }
 
 function getAppRoot() {
-  const parts = window.location.pathname.split('/').filter(Boolean)
-  const routeIndex = parts.findIndex((part) => KNOWN_ROUTE_SEGMENTS.has(part))
-  const rootParts = routeIndex === -1 ? parts : parts.slice(0, routeIndex)
-  return rootParts.length ? `/${rootParts.join('/')}/` : '/'
+  return APP_BASE
 }
 
 function appUrl(to) {
@@ -1730,6 +1697,7 @@ function App() {
   const { products, loading: productsLoading } = useProducts()
   const cart = useCart(products)
   const copy = COPY[lang]
+  useSiteMotion(`${route.path}|${lang}`)
 
   useEffect(() => {
     document.body.classList.toggle('dark-mode', darkMode)
@@ -2154,7 +2122,10 @@ function RouteRenderer({
 
   if (route.path.startsWith('/product-category/')) {
     const slug = route.path.split('/').filter(Boolean)[1]
-    const initialKind = SHOP_CATEGORIES.includes(slug) && slug !== 'all' ? slug : 'hardware'
+    if (!SHOP_CATEGORIES.includes(slug) || slug === 'all') {
+      return <NotFoundPage copy={copy} lang={lang} navigate={navigate} />
+    }
+    const initialKind = slug
     return (
       <ShopPage
         copy={copy}
@@ -2260,7 +2231,61 @@ function RouteRenderer({
     return <SimpleAccountPage page={AUTH_PAGES[route.path]} copy={copy} navigate={navigate} />
   }
 
-  return <HomePage copy={copy} lang={lang} navigate={navigate} />
+  if (route.path === '/') {
+    return <HomePage copy={copy} lang={lang} navigate={navigate} />
+  }
+
+  return <NotFoundPage copy={copy} lang={lang} navigate={navigate} />
+}
+
+function NotFoundPage({ copy, lang, navigate }) {
+  const isAl = lang === 'al'
+
+  // Runs after every render so it always wins over the app-level title update.
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      document.title = isAl ? 'Faqja nuk u gjet | CCS Albania' : 'Page not found | CCS Albania'
+    }, 0)
+    return () => window.clearTimeout(timer)
+  })
+
+  const shortcuts = [
+    [copy.nav.itSolution, '/network-security/'],
+    [isAl ? 'Dyqani' : 'Shop', '/shop/'],
+    [copy.nav.caseStudies, '/case-studies/'],
+    [copy.nav.contactUs, '/#contact'],
+  ]
+
+  return (
+    <section className="nf" aria-labelledby="nf-title">
+      <div className="nf__code" aria-hidden="true">
+        404
+      </div>
+      <div className="nf__inner">
+        <span className="nf__eyebrow">{isAl ? 'Gabim 404' : 'Error 404'}</span>
+        <h1 id="nf-title">{isAl ? 'Kjo faqe nuk ekziston.' : 'This page doesn’t exist.'}</h1>
+        <p>
+          {isAl
+            ? 'Lidhja mund te jete e vjeter ose e shkruar gabim. Kthehuni ne faqen kryesore ose zgjidhni nje nga seksionet me poshte.'
+            : 'The link may be outdated or mistyped. Head back to the home page or pick one of the sections below.'}
+        </p>
+        <div className="nf__actions">
+          <AppLink to="/" navigate={navigate} className="nf__btn">
+            <ArrowRight size={18} aria-hidden="true" />
+            {isAl ? 'Kthehu ne kryefaqe' : 'Back to home'}
+          </AppLink>
+        </div>
+        <nav className="nf__links" aria-label={isAl ? 'Seksione te dobishme' : 'Helpful sections'}>
+          {shortcuts.map(([label, to]) => (
+            <AppLink to={to} navigate={navigate} key={to}>
+              {label}
+              <ArrowRight size={15} aria-hidden="true" />
+            </AppLink>
+          ))}
+        </nav>
+      </div>
+    </section>
+  )
 }
 
 function LogoCarousel({ items, ariaLabel, paginationLabel, pageLabel }) {

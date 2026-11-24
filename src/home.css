@@ -5530,3 +5530,297 @@ body.dark-mode .hp .hp-vendor__stage {
     font-size: 56px;
   }
 }
+
+/* =====================================================================
+   Motion: scroll reveals and header shadow (see src/motion.js)
+   ===================================================================== */
+
+.rv:not(.rv-in) {
+  opacity: 0;
+}
+
+.rv.rv-in {
+  animation: rv-rise 0.75s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+  animation-delay: var(--rv-delay, 0ms);
+}
+
+@keyframes rv-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 22px, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Images and media fade with a gentle settle instead of rising */
+.hp-intro__visual.rv.rv-in,
+.hp-bleed__media.rv.rv-in,
+.hp-gis-split__media.rv.rv-in,
+.pd-gallery.rv.rv-in {
+  animation-name: rv-settle;
+  animation-duration: 0.9s;
+}
+
+@keyframes rv-settle {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Section bar: the red accent draws in */
+.hp-bar.rv.rv-in .hp-bar__mark {
+  animation: rv-draw 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+  animation-delay: calc(var(--rv-delay, 0ms) + 150ms);
+  transform-origin: left;
+}
+
+@keyframes rv-draw {
+  from {
+    transform: scaleX(0);
+  }
+
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* Header gains depth once the page scrolls */
+.site-shell .site-header {
+  transition: box-shadow 0.3s ease, background-color 0.3s ease;
+}
+
+.site-shell .site-header.is-scrolled {
+  box-shadow: 0 10px 30px -18px rgba(0, 0, 0, 0.45);
+}
+
+body:not(.dark-mode) .site-shell .site-header.is-scrolled {
+  box-shadow: 0 10px 30px -20px rgba(23, 21, 22, 0.35);
+}
+
+/* Smooth colour transitions on links and buttons site-wide */
+.site-shell :is(.hp-link, .hp-btn, .ft__col a, .sol-tab, .category-tabs a) {
+  transition-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rv:not(.rv-in) {
+    opacity: 1;
+  }
+
+  .rv.rv-in,
+  .hp-bar.rv.rv-in .hp-bar__mark {
+    animation: none;
+  }
+}
+
+/* =====================================================================
+   404 page
+   ===================================================================== */
+
+.nf {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: clamp(520px, 78vh, 820px);
+  overflow: hidden;
+  padding: clamp(56px, 8vw, 120px) var(--page-gutter, 24px);
+  background: #231f20;
+  color: #fff;
+  text-align: center;
+}
+
+.nf::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 56px 56px;
+  -webkit-mask-image: radial-gradient(ellipse at center, #000 10%, transparent 70%);
+  mask-image: radial-gradient(ellipse at center, #000 10%, transparent 70%);
+  pointer-events: none;
+}
+
+.nf::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(80vw, 900px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(239, 65, 54, 0.22), rgba(239, 65, 54, 0) 60%);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.nf__code {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 0;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.12);
+  font-size: clamp(200px, 34vw, 520px);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.06em;
+  transform: translate(-50%, -52%);
+  user-select: none;
+  pointer-events: none;
+  animation: nf-float 7s ease-in-out infinite;
+}
+
+@keyframes nf-float {
+  0%, 100% { transform: translate(-50%, -52%); }
+  50% { transform: translate(-50%, -55%); }
+}
+
+.nf__inner {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  max-width: 640px;
+  animation: nf-in 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+}
+
+@keyframes nf-in {
+  from { opacity: 0; transform: translateY(18px); }
+}
+
+.nf__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.nf__eyebrow::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  background: #ef4136;
+}
+
+.site-shell .nf h1 {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(36px, 5vw, 68px);
+  font-weight: 700;
+  line-height: 1.04;
+  letter-spacing: -0.045em;
+}
+
+.site-shell .nf p {
+  max-width: 52ch;
+  margin: 20px 0 0;
+  color: rgba(255, 255, 255, 0.76);
+  font-size: 17px;
+  line-height: 1.65;
+}
+
+.nf__actions {
+  margin-top: 32px;
+}
+
+.site-shell .nf__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 56px;
+  padding: 0 30px;
+  border-radius: 999px;
+  background: #ef4136;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 18px 40px -14px rgba(239, 65, 54, 0.7);
+  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.site-shell .nf__btn svg {
+  transform: rotate(180deg);
+  transition: transform 0.2s ease;
+}
+
+.site-shell .nf__btn:hover {
+  background: #d8362c;
+  transform: translateY(-2px);
+  box-shadow: 0 22px 44px -14px rgba(239, 65, 54, 0.8);
+}
+
+.site-shell .nf__btn:hover svg {
+  transform: rotate(180deg) translateX(4px);
+}
+
+.site-shell .nf__btn:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+
+.nf__links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 22px;
+  margin-top: 36px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.site-shell .nf__links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.site-shell .nf__links a svg {
+  color: #ef4136;
+  transition: transform 0.2s ease;
+}
+
+.site-shell .nf__links a:hover {
+  color: #fff;
+}
+
+.site-shell .nf__links a:hover svg {
+  transform: translateX(3px);
+}
+
+@media (max-width: 600px) {
+  .site-shell .nf__btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .nf__actions {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nf__code,
+  .nf__inner {
+    animation: none;
+  }
+}
