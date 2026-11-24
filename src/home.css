@@ -5426,3 +5426,62 @@ body.dark-mode .hp .hp-vendor__stage {
   border: 0;
   border-radius: 0;
 }
+
+/* Case studies: hero sits closer to the industry filter */
+.hp.cs .cs-hero__inner {
+  padding-bottom: clamp(28px, 3vw, 44px);
+}
+
+.hp.cs .sol-section.cs-list {
+  padding-top: clamp(20px, 2.2vw, 32px);
+}
+
+.hp.cs .cs-filter {
+  margin-bottom: clamp(20px, 2.4vw, 32px);
+}
+
+/* Case studies hero: larger, more separated counters */
+.hp.cs .cs-hero__stats {
+  gap: clamp(56px, 7vw, 112px);
+}
+
+.hp.cs .cs-hero__stats > div {
+  gap: 10px;
+}
+
+.hp.cs .cs-hero__stats dd {
+  font-size: clamp(72px, 7.5vw, 120px);
+}
+
+.hp.cs .cs-hero__stats dt {
+  font-size: clamp(16px, 1.3vw, 21px);
+}
+
+@media (max-width: 600px) {
+  .hp.cs .cs-hero__stats {
+    gap: 48px;
+  }
+
+  .hp.cs .cs-hero__stats dd {
+    font-size: 64px;
+  }
+
+  .hp.cs .cs-hero__stats dt {
+    font-size: 15px;
+  }
+}
+
+.hp.cs .cs-hero__stats dd {
+  font-size: clamp(64px, 6.25vw, 100px);
+}
+
+.hp.cs .cs-hero__stats > div {
+  align-items: center;
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .hp.cs .cs-hero__stats dd {
+    font-size: 56px;
+  }
+}
