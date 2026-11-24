@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   ArrowRight,
-  BadgeCheck,
   BriefcaseBusiness,
   Building2,
   Check,
@@ -9,11 +8,9 @@ import {
   Clock,
   Cpu,
   Database,
-  ExternalLink,
   Filter,
   Globe2,
   Headphones,
-  Handshake,
   Laptop,
   Layers3,
   Mail,
@@ -24,7 +21,6 @@ import {
   Network,
   Phone,
   Printer,
-  Route,
   Search,
   Server,
   Shield,
@@ -49,6 +45,7 @@ import './professional-redesign.css'
 import './layout-refinement.css'
 import './header-polish.css'
 import './partner-cards.css'
+import './home.css'
 
 const ROUTE_SEGMENTS = [
   'shop',
@@ -1749,9 +1746,10 @@ function App() {
   }, [route, lang])
 
   const commerceMode = isCommerceRoute(route.path)
+  const wideLayout = route.path === '/' || route.path === '/shop/' || route.path === '/products/'
 
   return (
-    <div className={`site-shell ${commerceMode ? 'commerce-ui' : 'non-shop-ui'}`}>
+    <div className={`site-shell ${commerceMode ? 'commerce-ui' : 'non-shop-ui'}${wideLayout ? ' page-wide' : ''}`}>
       <Header
         copy={copy}
         route={route}
@@ -1845,8 +1843,22 @@ function Header({
     return group.children?.some((child) => isActiveTo(child.to)) || false
   }
 
+  const searchTerm = term.trim().toLowerCase()
+  const searchResults = searchTerm
+    ? products.filter((item) => item.name.toLowerCase().includes(searchTerm)).slice(0, 6)
+    : []
+
+  useEffect(() => {
+    if (!searchOpen) return undefined
+    const onEscape = (event) => {
+      if (event.key === 'Escape') setSearchOpen(false)
+    }
+    document.addEventListener('keydown', onEscape)
+    return () => document.removeEventListener('keydown', onEscape)
+  }, [searchOpen])
+
   const submitSearch = (event) => {
-    event.preventDefault()
+    event?.preventDefault()
     setShopQuery(term)
     setSearchOpen(false)
     setMenuOpen(false)
@@ -1914,10 +1926,6 @@ function Header({
         </nav>
 
         <div className="header-actions">
-          <AppLink to="/#contact" navigate={navigate} className="ccs-header-cta">
-            {lang === 'al' ? 'Flisni me ne' : 'Get in touch'}
-            <ArrowRight size={15} />
-          </AppLink>
           <button
             className="icon-button ccs-header-tool ccs-search-tool"
             type="button"
@@ -1975,50 +1983,105 @@ function Header({
       </div>
 
       {searchOpen && (
-        <div className="search-panel" role="dialog" aria-label={copy.common.shopSearch}>
+        <>
           <button
-            className="icon-button search-close"
             type="button"
+            className="hs-backdrop"
             aria-label={copy.common.closeMenu}
+            tabIndex={-1}
             onClick={() => setSearchOpen(false)}
-          >
-            <X size={20} />
-          </button>
-          <form onSubmit={submitSearch}>
-            <Search size={22} />
-            <input
-              autoFocus
-              value={term}
-              onChange={(event) => setTerm(event.target.value)}
-              placeholder={copy.common.searchPlaceholder}
-            />
-            <button type="submit">{copy.common.shopSearch}</button>
-          </form>
-          {term.trim() && (
-          <div className="quick-results">
-            {products
-              .filter((item) =>
-                item.name.toLowerCase().includes(term.trim().toLowerCase()),
-              )
-              .slice(0, 5)
-              .map((item) => (
+          />
+          <div className="hs-panel" role="dialog" aria-modal="true" aria-label={copy.common.shopSearch}>
+            <div className="hs-inner">
+              <form className="hs-form" onSubmit={submitSearch} role="search">
+                <Search size={18} aria-hidden="true" />
+                <input
+                  autoFocus
+                  type="search"
+                  value={term}
+                  onChange={(event) => setTerm(event.target.value)}
+                  placeholder={copy.common.searchPlaceholder}
+                  aria-label={copy.common.searchPlaceholder}
+                />
+                {term && (
+                  <button type="button" className="hs-clear" onClick={() => setTerm('')}>
+                    {lang === 'al' ? 'Pastro' : 'Clear'}
+                  </button>
+                )}
                 <button
                   type="button"
-                  key={item.id}
-                  onClick={() => {
-                    setTerm(item.name)
-                    setSearchOpen(false)
-                    navigate(`/product/${item.slug}/`)
-                  }}
+                  className="hs-close"
+                  aria-label={copy.common.closeMenu}
+                  onClick={() => setSearchOpen(false)}
                 >
-                  <img src={item.image} alt="" />
-                  <span>{item.name}</span>
-                  <strong>{item.kind === 'software' ? 'Inquiry' : item.priceLabel}</strong>
+                  <X size={18} />
                 </button>
-              ))}
+              </form>
+
+              {searchResults.length > 0 ? (
+                <div className="hs-results">
+                  <p className="hs-label">{lang === 'al' ? 'Produkte' : 'Products'}</p>
+                  <ul>
+                    {searchResults.map((item) => (
+                      <li key={item.id}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setTerm('')
+                            setSearchOpen(false)
+                            navigate(`/product/${item.slug}/`)
+                          }}
+                        >
+                          <span className="hs-thumb">
+                            <img src={item.image} alt="" />
+                          </span>
+                          <span className="hs-name">{item.name}</span>
+                          <span className="hs-price">{item.kind === 'software' ? 'Inquiry' : item.priceLabel}</span>
+                          <ArrowRight size={16} aria-hidden="true" />
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                  <button type="button" className="hs-all" onClick={submitSearch}>
+                    {lang === 'al' ? `Shiko te gjitha rezultatet per "${term.trim()}"` : `See all results for "${term.trim()}"`}
+                    <ArrowRight size={16} aria-hidden="true" />
+                  </button>
+                </div>
+              ) : term.trim() ? (
+                <p className="hs-empty">
+                  {lang === 'al'
+                    ? 'Asnje produkt nuk perputhet. Shtypni Enter per te kerkuar ne dyqan.'
+                    : 'No matching products. Press Enter to search the full shop.'}
+                </p>
+              ) : (
+                <div className="hs-suggest">
+                  <p className="hs-label">{lang === 'al' ? 'Shfletoni' : 'Browse'}</p>
+                  <div className="hs-chips">
+                    {[
+                      [copy.nav.hardware, '/product-category/hardware/'],
+                      [copy.nav.software, '/product-category/software/'],
+                      [copy.nav.hpProducts, '/products-hp/'],
+                      ['HP Poly', '/hp-poly/'],
+                      ['Fortinet', '/fortinet/'],
+                      ['Cisco', '/cisco/'],
+                      [copy.common.viewShop, '/shop/'],
+                    ].map(([label, to]) => (
+                      <AppLink
+                        key={to}
+                        to={to}
+                        navigate={navigate}
+                        className="hs-chip"
+                        onClick={() => setSearchOpen(false)}
+                      >
+                        {label}
+                      </AppLink>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-          )}
-        </div>
+        </>
       )}
     </header>
   )
@@ -2402,37 +2465,50 @@ function LogoCarousel({ items, ariaLabel, paginationLabel, pageLabel }) {
   )
 }
 
-function HomePage({ copy, lang, navigate }) {
-  const [activeModal, setActiveModal] = useState(null)
-  const isAl = lang === 'al'
-  const whyItems = [
-    {
-      icon: BadgeCheck,
-      label: isAl ? 'Themeluar' : 'Established',
-      title: '1993',
-      body: isAl
-        ? 'Teknologji, zgjidhje dhe sherbime IT per tregun shqiptar.'
-        : 'Technology, solutions, and IT services for the Albanian information technology market.',
-    },
-    {
-      icon: Route,
-      label: isAl ? 'Cikel projekti' : 'Project lifecycle',
-      title: isAl ? 'End-to-end' : 'End-to-end',
-      body: copy.home.lifecycle,
-    },
-    {
-      icon: Handshake,
-      label: isAl ? 'Qasje' : 'Approach',
-      title: isAl ? 'Partner i besuar' : 'Trusted partner',
-      body: copy.home.aboutBodyTwo,
-    },
-  ]
-  const tickerItems = isAl
-    ? ['SIGURI KIBERNETIKE', 'INFRASTRUKTURE RRJETI', 'SERVERA & STORAGE', 'GIS / ARCGIS', 'SUPORT TEKNIK', 'INTEGRIM SISTEMESH']
-    : ['CYBERSECURITY', 'NETWORK INFRASTRUCTURE', 'SERVERS & STORAGE', 'GIS / ARCGIS', 'TECHNICAL SUPPORT', 'SYSTEM INTEGRATION']
+function LogoMarquee({ items, label, variant = 'partners', speed = 40 }) {
+  const minItems = 14
+  const repeat = Math.max(1, Math.ceil(minItems / items.length))
+  const sequence = Array.from({ length: repeat }, () => items).flat()
+  const renderSet = (hidden) => (
+    <ul className="hp-marquee__set" aria-hidden={hidden || undefined}>
+      {sequence.map(([name, src], index) => (
+        <li key={`${name}-${index}`}>
+          <img src={src} alt={hidden ? '' : name} loading="lazy" />
+          {variant === 'certs' && <span>{name}</span>}
+        </li>
+      ))}
+    </ul>
+  )
 
   return (
-    <>
+    <div className={`hp-marquee hp-marquee--${variant}`} aria-label={label} role="region">
+      <div className="hp-marquee__track" style={{ '--hp-marquee-duration': `${speed}s` }}>
+        {renderSet(false)}
+        {renderSet(true)}
+      </div>
+    </div>
+  )
+}
+
+function HomePage({ copy, lang, navigate }) {
+  const [activeModal, setActiveModal] = useState(null)
+  const [activeService, setActiveService] = useState(0)
+  const isAl = lang === 'al'
+  const facts = [
+    { value: '1993', label: isAl ? 'Viti i themelimit ne Tirane' : 'Founded in Tirana' },
+    { value: String(CERTIFICATIONS.length), label: isAl ? 'Certifikime ISO' : 'ISO-certified management systems' },
+    { value: String(PARTNERS.length), label: isAl ? 'Partnere teknologjie' : 'Global technology partners' },
+    { value: String(new Set(CASE_STUDIES.map((item) => item.industry)).size), label: isAl ? 'Industri kritike' : 'Critical industries served' },
+  ]
+  const principles = [
+    { title: isAl ? 'Cikel i plote projekti' : 'Full project lifecycle', body: copy.home.lifecycle },
+    { title: isAl ? 'Konsulence dhe trajnim' : 'Consulting and training', body: copy.home.aboutBody },
+    { title: isAl ? 'Partner afatgjate' : 'Long-term partnership', body: copy.home.aboutBodyTwo },
+  ]
+  const capabilities = [...PAGE_DATA['/network-security/'].points, ...PAGE_DATA['/infrastructure/'].points.slice(0, 1)]
+
+  return (
+    <div className="hp">
       <section className="ccs-command-hero ccs-command-hero--video ccs-video-only-hero" aria-label={isAl ? 'Video prezantuese CCS' : 'CCS company video'}>
         <video
           className="ccs-hero-video ccs-hero-video--full"
@@ -2448,286 +2524,264 @@ function HomePage({ copy, lang, navigate }) {
         </video>
       </section>
 
-      <div className="ccs-expertise-strip" aria-label={isAl ? 'Fushat e ekspertizës' : 'Areas of expertise'}>
-        <div className="ccs-expertise-strip__inner">
-          {tickerItems.map((item) => (
-            <span key={item}>{item}</span>
+      <section className="hp-intro" aria-label={isAl ? 'Rreth CCS' : 'About CCS'}>
+        <div className="hp-wrap">
+          <h1 className="hp-display">
+            {isAl ? (
+              <>Infrastrukture, siguri dhe sisteme <em>qe punojne</em> per organizatat shqiptare.</>
+            ) : (
+              <>Infrastructure, security and systems <em>that hold up</em> for Albania&rsquo;s critical organisations.</>
+            )}
+          </h1>
+          <div className="hp-intro__foot">
+            <p>{copy.home.aboutLead}</p>
+            <div className="hp-intro__actions">
+              <a href="#contact" className="hp-btn hp-btn--primary">
+                {isAl ? 'Kontaktoni ekipin' : 'Talk to our engineers'}
+                <ArrowRight size={17} aria-hidden="true" />
+              </a>
+              <AppLink to="/case-studies/" navigate={navigate} className="hp-btn hp-btn--ghost">
+                {copy.nav.caseStudies}
+              </AppLink>
+            </div>
+          </div>
+        </div>
+        <dl className="hp-facts">
+          {facts.map((fact) => (
+            <div key={fact.label}>
+              <dt>{fact.label}</dt>
+              <dd>{fact.value}</dd>
+            </div>
           ))}
-        </div>
-      </div>
+        </dl>
+      </section>
 
-      <section className="section solutions-section" id="services">
-        <div className="solutions-head">
-          <SectionHeading
-            eyebrow={isAl ? 'Zgjidhje IT' : 'Core solutions'}
-            title={copy.home.servicesTitle}
-            text={
-              isAl
+      <section className="hp-section hp-section--services" id="services">
+        <div className="hp-wrap">
+          <header className="hp-head">
+            <h2>{isAl ? 'Cfare bejme' : 'What we do'}</h2>
+            <p>
+              {isAl
                 ? 'CCS kombinon siguri, rrjet, infrastrukture, servera, storage dhe suport teknik.'
-                : 'CCS brings together security, networking, infrastructure, servers, storage, and technical support.'
-            }
-          />
-          <AppLink to="/shop/" navigate={navigate} className="text-link">
-            {copy.common.viewShop}
-            <ArrowRight size={16} />
-          </AppLink>
+                : 'Four practices, one accountable team. We design, deliver and operate the systems your organisation depends on.'}
+            </p>
+            <AppLink to="/shop/" navigate={navigate} className="hp-link">
+              {copy.common.viewShop}
+              <ArrowRight size={15} aria-hidden="true" />
+            </AppLink>
+          </header>
         </div>
-
-        <div className="service-grid ccs-bento-services">
+        <div className="hp-panels">
           {SERVICES.map((service, index) => {
             const Icon = service.icon
             return (
               <AppLink
                 to={service.to}
                 navigate={navigate}
-                className={`service-card ccs-service-tile ccs-service-tile--${index + 1}`}
+                className={`hp-panel${activeService === index ? ' is-active' : ''}`}
                 key={service.key}
+                onMouseEnter={() => setActiveService(index)}
+                onFocus={() => setActiveService(index)}
               >
-                <div className="ccs-service-tile__media" aria-hidden="true">
-                  <img src={service.image} alt="" loading="lazy" />
-                </div>
-                <div className="ccs-service-tile__content">
-                  <div className="ccs-service-tile__top">
-                    <span className="ccs-service-tile__number">{String(index + 1).padStart(2, '0')}</span>
-                    <span className="service-icon"><Icon size={23} /></span>
-                  </div>
-                  <div className="ccs-service-tile__copy">
-                    <h2>{titleFor(service, lang)}</h2>
-                    <p>{lang === 'al' ? service.alShort : service.short}</p>
-                    <strong>
+                <img src={service.image} alt="" loading="lazy" />
+                <span className="hp-panel__shade" aria-hidden="true" />
+                <span className="hp-panel__body">
+                  <Icon size={22} aria-hidden="true" />
+                  <strong>{titleFor(service, lang)}</strong>
+                  <span className="hp-panel__more">
+                    <span>{lang === 'al' ? service.alShort : service.short}</span>
+                    <span className="hp-panel__cta">
                       {copy.common.learnMore}
-                      <ArrowRight size={17} />
-                    </strong>
-                  </div>
-                </div>
+                      <ArrowRight size={16} aria-hidden="true" />
+                    </span>
+                  </span>
+                </span>
               </AppLink>
             )
           })}
         </div>
       </section>
 
-      <section className="section about-section" id="about">
-        <div className="about-media">
-          <img src={ASSETS.aboutOne} alt="CCS workspace" />
-          <img src={ASSETS.aboutTwo} alt="CCS technical equipment" />
+      <section className="hp-bleed" id="about">
+        <div className="hp-bleed__media">
+          <img src={ASSETS.aboutOne} alt={isAl ? 'Zyrat e CCS ne Tirane' : 'CCS office reception in Tirana'} />
+          <img className="hp-bleed__inset" src={ASSETS.aboutTwo} alt={isAl ? 'Ambienti i punes CCS' : 'CCS workspace'} />
         </div>
-        <div className="section-copy">
-          <Kicker>{copy.home.aboutTitle}</Kicker>
-          <h1>{isAl ? 'Partner teknologjie per infrastrukture dhe siguri.' : 'Technology partner for infrastructure and security.'}</h1>
-          <p className="lead-text">{copy.home.aboutLead}</p>
-          <p>{copy.home.aboutBody}</p>
-          <p>{copy.home.aboutBodyTwo}</p>
-        </div>
-        <div className="why-grid" aria-label={isAl ? 'Pse CCS' : 'Why CCS'}>
-          {whyItems.map((item) => {
-            const Icon = item.icon
-            return (
-              <article key={item.label}>
-                <Icon size={20} />
-                <span>{item.label}</span>
+        <div className="hp-bleed__copy">
+          <span className="hp-label">{copy.home.aboutTitle}</span>
+          <h2>{isAl ? 'Partner teknologjie per infrastrukture dhe siguri.' : 'Three decades building the systems Albania runs on.'}</h2>
+          <ul className="hp-principles">
+            {principles.map((item) => (
+              <li key={item.title}>
                 <h3>{item.title}</h3>
                 <p>{item.body}</p>
-              </article>
-            )
-          })}
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 
-      <section className="dark-feature-section">
-        <div className="dark-feature-inner">
-          <div>
-            <Kicker>{isAl ? 'Siguri dhe infrastrukture' : 'Cybersecurity and infrastructure'}</Kicker>
-            <h2>
-              {isAl
-                ? 'Zgjidhje te integruara per sisteme kritike.'
-                : 'Integrated solutions for critical systems.'}
-            </h2>
+      <section className="hp-band" style={{ '--hp-band-image': `url(${ASSETS.solutionSecurity})` }}>
+        <div className="hp-wrap hp-band__inner">
+          <div className="hp-band__copy">
+            <span className="hp-label">{isAl ? 'Siguri dhe infrastrukture' : 'Cybersecurity and infrastructure'}</span>
+            <h2>{isAl ? 'Zgjidhje te integruara per sisteme kritike.' : 'Integrated protection for critical systems.'}</h2>
             <p>
               {isAl
                 ? 'CCS mbulon rrjetin, sigurine, serverat, storage, vazhdimesine e biznesit dhe suportin operacional.'
                 : 'CCS covers network security, servers, storage, business continuity, and operational support.'}
             </p>
-            <div className="capability-list">
-              {[...PAGE_DATA['/network-security/'].points, ...PAGE_DATA['/infrastructure/'].points.slice(0, 1)].map(
-                (point) => (
-                  <span key={point}>
-                    <Check size={16} />
-                    {point}
-                  </span>
-                ),
-              )}
-            </div>
-            <AppLink to="/network-security/" navigate={navigate} className="secondary-action inverse">
+            <AppLink to="/network-security/" navigate={navigate} className="hp-btn hp-btn--light">
               {copy.nav.networkSecurity}
-              <ArrowRight size={17} />
+              <ArrowRight size={17} aria-hidden="true" />
             </AppLink>
           </div>
-          <div className="feature-media">
-            <img src={ASSETS.solutionSecurity} alt="Cybersecurity capability" />
-          </div>
+          <ul className="hp-band__list">
+            {capabilities.map((point) => (
+              <li key={point}>
+                <Check size={18} aria-hidden="true" />
+                <span>{point}</span>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 
-      <section className="section case-preview-section">
-        <div className="case-preview-head">
-          <SectionHeading
-            eyebrow={copy.nav.caseStudies}
-            title={isAl ? 'Implementime ne industri kritike.' : 'Work across critical industries.'}
-            text={
-              isAl
-                ? 'Raste qe tregojne implementime IT dhe GIS ne industri te ndryshme.'
-                : 'Selected case studies from IT infrastructure, cybersecurity, telecom, energy, defense, agriculture, and GIS work.'
-            }
-          />
-          <AppLink to="/case-studies/" navigate={navigate} className="text-link">
-            {copy.nav.caseStudies}
-            <ArrowRight size={16} />
-          </AppLink>
-        </div>
-        <div className="case-grid ccs-case-gallery">
-          {CASE_STUDIES.slice(0, 3).map((item, index) => (
-            <AppLink
-              to={item.path}
-              navigate={navigate}
-              className={`case-card ccs-case-gallery__item ccs-case-gallery__item--${index + 1}`}
-              key={item.path}
-            >
-              <div className="ccs-case-gallery__art">
-                <span>{String(index + 1).padStart(2, '0')}</span>
-                <img src={item.image} alt="" loading="lazy" />
-              </div>
-              <div className="ccs-case-gallery__copy">
-                <span className="ccs-case-gallery__industry">{item.industry}</span>
-                <h3>{item.title}</h3>
-                <p>{item.body}</p>
-                <strong>{isAl ? 'Shiko projektin' : 'Explore case study'} <ArrowRight size={17}/></strong>
-              </div>
-            </AppLink>
-          ))}
-        </div>
-      </section>
-
-      <section className="section gis-section">
-        <div className="gis-visual gis-visual--single">
-          <img src={ASSETS.gis} alt="CCS GIS systems" />
-        </div>
-        <div className="gis-copy">
-          <SectionHeading
-            eyebrow="GIS / ArcGIS"
-            title={copy.home.gisTitle}
-            text={
-              isAl
+      <section className="hp-section hp-section--gis">
+        <div className="hp-wrap hp-gis-split">
+          <div className="hp-gis-split__copy">
+            <span className="hp-label">GIS / ArcGIS</span>
+            <h2>{copy.home.gisTitle}</h2>
+            <p>
+              {isAl
                 ? 'Planifikim, administrim GIS dhe suport on-call per iniciativa ArcGIS.'
-                : 'Planning, GIS system administration, and on-call support for ArcGIS initiatives.'
-            }
-          />
-          <div className="gis-grid">
-            {GIS_SERVICES.map((item) => (
-              <article className="gis-card" key={item.key}>
-                <img src={item.image} alt="" loading="lazy" />
-                <h3>{titleFor(item, lang)}</h3>
-                <p>{lang === 'al' ? item.alSubtitle : item.subtitle}</p>
-                <button type="button" onClick={() => setActiveModal(item)}>
-                  {copy.common.readMore}
-                  <ArrowRight size={16} />
-                </button>
-              </article>
+                : 'Planning, GIS system administration, and on-call support for ArcGIS initiatives.'}
+            </p>
+            <ul className="hp-gis">
+              {GIS_SERVICES.map((item) => (
+                <li key={item.key}>
+                  <button type="button" onClick={() => setActiveModal(item)}>
+                    <span>
+                      <strong>{titleFor(item, lang)}</strong>
+                      <small>{lang === 'al' ? item.alSubtitle : item.subtitle}</small>
+                    </span>
+                    <ArrowRight size={18} aria-hidden="true" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <figure className="hp-gis-split__media">
+            <img src={ASSETS.gis} alt={isAl ? 'Sistemet GIS te CCS' : 'CCS GIS systems'} loading="lazy" />
+          </figure>
+        </div>
+      </section>
+
+      <section className="hp-section hp-section--alt" id="partners">
+        <div className="hp-wrap">
+          <header className="hp-head">
+            <h2>{isAl ? 'Partneret teknologjike' : 'Technology partners'}</h2>
+            <p>
+              {isAl
+                ? 'Eksploroni zgjidhjet profesionale te HP, HP Poly, Fortinet dhe Cisco.'
+                : 'We work directly with the vendors behind enterprise IT. Explore solutions from HP, HP Poly, Fortinet and Cisco.'}
+            </p>
+          </header>
+          <div className="hp-vendors">
+            {RECOMMENDED.map((item) => (
+              <AppLink to={item.to} navigate={navigate} className="hp-vendor" key={item.title}>
+                <img className="hp-vendor__bg" src={item.backdrop} alt="" loading="lazy" />
+                <span className="hp-vendor__shade" aria-hidden="true" />
+                <span className="hp-vendor__logo">
+                  <img src={item.image} alt="" loading="lazy" />
+                </span>
+                <span className="hp-vendor__body">
+                  <strong>{titleFor(item, lang)}</strong>
+                  <span>{lang === 'al' ? item.alBody : item.body}</span>
+                  <span className="hp-vendor__cta">
+                    {copy.common.learnMore}
+                    <ArrowRight size={16} aria-hidden="true" />
+                  </span>
+                </span>
+              </AppLink>
             ))}
           </div>
         </div>
+        <LogoMarquee items={PARTNERS} label={copy.home.partnersTitle} variant="partners" speed={45} />
       </section>
 
-      <section className="section partners-section" id="partners">
-        <SectionHeading
-          eyebrow={isAl ? 'Partneret' : 'Partner ecosystem'}
-          title={copy.home.partnersTitle}
-          text={copy.home.partnersIntro}
-        />
-        <LogoCarousel
-          items={PARTNERS}
-          ariaLabel="Technology partners carousel"
-          paginationLabel="Partner carousel pages"
-          pageLabel="Show partner group"
-        />
+      <section className="hp-section hp-section--certs" id="certification">
+        <div className="hp-wrap hp-certs-head">
+          <h2>{copy.home.certificationsTitle}</h2>
+          <p>{isAl ? 'Sisteme menaxhimi te certifikuara sipas standardeve nderkombetare.' : 'Quality, security, service and continuity management certified to international standards.'}</p>
+        </div>
+        <LogoMarquee items={CERTIFICATIONS} label={copy.home.certificationsTitle} variant="certs" speed={35} />
       </section>
 
-      <section className="section recommended-section ccs-partner-section">
-        <SectionHeading
-          eyebrow={isAl ? 'Partnerët teknologjikë' : 'Technology partners'}
-          title={isAl ? 'Zgjidhje nga partnerët tanë' : 'Solutions from our technology partners'}
-          text={isAl
-            ? 'Eksploroni zgjidhjet profesionale të HP, HP Poly, Fortinet dhe Cisco.'
-            : 'Explore enterprise solutions from HP, HP Poly, Fortinet and Cisco.'}
-        />
-        <div className="recommended-grid ccs-vendor-grid ccs-partner-grid">
-          {RECOMMENDED.map((item, index) => (
-            <AppLink
-              to={item.to}
-              navigate={navigate}
-              className={`recommended-card ccs-partner-card ccs-partner-card--${index + 1}`}
-              key={item.title}
-            >
-              <div className="ccs-partner-card__media" aria-hidden="true">
-                <img src={item.backdrop} alt="" loading="lazy" />
+      <section className="hp-contact" id="contact">
+        <div className="hp-wrap hp-contact__grid">
+          <div className="hp-contact__lead">
+            <span className="hp-contact__eyebrow">{isAl ? 'Kontakt' : 'Start a conversation'}</span>
+            <h2 className="hp-contact__title">
+              {isAl ? 'Planifikoni zgjidhjen tuaj me CCS.' : 'Plan your next technology initiative with CCS.'}
+            </h2>
+            <p>
+              {isAl
+                ? 'Na kontaktoni per konsulence, infrastrukture, siguri, GIS, suport teknik ose perzgjedhje produktesh.'
+                : 'Tell us what you are planning: consulting, infrastructure, cybersecurity, GIS, support or product selection. Our engineers will come back to you with a clear next step.'}
+            </p>
+            <div className="hp-contact__actions">
+              <a href="mailto:info@ccs.al" className="hp-btn hp-btn--dark">
+                <Mail size={18} aria-hidden="true" />
+                {isAl ? 'Na shkruani' : 'Email our team'}
+              </a>
+              <a href="tel:+35542259005" className="hp-btn hp-btn--outline-light">
+                <Phone size={18} aria-hidden="true" />
+                {isAl ? 'Na telefononi' : 'Call us'}
+              </a>
+            </div>
+          </div>
+          <ul className="hp-contact__cards">
+            <li>
+              <a href="mailto:info@ccs.al">
+                <Mail size={22} aria-hidden="true" />
+                <span className="hp-contact__k">Email</span>
+                <strong>info@ccs.al</strong>
+              </a>
+            </li>
+            <li>
+              <a href="tel:+35542259005">
+                <Phone size={22} aria-hidden="true" />
+                <span className="hp-contact__k">{isAl ? 'Telefon' : 'Phone'}</span>
+                <strong>+ 04 225 9005</strong>
+              </a>
+            </li>
+            <li>
+              <a href="https://www.google.com/maps/place/CCS/@41.3182558,19.8101846,17z" target="_blank" rel="noreferrer">
+                <MapPin size={22} aria-hidden="true" />
+                <span className="hp-contact__k">{copy.home.location}</span>
+                <strong>{copy.home.address}</strong>
+              </a>
+            </li>
+            <li>
+              <div>
+                <Clock size={22} aria-hidden="true" />
+                <span className="hp-contact__k">{copy.home.hours}</span>
+                <strong>
+                  {copy.home.open}
+                  <br />
+                  {copy.home.closed}
+                </strong>
               </div>
-              <div className="ccs-partner-card__inner">
-                <div className="ccs-partner-card__top">
-                  <span className="ccs-partner-card__logo">
-                    <img src={item.image} alt={`${item.title} logo`} loading="lazy" />
-                  </span>
-                  <span className="ccs-partner-card__index" aria-hidden="true">
-                    {String(index + 1).padStart(2, '0')}
-                  </span>
-                </div>
-                <div className="ccs-partner-card__body">
-                  <h3>{titleFor(item, lang)}</h3>
-                  <p>{lang === 'al' ? item.alBody : item.body}</p>
-                  <strong className="ccs-partner-card__link">
-                    {copy.common.learnMore}
-                    <ArrowRight size={17} />
-                  </strong>
-                </div>
-              </div>
-            </AppLink>
-          ))}
+            </li>
+          </ul>
         </div>
       </section>
-
-      <section className="section certification-section" id="certification">
-        <SectionHeading
-          eyebrow={isAl ? 'Standarde' : 'Standards'}
-          title={copy.home.certificationsTitle}
-        />
-        <LogoCarousel
-          items={CERTIFICATIONS}
-          ariaLabel="Certifications carousel"
-          paginationLabel="Certification carousel pages"
-          pageLabel="Show certification group"
-        />
-      </section>
-
-      <section className="home-cta-section">
-        <div>
-          <Kicker>{isAl ? 'Kontakt' : 'Next step'}</Kicker>
-          <h2>{isAl ? 'Planifikoni zgjidhjen tuaj me CCS.' : 'Plan your next technology initiative with CCS.'}</h2>
-          <p>
-            {isAl
-              ? 'Na kontaktoni per konsulence, infrastrukture, siguri, GIS, suport teknik ose perzgjedhje produktesh.'
-              : 'Contact CCS for consulting, infrastructure, cybersecurity, GIS, technical support, or product selection.'}
-          </p>
-        </div>
-        <a href="mailto:info@ccs.al" className="primary-action">
-          <Mail size={18} />
-          {isAl ? 'Flisni me CCS' : 'Talk to CCS'}
-        </a>
-      </section>
-
-      <ContactSection copy={copy} />
 
       {activeModal && (
         <Modal item={activeModal} copy={copy} lang={lang} onClose={() => setActiveModal(null)} />
       )}
-    </>
+    </div>
   )
 }
 
@@ -2773,6 +2827,8 @@ function langForCopy(copy) {
   return copy?.nav?.home === 'Kryefaqja' ? 'al' : 'en'
 }
 
+const SHOP_PAGE_SIZE = 20
+
 function ShopPage({
   copy,
   navigate,
@@ -2790,10 +2846,34 @@ function ShopPage({
     initialBrand ? { brand: [initialBrand.toLowerCase()] } : {},
   )
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [visibleCount, setVisibleCount] = useState(SHOP_PAGE_SIZE)
+  const isAl = langForCopy(copy) === 'al'
+  const brandCount = useMemo(
+    () => new Set(products.map((item) => item.brand).filter(Boolean)).size,
+    [products],
+  )
+  const heroProducts = useMemo(() => {
+    const picks = []
+    const seenCategories = new Set()
+    products.forEach((item) => {
+      if (picks.length >= 4 || !item.image || !item.priceLabel || item.kind === 'software') return
+      if (seenCategories.has(item.category)) return
+      seenCategories.add(item.category)
+      picks.push(item)
+    })
+    return picks
+  }, [products])
+  const scrollToProducts = () => {
+    document.getElementById('shop-search')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
 
   useEffect(() => {
     setCategory(initialKind)
   }, [initialKind])
+
+  useEffect(() => {
+    setVisibleCount(SHOP_PAGE_SIZE)
+  }, [category, filters, query, sort])
 
   useEffect(() => {
     setFilters((current) => {
@@ -2808,6 +2888,14 @@ function ShopPage({
   }, [initialBrand])
 
   const activeFilterGroups = useMemo(() => filterGroupsForCategory(products, category), [category, products])
+  const activeChips = activeFilterGroups.flatMap((group) =>
+    (filters[group.key] || []).map((token) => ({
+      groupKey: group.key,
+      groupTitle: group.title,
+      token,
+      label: group.options.find(([optionToken]) => optionToken === token)?.[1] || token,
+    })),
+  )
 
   useEffect(() => {
     const validTokensByKey = new Map(
@@ -2882,21 +2970,110 @@ function ShopPage({
 
   return (
     <div className="shop-page">
-      <section className="shop-hero">
-        <img className="shop-hero-image" src={ASSETS.shopHero} alt="Modern technology workspace" />
-        <div className="shop-hero-shade" aria-hidden="true" />
-        <div className="shop-hero-content">
-          <Kicker>{langForCopy(copy) === 'al' ? 'TEKNOLOGJI PROFESIONALE' : 'PROFESSIONAL TECHNOLOGY'}</Kicker>
-          <h1>{copy.shop.welcome}</h1>
-          <p>{copy.shop.capture}</p>
-          <div className="shop-hero-actions">
-            <a href="#shop-search" className="shop-primary-cta">
-              {langForCopy(copy) === 'al' ? 'Shfleto produktet' : 'Browse products'}
-              <ArrowRight size={17} />
+      <section className="sh-hero" aria-labelledby="shop-hero-title">
+        <div className="sh-hero__grid" aria-hidden="true" />
+        <div className="sh-hero__inner">
+          <div className="sh-hero__copy">
+            <span className="sh-hero__eyebrow">{isAl ? 'Dyqani CCS' : 'CCS Shop'}</span>
+            <h1 id="shop-hero-title">{copy.shop.welcome}</h1>
+            <p>{copy.shop.capture}</p>
+
+            <form
+              className="sh-hero__search"
+              role="search"
+              onSubmit={(event) => {
+                event.preventDefault()
+                scrollToProducts()
+              }}
+            >
+              <Search size={20} aria-hidden="true" />
+              <input
+                type="search"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder={copy.common.searchPlaceholder}
+                aria-label={copy.common.searchPlaceholder}
+              />
+              <button type="submit">{isAl ? 'Kerko' : 'Search'}</button>
+            </form>
+
+            <div className="sh-hero__chips" aria-label={isAl ? 'Kategori te shpejta' : 'Quick categories'}>
+              {['laptop', 'desktop', 'monitor', 'printer', 'software'].map((item) => {
+                const Icon = iconForCategory(item)
+                return (
+                  <button
+                    type="button"
+                    key={item}
+                    onClick={() => {
+                      setCategory(item)
+                      scrollToProducts()
+                    }}
+                  >
+                    <Icon size={15} aria-hidden="true" />
+                    {copy.shop[item]}
+                  </button>
+                )
+              })}
+            </div>
+
+            <dl className="sh-hero__stats">
+              <div>
+                <dt>{isAl ? 'Produkte' : 'Products'}</dt>
+                <dd>{CSV_CATALOG_META.catalogProductCount}</dd>
+              </div>
+              <div>
+                <dt>{isAl ? 'Marka' : 'Brands'}</dt>
+                <dd>{brandCount}</dd>
+              </div>
+              <div>
+                <dt>{isAl ? 'Vite eksperience' : 'Years in IT'}</dt>
+                <dd>{new Date().getFullYear() - 1993}</dd>
+              </div>
+            </dl>
+
+            <a
+              className="sh-hero__whatsapp"
+              href="https://wa.me/355684088507?text=Jam+i+interesuar+p%C3%ABr+produktet+tuaja"
+              target="_blank"
+              rel="noreferrer"
+              title={copy.shop.whatsapp}
+            >
+              <span className="sh-hero__pulse" aria-hidden="true" />
+              {isAl ? 'Keni nevoje per oferte? Bisedoni ne WhatsApp' : 'Need a quote? Chat with us on WhatsApp'}
+              <ArrowRight size={16} aria-hidden="true" />
             </a>
-            <a href="https://wa.me/355684088507?text=Jam+i+interesuar+p%C3%ABr+produktet+tuaja" className="shop-secondary-cta">
-              {copy.shop.whatsapp}<ExternalLink size={16} />
-            </a>
+          </div>
+
+          <div className="sh-hero__showcase">
+            <ul className="sh-hero__tiles">
+              {heroProducts.map((item, index) => (
+                <li key={item.id} className={`sh-tile sh-tile--${index + 1}`}>
+                  <AppLink to={`/product/${item.slug}/`} navigate={navigate}>
+                    <span className="sh-tile__img">
+                      <img src={item.image} alt="" />
+                    </span>
+                    <span className="sh-tile__meta">
+                      <small>{item.brand}</small>
+                      <strong>{item.name}</strong>
+                      <em>{item.priceLabel}</em>
+                    </span>
+                  </AppLink>
+                </li>
+              ))}
+            </ul>
+            <ul className="sh-hero__brands" aria-label={isAl ? 'Markat' : 'Brands'}>
+              {[
+                ['HP', PARTNER_LOGOS.hp],
+                ['Cisco', PARTNER_LOGOS.cisco],
+                ['Fortinet', PARTNER_LOGOS.fortinet],
+                ['Lenovo', PARTNER_LOGOS.lenovo],
+                ['Xerox', PARTNER_LOGOS.xerox],
+              ].map(([name, src]) => (
+                <li key={name}>
+                  <img src={src} alt={name} />
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </section>
@@ -2939,7 +3116,7 @@ function ShopPage({
             <label>
               <span>{copy.shop.sort}</span>
               <select value={sort} onChange={(event) => setSort(event.target.value)}>
-                <option value=""></option>
+                <option value="">{langForCopy(copy) === 'al' ? 'Te rekomanduara' : 'Recommended'}</option>
                 <option value="low">{copy.shop.low}</option>
                 <option value="high">{copy.shop.high}</option>
               </select>
@@ -2973,6 +3150,26 @@ function ShopPage({
             defaultOpenBrand={false}
           />
 
+          {activeChips.length > 0 && (
+            <div className="sp-active" aria-label={isAl ? 'Filtrat aktive' : 'Active filters'}>
+              {activeChips.map((chip) => (
+                <button
+                  type="button"
+                  key={`${chip.groupKey}-${chip.token}`}
+                  onClick={() => toggleFilter(chip.groupKey, chip.token)}
+                  aria-label={`${isAl ? 'Hiq' : 'Remove'} ${chip.label}`}
+                >
+                  <small>{chip.groupTitle}:</small>
+                  {chip.label}
+                  <X size={14} aria-hidden="true" />
+                </button>
+              ))}
+              <button type="button" className="sp-active__clear" onClick={() => setFilters({})}>
+                {isAl ? 'Pastro filtrat' : 'Clear filters'}
+              </button>
+            </div>
+          )}
+
           <div className="product-count">
             <span>
               {productsLoading && !products.length
@@ -2988,17 +3185,34 @@ function ShopPage({
             )}
           </div>
           {filteredProducts.length ? (
-            <div className="products-grid">
-              {filteredProducts.map((item) => (
-                <ProductCard
-                  key={item.id}
-                  item={item}
-                  copy={copy}
-                  navigate={navigate}
-                  addToCart={addToCart}
-                />
-              ))}
-            </div>
+            <>
+              <div className="products-grid">
+                {filteredProducts.slice(0, visibleCount).map((item) => (
+                  <ProductCard
+                    key={item.id}
+                    item={item}
+                    copy={copy}
+                    navigate={navigate}
+                    addToCart={addToCart}
+                  />
+                ))}
+              </div>
+              <div className="sp-more">
+                <p>
+                  {langForCopy(copy) === 'al'
+                    ? `Po shfaqen ${Math.min(visibleCount, filteredProducts.length)} nga ${filteredProducts.length} produkte`
+                    : `Showing ${Math.min(visibleCount, filteredProducts.length)} of ${filteredProducts.length} products`}
+                </p>
+                <span className="sp-more__bar" aria-hidden="true">
+                  <span style={{ width: `${(Math.min(visibleCount, filteredProducts.length) / filteredProducts.length) * 100}%` }} />
+                </span>
+                {visibleCount < filteredProducts.length && (
+                  <button type="button" onClick={() => setVisibleCount((count) => count + SHOP_PAGE_SIZE)}>
+                    {langForCopy(copy) === 'al' ? 'Shfaq me shume' : 'Show more products'}
+                  </button>
+                )}
+              </div>
+            </>
           ) : (
             <p className="empty-state">{copy.common.noProducts}</p>
           )}
@@ -3356,6 +3570,9 @@ function FilterMenu({
               }
             >
               {group.title}
+              {(filters[group.key] || []).length > 0 && (
+                <span className="fm-count">{(filters[group.key] || []).length}</span>
+              )}
               <ChevronDown size={15} />
             </summary>
             <div className="filter-options" id={`${isHorizontal ? 'desktop' : 'drawer'}-filter-options-${group.key}`}>
@@ -3413,40 +3630,61 @@ function AddToCartButton({ copy, onAdd, className = '', iconSize = 16 }) {
 }
 
 function ProductCard({ item, copy, navigate, addToCart }) {
-  const Icon = iconForCategory(item.category)
-  const specs = productSpecs(item)
+  const isAl = langForCopy(copy) === 'al'
+  const isInquiry = item.kind === 'software' || !item.priceLabel
+  const variantCount = item.variants?.length || 0
+  const tags = productSpecs(item)
+    .filter((spec) => spec.length <= 28)
+    .slice(0, 3)
+  const brand = item.brand || (item.kind === 'software' ? 'Software' : item.category)
+  const href = `/product/${item.slug}/`
 
   return (
-    <article className="product-card">
-      <AppLink to={`/product/${item.slug}/`} navigate={navigate}>
-        <div className="product-image">
-          <img src={item.image} alt={item.name} loading="lazy" />
-        </div>
-        <h3>{item.name}</h3>
+    <article className="sp-card">
+      <AppLink to={href} navigate={navigate} className="sp-card__link">
+        <span className="sp-card__media">
+          <img src={item.image} alt="" loading="lazy" />
+        </span>
+        <span className="sp-card__brand">{brand}</span>
+        <h3 className="sp-card__name">{item.name}</h3>
       </AppLink>
-      <div className="product-specs">
-        {specs.map((spec, index) => (
-          <span key={`${index}-${spec}`}>{spec}</span>
-        ))}
-      </div>
-      <div className="product-meta">
-        <span><Icon size={15} />{item.brand || (item.kind === 'software' ? 'Software' : item.category)}</span>
-        <strong>{item.kind === 'software' || !item.priceLabel ? 'Inquiry' : item.priceLabel}</strong>
-      </div>
-      {!!item.variants?.length && <span className="product-config-count">{item.variants.length} configurations available</span>}
-      {item.variants?.length ? (
-        <AppLink to={`/product/${item.slug}/`} navigate={navigate} className="product-button">
-          <Layers3 size={16} />
-          {item.variants.length} configurations
-        </AppLink>
-      ) : item.kind === 'software' || !item.priceLabel ? (
-        <AppLink to={`/product/${item.slug}/`} navigate={navigate} className="product-button">
-          <Mail size={16} />
-          {copy.common.learnMore}
-        </AppLink>
-      ) : (
-        <AddToCartButton copy={copy} onAdd={() => addToCart(item)} />
+      {tags.length > 0 && (
+        <ul className="sp-card__tags">
+          {tags.map((tag, index) => (
+            <li key={`${index}-${tag}`}>{tag}</li>
+          ))}
+        </ul>
       )}
+      <div className="sp-card__foot">
+        <div className="sp-card__price">
+          {isInquiry ? (
+            <span className="sp-card__inquiry">{isAl ? 'Cmim sipas kerkeses' : 'Price on request'}</span>
+          ) : (
+            <>
+              {variantCount > 0 && <small>{isAl ? 'Nga' : 'From'}</small>}
+              <strong>{item.priceLabel}</strong>
+            </>
+          )}
+        </div>
+        {variantCount > 0 ? (
+          <AppLink to={href} navigate={navigate} className="sp-card__action sp-card__action--text">
+            <Layers3 size={15} aria-hidden="true" />
+            {variantCount} {isAl ? 'konfigurime' : 'options'}
+          </AppLink>
+        ) : isInquiry ? (
+          <AppLink to={href} navigate={navigate} className="sp-card__action sp-card__action--text">
+            {isAl ? 'Detaje' : 'Details'}
+            <ArrowRight size={15} aria-hidden="true" />
+          </AppLink>
+        ) : (
+          <AddToCartButton
+            copy={copy}
+            onAdd={() => addToCart(item)}
+            className="sp-card__action sp-card__action--cart"
+            iconSize={17}
+          />
+        )}
+      </div>
     </article>
   )
 }
