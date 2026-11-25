@@ -7015,3 +7015,128 @@ body .hp.sol .sol-compare article:first-child {
   max-width: 100%;
   object-fit: contain;
 }
+
+/* =====================================================================
+   Compact spacing pass: less space between sections on every page
+   ===================================================================== */
+
+/* Home and every page built on the .hp layout */
+.hp {
+  --hp-pad: clamp(32px, 3.4vw, 52px);
+}
+
+.hp .hp-intro {
+  padding-top: clamp(28px, 3vw, 44px);
+}
+
+.hp .hp-intro .hp-facts {
+  margin-top: clamp(24px, 2.6vw, 36px);
+  padding-bottom: clamp(24px, 2.6vw, 36px);
+}
+
+.hp .hp-head,
+.hp .hp-certs-head {
+  margin-bottom: clamp(18px, 2vw, 28px);
+  padding-bottom: clamp(14px, 1.5vw, 20px);
+}
+
+.hp .hp-certs-head {
+  margin-bottom: 0;
+}
+
+.hp-bar,
+.hp .hp-bleed__copy .hp-bar {
+  margin-bottom: clamp(16px, 2vw, 26px);
+}
+
+.hp .hp-marquee {
+  margin-top: clamp(22px, 2.6vw, 36px);
+}
+
+#partners.hp-section,
+.hp .hp-section--certs {
+  padding-bottom: clamp(28px, 3vw, 44px);
+}
+
+.hp .hp-section--certs {
+  padding-top: clamp(28px, 3vw, 44px);
+}
+
+.hp .hp-contact {
+  padding-block: clamp(32px, 3.6vw, 56px);
+}
+
+/* IT Solution, vendor and support pages */
+.sol-section,
+.hp.sol.vp > .sol-section {
+  padding-block: clamp(30px, 3.2vw, 48px);
+}
+
+.sol-hero__inner {
+  padding: clamp(32px, 3.6vw, 56px) 0 clamp(22px, 2.4vw, 34px);
+}
+
+.sol-cta {
+  padding-block: clamp(28px, 3vw, 48px);
+}
+
+.vp-content {
+  padding-top: clamp(30px, 3.2vw, 48px);
+}
+
+/* Case studies */
+.cs-hero__inner {
+  padding: clamp(34px, 3.8vw, 60px) 0 clamp(28px, 3vw, 48px);
+}
+
+.cs-detail-hero {
+  padding: clamp(28px, 3vw, 48px) 0 clamp(28px, 3vw, 48px);
+}
+
+.cs-next__link {
+  padding: clamp(20px, 2.4vw, 36px) 0;
+}
+
+/* Shared sections, footer */
+.site-shell .section {
+  padding-block: clamp(30px, 3.4vw, 48px);
+}
+
+.ft {
+  padding-top: clamp(24px, 2.6vw, 38px);
+}
+
+/* IT Solution columns: less padding inside each column */
+body .hp.sol .sol-cards article,
+body .hp.sol .sol-compare article,
+body .hp.sol .sol-cards article:hover,
+body .hp.sol .sol-compare article:hover {
+  padding-top: clamp(14px, 1.6vw, 22px);
+  padding-bottom: clamp(10px, 1.2vw, 16px);
+}
+
+/* Vendor pages: compact hero and label-to-heading gaps */
+.hp.sol .vp-hero {
+  min-height: clamp(280px, 34vh, 380px);
+}
+
+.hp.sol .vp-hero__inner {
+  padding: clamp(28px, 3vw, 44px) 0 clamp(24px, 2.6vw, 36px);
+}
+
+.vp-hero__brand {
+  margin-bottom: 16px;
+}
+
+.hp.sol .vp-hero .sol-hero__actions {
+  margin-top: 22px;
+}
+
+.hp.sol .vp-content__head .hp-label,
+.hp.sol.vp .sol-deliver__head .hp-label {
+  margin-bottom: 10px;
+}
+
+.hp.sol .vp-content__head h2 {
+  margin-top: 0;
+}
