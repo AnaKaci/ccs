@@ -1840,7 +1840,9 @@ function AppLink({ to, navigate, children, className = '', onClick, ...props }) 
 function App() {
   const [route, navigate] = useRoute()
   const [lang, setLang] = useState(() => localStorage.getItem('ccs-language') || 'en')
-  const [darkMode, setDarkMode] = useState(() => localStorage.getItem('theme') !== 'light')
+  // Light is the default. 'ccs-theme' replaces the old 'theme' key, which was saved as 'dark'
+  // for every past visitor, so returning visitors also start in light mode.
+  const [darkMode, setDarkMode] = useState(() => localStorage.getItem('ccs-theme') === 'dark')
   const [shopQuery, setShopQuery] = useState('')
   const { products, loading: productsLoading } = useProducts()
   const cart = useCart(products)
@@ -1849,7 +1851,7 @@ function App() {
 
   useEffect(() => {
     document.body.classList.toggle('dark-mode', darkMode)
-    localStorage.setItem('theme', darkMode ? 'dark' : 'light')
+    localStorage.setItem('ccs-theme', darkMode ? 'dark' : 'light')
   }, [darkMode])
 
   useEffect(() => {

@@ -16,11 +16,12 @@
   </head>
   <body>
     <script>
-      // Set theme before React starts, preventing a light-to-dark flash on load.
+      // Set theme before React starts, preventing a flash on load. Light is the default;
+      // dark only applies when the visitor picked it with the toggle.
       try {
-        document.body.classList.toggle('dark-mode', localStorage.getItem('theme') !== 'light');
+        document.body.classList.toggle('dark-mode', localStorage.getItem('ccs-theme') === 'dark');
       } catch {
-        document.body.classList.add('dark-mode');
+        document.body.classList.remove('dark-mode');
       }
     </script>
     <div id="root"></div>
