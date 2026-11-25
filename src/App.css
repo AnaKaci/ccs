@@ -239,8 +239,7 @@ body.dark-mode .site-header {
     transform 180ms ease;
 }
 
-.nav-group:hover .nav-menu,
-.nav-group:focus-within .nav-menu,
+/* Visibility is driven only by the React state (.menu-open), so two menus never show at once. */
 .nav-group.menu-open .nav-menu {
   opacity: 1;
   pointer-events: auto;

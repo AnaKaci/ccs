@@ -6642,3 +6642,376 @@ body:not(.dark-mode) .hp.ct .ct-empty {
 .site-shell .sort-menu__list li {
   border-radius: 0 !important;
 }
+
+/* Technology partners: three vendor cards (HP, Fortinet, Cisco) */
+@media (min-width: 1181px) {
+  .hp .hp-vendors {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* ---------- Vendor pages (HP, HP Poly, Fortinet, Cisco) ---------- */
+.hp.sol .vp-hero {
+  min-height: clamp(340px, 44vh, 480px);
+}
+
+.hp.sol .vp-hero__inner {
+  padding: clamp(40px, 4.5vw, 72px) 0 clamp(32px, 3.5vw, 52px);
+}
+
+.vp-hero__brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.vp-hero__logo {
+  display: grid;
+  place-items: center;
+  width: 132px;
+  height: 56px;
+  padding: 10px 16px;
+  background: #fff;
+}
+
+.vp-hero__logo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.vp-hero__label {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.hp.sol .vp-hero__copy > p {
+  max-width: 54ch;
+  margin-top: 20px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 18px;
+  line-height: 1.65;
+}
+
+.hp.sol .vp-hero .sol-hero__actions {
+  margin-top: 28px;
+}
+
+/* Tighter vertical rhythm on vendor pages */
+.hp.sol.vp > .sol-section {
+  padding-block: clamp(36px, 4vw, 56px);
+}
+
+/* Official content: header in the page grid, vendor content edge to edge */
+.vp-content {
+  padding-top: clamp(36px, 4vw, 56px);
+  border-top: 1px solid var(--hp-line);
+  background: var(--hp-surface);
+}
+
+.vp-content__head {
+  margin-bottom: clamp(20px, 2.4vw, 28px);
+}
+
+.vp-content__head h2 {
+  margin-top: 10px;
+}
+
+.vp-content__head p {
+  max-width: 60ch;
+  margin-top: 10px;
+  color: var(--hp-body);
+  font-size: 17px;
+  line-height: 1.65;
+}
+
+.vp-content__surface {
+  width: 100%;
+  overflow: hidden;
+  background: #fff;
+  color: #231f20;
+}
+
+.vp-content__surface .syndication-widget {
+  min-height: 320px;
+}
+
+.vp-content__surface iframe {
+  display: block;
+  width: 100% !important;
+  max-width: 100%;
+  border: 0;
+}
+
+.vp-content__surface .syndication-status {
+  max-width: var(--sol-wrap-max, 1440px);
+  margin: 0 auto;
+  border-radius: 0;
+}
+
+
+
+/* ---------- IT Solution blocks: editorial columns, no cards ---------- */
+.hp.sol .sol-cards,
+.hp.sol .sol-compare {
+  gap: 0;
+}
+
+body .hp.sol .sol-cards article,
+body .hp.sol .sol-compare article,
+body .hp.sol .sol-cards article:hover,
+body .hp.sol .sol-compare article:hover {
+  padding: clamp(24px, 2.4vw, 36px) clamp(20px, 2.4vw, 36px) clamp(28px, 2.6vw, 40px);
+  border: 0 !important;
+  border-left: 1px solid var(--hp-line) !important;
+  border-radius: 0;
+  background: transparent !important;
+  box-shadow: none !important;
+  transform: none;
+}
+
+body .hp.sol .sol-cards article:first-child,
+body .hp.sol .sol-compare article:first-child {
+  padding-left: 0;
+  border-left: 0 !important;
+}
+
+.hp.sol .sol-index {
+  display: block;
+  margin-bottom: 16px;
+  color: #ef4136;
+  font-size: 14px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+}
+
+.hp.sol .sol-cards h3,
+.hp.sol .sol-compare h3 {
+  margin-bottom: 14px;
+  font-size: clamp(20px, 1.7vw, 24px);
+}
+
+.hp.sol .sol-compare ul {
+  gap: 0;
+  margin-top: 6px;
+}
+
+.hp.sol .sol-compare li {
+  display: block;
+  padding: 12px 0;
+  border-top: 1px solid var(--hp-line);
+  color: var(--hp-body);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.hp.sol .sol-tech {
+  padding-top: 24px;
+}
+
+.hp.sol .sol-tech ul {
+  gap: 0;
+}
+
+.hp.sol .sol-tech li {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  font-size: 14px;
+}
+
+.hp.sol .sol-tech li + li::before {
+  content: '/';
+  margin: 0 8px;
+  color: var(--hp-body);
+  font-weight: 400;
+}
+
+@media (max-width: 1080px) {
+  body .hp.sol .sol-cards article,
+  body .hp.sol .sol-compare article {
+    padding-left: 0;
+    padding-right: 0;
+    border-left: 0 !important;
+    border-top: 1px solid var(--hp-line) !important;
+  }
+
+  body .hp.sol .sol-cards article:first-child,
+  body .hp.sol .sol-compare article:first-child {
+    border-top: 0 !important;
+  }
+}
+
+/* ---------- GIS popup ---------- */
+.gis-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(23, 21, 22, 0.72);
+  animation: gis-modal-fade 0.18s ease-out;
+}
+
+.gis-modal__panel {
+  position: relative;
+  display: grid;
+  width: min(720px, 100%);
+  max-height: calc(100vh - 40px);
+  overflow: hidden;
+  background: var(--ccs-panel, #fff);
+  color: var(--ccs-ink, #231f20);
+  border-top: 4px solid #ef4136;
+}
+
+.gis-modal__body {
+  max-height: calc(100vh - 44px);
+  overflow-y: auto;
+  padding: clamp(28px, 3.5vw, 48px);
+}
+
+.gis-modal__body h2 {
+  margin: 12px 0 0;
+  color: var(--ccs-ink, #231f20);
+  font-size: clamp(26px, 2.6vw, 36px);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+
+.gis-modal__subtitle {
+  margin: 10px 0 0;
+  color: var(--ccs-ink, #231f20);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.gis-modal__intro {
+  max-width: 60ch;
+  margin: 16px 0 0;
+  color: var(--ccs-body, #505155);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.gis-modal__steps {
+  margin: 28px 0 32px;
+  padding: 0;
+  list-style: none;
+  border-top: 2px solid var(--ccs-ink, #231f20);
+}
+
+.gis-modal__steps li {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--ccs-stroke, rgba(35, 31, 32, 0.14));
+}
+
+.gis-modal__num {
+  color: #ef4136;
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+  line-height: 1.6;
+}
+
+.gis-modal__steps strong {
+  display: block;
+  color: var(--ccs-ink, #231f20);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.gis-modal__steps li span:not(.gis-modal__num) {
+  display: block;
+  margin-top: 2px;
+  color: var(--ccs-body, #505155);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.gis-modal__close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--ccs-stroke, rgba(35, 31, 32, 0.14));
+  background: var(--ccs-panel, #fff);
+  color: var(--ccs-ink, #231f20);
+  cursor: pointer;
+}
+
+.gis-modal__close:hover {
+  border-color: var(--ccs-ink, #231f20);
+}
+
+@keyframes gis-modal-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gis-modal {
+    animation: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .gis-modal {
+    padding: 0;
+    place-items: stretch;
+  }
+
+  .gis-modal__panel {
+    width: 100%;
+    max-height: 100vh;
+  }
+}
+
+/* "What we deliver" checklist: plain red checks, no tinted circles */
+.hp.sol .sol-points li {
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 14px;
+  padding: 18px 0;
+}
+
+.hp.sol .sol-points svg {
+  margin-top: 3px;
+  padding: 0;
+  border-radius: 0;
+  background: none;
+}
+
+.hp.sol .sol-points span {
+  padding-top: 0;
+}
+
+.hp.sol .vp-hero__logo {
+  display: flex;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Fixed logo height so wide and tall wordmarks both fit the 56px tile */
+.hp.sol .vp-hero__logo img {
+  width: 100%;
+  height: 34px;
+  max-width: 100%;
+  object-fit: contain;
+}

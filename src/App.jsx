@@ -9,9 +9,7 @@ import {
   Award,
   CalendarCheck,
   Clock,
-  Cloud,
   Cpu,
-  Database,
   Factory,
   Filter,
   Handshake,
@@ -25,13 +23,11 @@ import {
   Menu,
   Monitor,
   Moon,
-  Network,
   PcCase,
   Phone,
   Printer,
   Search,
   Server,
-  Shield,
   ShieldCheck,
   ShoppingCart,
   Sun,
@@ -532,15 +528,6 @@ const RECOMMENDED = [
     to: '/products-hp/',
     body: 'Reliable HP workstations, laptops, printers, displays, and business hardware.',
     alBody: 'Pajisje HP për biznesin: workstation, laptopë, printerë dhe ekrane.',
-  },
-  {
-    title: 'HP Poly',
-    alTitle: 'HP Poly',
-    image: ASSETS.hpPoly,
-    backdrop: ASSETS.support,
-    to: '/hp-poly/',
-    body: 'Modern collaboration, conferencing, headsets, and meeting-room devices.',
-    alBody: 'Zgjidhje moderne për bashkëpunim, video-konferenca dhe pajisje për salla takimesh.',
   },
   {
     title: 'Fortinet',
@@ -1926,6 +1913,26 @@ function Header({
   const [searchOpen, setSearchOpen] = useState(false)
   const [openDropdown, setOpenDropdown] = useState(null)
   const [term, setTerm] = useState('')
+  const navRef = useRef(null)
+  // When hovering opens a menu and the user then clicks its trigger, keep it open instead of toggling it shut.
+  const hoverOpenedAtRef = useRef(0)
+
+  // Desktop dropdowns: only one is ever open. Close it on Escape or a click outside the navigation.
+  useEffect(() => {
+    if (!openDropdown || menuOpen) return undefined
+    const onPointerDown = (event) => {
+      if (!navRef.current?.contains(event.target)) setOpenDropdown(null)
+    }
+    const onKeyDown = (event) => {
+      if (event.key === 'Escape') setOpenDropdown(null)
+    }
+    document.addEventListener('pointerdown', onPointerDown)
+    document.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown)
+      document.removeEventListener('keydown', onKeyDown)
+    }
+  }, [openDropdown, menuOpen])
 
   useEffect(() => {
     if (!menuOpen) setOpenDropdown(null)
@@ -1996,13 +2003,33 @@ function Header({
 
 
 
-        <nav id="ccs-primary-navigation" className={`main-nav ${menuOpen ? 'is-open' : ''}`} aria-label="Main navigation">
+        <nav
+          ref={navRef}
+          id="ccs-primary-navigation"
+          className={`main-nav ${menuOpen ? 'is-open' : ''}`}
+          aria-label="Main navigation"
+        >
           {NAV_GROUPS.map((group) => {
             const groupOpen = openDropdown === group.labelKey
             return group.children ? (
               <div
                 className={`nav-group ${isActiveGroup(group) ? 'active' : ''} ${groupOpen ? 'menu-open' : ''}`}
                 key={group.labelKey}
+                onPointerEnter={(event) => {
+                  // Hover-to-open is for desktop mice only; the mobile drawer uses taps.
+                  if (menuOpen || event.pointerType !== 'mouse') return
+                  hoverOpenedAtRef.current = Date.now()
+                  setOpenDropdown(group.labelKey)
+                }}
+                onPointerLeave={(event) => {
+                  if (menuOpen || event.pointerType !== 'mouse') return
+                  setOpenDropdown((current) => (current === group.labelKey ? null : current))
+                }}
+                onBlur={(event) => {
+                  // Keyboard users: close the menu once focus leaves this group.
+                  if (menuOpen || event.currentTarget.contains(event.relatedTarget)) return
+                  setOpenDropdown((current) => (current === group.labelKey ? null : current))
+                }}
               >
                 <button
                   className="nav-trigger"
@@ -2010,7 +2037,10 @@ function Header({
                   aria-haspopup="true"
                   aria-expanded={groupOpen}
                   onClick={() =>
-                    setOpenDropdown((current) => (current === group.labelKey ? null : group.labelKey))
+                    setOpenDropdown((current) => {
+                      if (current === group.labelKey && Date.now() - hoverOpenedAtRef.current < 600) return current
+                      return current === group.labelKey ? null : group.labelKey
+                    })
                   }
                 >
                   {copy.nav[group.labelKey]}
@@ -2321,8 +2351,9 @@ function RouteRenderer({
         copy={copy}
         lang={lang}
         data={PAGE_DATA['/products-hp/']}
-        logoSrc={ASSETS.hpLogo}
+        logoSrc={PARTNER_LOGOS.hp}
         vendorName="HP"
+        backdrop={ASSETS.solutionStorage}
         shopHref={appUrl('/shop/')}
       >
         <HPSyndication variant="hp" />
@@ -2338,6 +2369,7 @@ function RouteRenderer({
         data={PAGE_DATA['/hp-poly/']}
         logoSrc={ASSETS.hpPoly}
         vendorName="HP Poly"
+        backdrop={ASSETS.support}
         shopHref={appUrl('/shop/')}
       >
         <HPSyndication variant="poly" />
@@ -2351,8 +2383,9 @@ function RouteRenderer({
         copy={copy}
         lang={lang}
         data={PAGE_DATA['/fortinet/']}
-        logoSrc={ASSETS.fortinet}
+        logoSrc={PARTNER_LOGOS.fortinet}
         vendorName="Fortinet"
+        backdrop={ASSETS.solutionSecurity}
       >
         <FortinetSyndication />
       </VendorSolutionLayout>
@@ -2365,8 +2398,9 @@ function RouteRenderer({
         copy={copy}
         lang={lang}
         data={PAGE_DATA['/cisco/']}
-        logoSrc={ASSETS.cisco}
+        logoSrc={PARTNER_LOGOS.cisco}
         vendorName="Cisco"
+        backdrop={ASSETS.solutionNetwork}
       >
         <CiscoSyndication />
       </VendorSolutionLayout>
@@ -2921,8 +2955,8 @@ function HomePage({ copy, lang, navigate }) {
             <h2>{isAl ? 'Partneret teknologjike' : 'Technology partners'}</h2>
             <p>
               {isAl
-                ? 'Eksploroni zgjidhjet profesionale te HP, HP Poly, Fortinet dhe Cisco.'
-                : 'We work directly with the vendors behind enterprise IT. Explore solutions from HP, HP Poly, Fortinet and Cisco.'}
+                ? 'Eksploroni zgjidhjet profesionale te HP, Fortinet dhe Cisco.'
+                : 'We work directly with the vendors behind enterprise IT. Explore solutions from HP, Fortinet and Cisco.'}
             </p>
           </header>
           <div className="hp-vendors">
@@ -3034,29 +3068,43 @@ function Modal({ item, copy, lang, onClose }) {
     return () => document.removeEventListener('keydown', onKeyDown)
   }, [onClose])
 
+  const isAl = lang === 'al'
+
   return (
-    <div className="modal-backdrop" role="presentation" onMouseDown={onClose}>
-      <article className="modal-card" role="dialog" aria-modal="true" onMouseDown={(e) => e.stopPropagation()}>
-        <button className="icon-button modal-close" type="button" onClick={onClose} aria-label={copy.common.closeMenu}>
-          <X size={20} />
+    <div className="gis-modal" role="presentation" onMouseDown={onClose}>
+      <article
+        className="gis-modal__panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="gis-modal-title"
+        onMouseDown={(e) => e.stopPropagation()}
+      >
+        <button className="gis-modal__close" type="button" onClick={onClose} aria-label={copy.common.closeMenu}>
+          <X size={20} aria-hidden="true" />
         </button>
-        <img src={item.image} alt="" />
-        <h2>{titleFor(item, lang)}</h2>
-        <p>{item.body}</p>
-        <ul className="timeline">
-          {item.steps.map(([title, body], index) => (
-            <li key={title}>
-              <strong>
-                {index + 1}. {title}
-              </strong>
-              <span>{body}</span>
-            </li>
-          ))}
-        </ul>
-        <a href="mailto:info@ccs.al" className="primary-action">
-          <Mail size={17} />
-          {copy.home.contactTitle}
-        </a>
+        <div className="gis-modal__body">
+          <span className="hp-label">GIS / ArcGIS</span>
+          <h2 id="gis-modal-title">{titleFor(item, lang)}</h2>
+          {(isAl ? item.alSubtitle : item.subtitle) && (
+            <p className="gis-modal__subtitle">{isAl ? item.alSubtitle : item.subtitle}</p>
+          )}
+          <p className="gis-modal__intro">{item.body}</p>
+          <ol className="gis-modal__steps">
+            {item.steps.map(([title, body], index) => (
+              <li key={title}>
+                <span className="gis-modal__num">{index + 1}.</span>
+                <div>
+                  <strong>{title}</strong>
+                  <span>{body}</span>
+                </div>
+              </li>
+            ))}
+          </ol>
+          <a href={`mailto:info@ccs.al?subject=${encodeURIComponent(`GIS: ${item.title}`)}`} className="hp-btn hp-btn--primary">
+            <Mail size={17} aria-hidden="true" />
+            {copy.home.contactTitle}
+          </a>
+        </div>
       </article>
     </div>
   )
@@ -4308,18 +4356,6 @@ function DetailPage({ data, copy, lang, navigate }) {
   )
 }
 
-const SOLUTION_ICONS = {
-  'Ransomware Attacks': Shield,
-  'Phishing Attacks': Mail,
-  'DDoS Attacks': Network,
-  'Business Continuity & Reliability': Database,
-  'Scalability & Flexibility': Layers3,
-  'Cybersecurity & Compliance': ShieldCheck,
-  'On-Premise Storage': Server,
-  'Cloud Storage': Cloud,
-  'Hybrid Storage': Layers3,
-}
-
 function ITSolutionPage({ data, copy, lang, navigate }) {
   const isAl = lang === 'al'
   const focus = SOLUTION_CONTENT[data.solutionKey]
@@ -4468,13 +4504,10 @@ function SolutionBlock({ focus, type, lang }) {
           <p>{focus.subtitle}</p>
         </header>
         <div className="sol-compare">
-          {focus.rows.map(([typeName, benefits]) => {
-            const Icon = SOLUTION_ICONS[typeName] || Server
+          {focus.rows.map(([typeName, benefits], index) => {
             return (
               <article key={typeName}>
-                <span className="sol-icon">
-                  <Icon size={22} aria-hidden="true" />
-                </span>
+                <span className="sol-index">{index + 1}.</span>
                 <h3>{typeName}</h3>
                 <ul>
                   {benefits
@@ -4482,10 +4515,7 @@ function SolutionBlock({ focus, type, lang }) {
                     .map((line) => line.replace(/\.$/, '').trim())
                     .filter(Boolean)
                     .map((line) => (
-                      <li key={line}>
-                        <Check size={16} aria-hidden="true" />
-                        {line}
-                      </li>
+                      <li key={line}>{line}</li>
                     ))}
                 </ul>
               </article>
@@ -4509,16 +4539,13 @@ function SolutionBlock({ focus, type, lang }) {
         <p>{focus.subtitle}</p>
       </header>
       <div className="sol-cards">
-        {focus.cards.map((card) => {
-          const Icon = SOLUTION_ICONS[card.title] || ShieldCheck
+        {focus.cards.map((card, index) => {
           const tech = card.kicker
             ? card.kicker.replace(/^Mitigated by:\s*/i, '').split(/\s*&\s*/)
             : []
           return (
             <article key={card.title}>
-              <span className="sol-icon">
-                <Icon size={22} aria-hidden="true" />
-              </span>
+              <span className="sol-index">{index + 1}.</span>
               <h3>{card.title}</h3>
               <p>{card.body}</p>
               {tech.length > 0 && (
@@ -4560,7 +4587,7 @@ function SupportIssuePanel({ lang }) {
     ]
       .filter((line, index) => line || index === 3)
       .join('\n')
-    window.location.href = `mailto:info@ccs.al?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
+    window.location.href = `mailto:support@ccs.al?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
     setSent(true)
   }
 
@@ -4578,7 +4605,7 @@ function SupportIssuePanel({ lang }) {
           <ul className="sol-support__contacts">
             <li>
               <Mail size={18} aria-hidden="true" />
-              <a href="mailto:info@ccs.al">info@ccs.al</a>
+              <a href="mailto:support@ccs.al">support@ccs.al</a>
             </li>
             <li>
               <Phone size={18} aria-hidden="true" />
