@@ -5242,13 +5242,30 @@ body:not(.dark-mode) .site-shell.commerce-ui .horizontal-filter summary {
   padding: clamp(28px, 3.5vw, 52px) 0;
 }
 
+.pd {
+  padding-top: clamp(14px, 1.6vw, 22px);
+}
+
+.pd-crumbs {
+  margin-bottom: clamp(14px, 1.6vw, 20px);
+}
+
 .pd-top {
-  padding-bottom: clamp(40px, 4.5vw, 72px);
+  gap: 24px clamp(24px, 3.5vw, 56px);
+  padding-bottom: clamp(24px, 2.8vw, 40px);
 }
 
 .pd-details,
 .pd-related {
-  padding-block: clamp(40px, 4.5vw, 72px);
+  padding-block: clamp(24px, 2.8vw, 40px);
+}
+
+.pd-details__inner {
+  gap: 24px clamp(24px, 4vw, 64px);
+}
+
+.hp.pd .pd-details h2 {
+  margin-bottom: 14px;
 }
 
 .sp-more {

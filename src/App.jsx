@@ -254,6 +254,7 @@ const COPY = {
       accessories: 'Accessories',
       filter: 'Filter',
       sort: 'Sort',
+      newest: 'New products',
       low: 'Lowest price',
       high: 'Highest price',
       showProducts: 'Show products',
@@ -347,6 +348,7 @@ const COPY = {
       accessories: 'Aksesore',
       filter: 'Filtro',
       sort: 'Rendit',
+      newest: 'Produktet e reja',
       low: 'Nga cmimi me i ulet',
       high: 'Nga cmimi me i larte',
       showProducts: 'Shfaq produktet',
@@ -3245,6 +3247,11 @@ function ShopPage({
       return categoryOk && queryOk && filterOk
     })
 
+    if (sort === 'newest') {
+      // WooCommerce IDs increase as products are created, so a higher ID means a newer product.
+      return [...matches].sort((a, b) => (Number(b.id) || 0) - (Number(a.id) || 0))
+    }
+
     if (sort === 'low') {
       return [...matches].sort((a, b) => (a.price ?? Number.MAX_SAFE_INTEGER) - (b.price ?? Number.MAX_SAFE_INTEGER))
     }
@@ -3395,6 +3402,7 @@ function ShopPage({
               <span>{copy.shop.sort}</span>
               <select value={sort} onChange={(event) => setSort(event.target.value)}>
                 <option value="">{langForCopy(copy) === 'al' ? 'Te rekomanduara' : 'Recommended'}</option>
+                <option value="newest">{copy.shop.newest}</option>
                 <option value="low">{copy.shop.low}</option>
                 <option value="high">{copy.shop.high}</option>
               </select>
