@@ -7140,3 +7140,9 @@ body .hp.sol .sol-compare article:hover {
 .hp.sol .vp-content__head h2 {
   margin-top: 0;
 }
+
+/* GIS photo: <picture> wrapper behaves like the image block */
+.hp-gis-split__media picture {
+  position: relative;
+  display: block;
+}

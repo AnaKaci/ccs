@@ -86,7 +86,9 @@ const ASSETS = {
   servers: 'https://images.pexels.com/photos/5480781/pexels-photo-5480781.jpeg?auto=compress&cs=tinysrgb&w=1600',
   infrastructure: 'https://images.pexels.com/photos/1054397/pexels-photo-1054397.jpeg?auto=compress&cs=tinysrgb&w=1600',
   support: 'https://images.pexels.com/photos/1181354/pexels-photo-1181354.jpeg?auto=compress&cs=tinysrgb&w=1600',
-  gis: 'https://ccs.al/wp-content/uploads/2025/06/CCS-GIS-Systems-1.png',
+  // GIS section photo (Tirana skyline with a GIS map on a laptop), self-hosted in high quality.
+  gis: publicAsset('media/gis-tirana.jpg'),
+  gisWebp: publicAsset('media/gis-tirana.webp'),
   map: 'https://ccs.al/wp-content/uploads/2025/06/map.png',
   serverIcon: 'https://ccs.al/wp-content/uploads/2025/06/server.png',
   headset: 'https://ccs.al/wp-content/uploads/2025/06/customer-service-headset.png',
@@ -2943,7 +2945,16 @@ function HomePage({ copy, lang, navigate }) {
             </ul>
           </div>
           <figure className="hp-gis-split__media">
-            <img src={ASSETS.gis} alt={isAl ? 'Sistemet GIS te C.C.S' : 'C.C.S GIS systems'} loading="lazy" />
+            <picture>
+              <source srcSet={ASSETS.gisWebp} type="image/webp" />
+              <img
+                src={ASSETS.gis}
+                alt={isAl ? 'Sistemet GIS te C.C.S: harte GIS ne laptop me pamje nga Tirana' : 'C.C.S GIS systems: a GIS map on a laptop overlooking Tirana'}
+                width="1672"
+                height="941"
+                loading="lazy"
+              />
+            </picture>
           </figure>
         </div>
       </section>
