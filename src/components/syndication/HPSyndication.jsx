@@ -78,7 +78,7 @@ export default function HPSyndication({ variant = 'hp' }) {
       )}
       {status === 'error' && (
         <p className="syndication-status syndication-status-error" role="status">
-          HP showcase content could not be loaded right now. Please contact CCS for HP solution
+          HP showcase content could not be loaded right now. Please contact C.C.S for HP solution
           assistance.
         </p>
       )}

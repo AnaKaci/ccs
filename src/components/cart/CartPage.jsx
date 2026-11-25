@@ -51,8 +51,8 @@ export function CartPage({
   const emailUrl = hasItems ? buildEmailUrl(cartItems) : ''
 
   const steps = isAl
-    ? ['Rishikoni produktet', 'Dergoni listen ne WhatsApp ose email', 'CCS ju kontakton per disponueshmerine']
-    : ['Review your products', 'Send the list on WhatsApp or email', 'CCS contacts you about availability']
+    ? ['Rishikoni produktet', 'Dergoni listen ne WhatsApp ose email', 'C.C.S ju kontakton per disponueshmerine']
+    : ['Review your products', 'Send the list on WhatsApp or email', 'C.C.S contacts you about availability']
 
   const shortcuts = [
     [Laptop, copy.shop.laptop, '/product-category/laptop/'],
@@ -84,8 +84,8 @@ export function CartPage({
             </h1>
             <p>
               {isAl
-                ? 'Rishikoni produktet dhe dergoni listen e plote tek CCS.'
-                : 'Review your products and send the complete list to the CCS team.'}
+                ? 'Rishikoni produktet dhe dergoni listen e plote tek C.C.S.'
+                : 'Review your products and send the complete list to the C.C.S team.'}
             </p>
           </div>
           <CartNavLink to="/shop/" navigate={navigate} appUrl={appUrl} className="hp-link">
@@ -227,8 +227,8 @@ export function CartPage({
               </dl>
               <p className="ct-summary__note">
                 {isAl
-                  ? 'Dergoni listen dhe ekipi i CCS do t’ju kontaktoje per disponueshmerine dhe porosine.'
-                  : 'Send the list and the CCS team will contact you about availability and ordering.'}
+                  ? 'Dergoni listen dhe ekipi i C.C.S do t’ju kontaktoje per disponueshmerine dhe porosine.'
+                  : 'Send the list and the C.C.S team will contact you about availability and ordering.'}
               </p>
               <a href={whatsAppUrl} className="hp-btn hp-btn--primary ct-pill ct-summary__cta" target="_blank" rel="noopener noreferrer">
                 <Phone size={18} aria-hidden="true" />

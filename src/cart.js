@@ -108,7 +108,7 @@ function resolveCartLines(entries, products) {
         variant,
         name: variant?.name || product.name,
         baseName: product.name,
-        brand: product.brand || product.brands?.[0]?.name || 'CCS',
+        brand: product.brand || product.brands?.[0]?.name || 'C.C.S',
         image: variant?.image || product.image,
         sku: extractSku(product),
         configuration: configurationLabel(variant),
@@ -139,7 +139,7 @@ function buildWhatsAppMessage(lines) {
     })
     .join('\n\n')
 
-  return `Hello CCS,
+  return `Hello C.C.S,
 
 I am interested in the following products:
 

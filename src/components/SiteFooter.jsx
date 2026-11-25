@@ -47,7 +47,7 @@ export function SiteFooter({
   return (
     <footer className="ft">
       <div className="ft__wordmark" aria-hidden="true">
-        CCS
+        C.C.S
       </div>
 
       <div className="ft__container">

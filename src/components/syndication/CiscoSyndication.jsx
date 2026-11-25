@@ -78,7 +78,7 @@ export default function CiscoSyndication() {
       )}
       {status === 'error' && (
         <p className="syndication-status syndication-status-error" role="status">
-          Cisco content could not be loaded right now. Please contact CCS for Cisco solution
+          Cisco content could not be loaded right now. Please contact C.C.S for Cisco solution
           assistance.
         </p>
       )}

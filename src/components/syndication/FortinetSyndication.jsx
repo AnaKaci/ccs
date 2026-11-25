@@ -53,7 +53,7 @@ export default function FortinetSyndication() {
       )}
       {status === 'error' && (
         <p className="syndication-status syndication-status-error" role="status">
-          Fortinet content could not be loaded right now. Please contact CCS for Fortinet
+          Fortinet content could not be loaded right now. Please contact C.C.S for Fortinet
           solution assistance.
         </p>
       )}

@@ -6608,3 +6608,33 @@ body:not(.dark-mode) .hp.ct .ct-empty {
 .hp.pd .pd-related .hp-head > .hp-link {
   margin-left: auto;
 }
+
+/* ---------- Square corners: intro photo and every button ---------- */
+.hp-intro__visual,
+.hp-intro__visual > img,
+.hp-intro__visual::before,
+.hp-intro__visual::after {
+  border-radius: 0 !important;
+}
+
+/* Buttons and button-like controls are plain rectangles across the whole site. */
+.site-shell :is(
+    button,
+    [role='button'],
+    input[type='submit'],
+    input[type='button'],
+    .hp-btn,
+    [class*='btn'],
+    [class*='button'],
+    .cart-pill,
+    .filter-open,
+    .sort-menu__trigger,
+    .shop-search,
+    .shop-search input,
+    .horizontal-filter summary,
+    .category-tabs a,
+    .sp-active button
+  ),
+.site-shell .sort-menu__list li {
+  border-radius: 0 !important;
+}

@@ -66,12 +66,12 @@ export default function VendorSolutionLayout({
 
       <div className="vendor-cta">
         <div>
-          <span className="kicker">CCS</span>
-          <h2>{lang === 'al' ? 'Flisni me ekipin CCS' : 'Talk to the CCS team'}</h2>
+          <span className="kicker">C.C.S</span>
+          <h2>{lang === 'al' ? 'Flisni me ekipin C.C.S' : 'Talk to the C.C.S team'}</h2>
           <p>
             {lang === 'al'
-              ? 'CCS ndihmon me perzgjedhje, implementim, konfigurim dhe suport teknik.'
-              : 'CCS supports selection, implementation, configuration, and technical support.'}
+              ? 'C.C.S ndihmon me perzgjedhje, implementim, konfigurim dhe suport teknik.'
+              : 'C.C.S supports selection, implementation, configuration, and technical support.'}
           </p>
         </div>
         <a href="mailto:info@ccs.al" className="primary-action">

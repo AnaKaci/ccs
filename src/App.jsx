@@ -220,11 +220,11 @@ const COPY = {
         'Integrated IT, security, infrastructure, and support for organizations that need systems they can trust.',
       aboutTitle: 'About us',
       aboutLead:
-        'At CCS, we provide comprehensive expertise across all IT components, including networking, infrastructure, and operational systems.',
+        'At C.C.S, we provide comprehensive expertise across all IT components, including networking, infrastructure, and operational systems.',
       aboutBody:
         'Our holistic approach extends beyond technology to encompass business consulting, security solutions, and educational services, ensuring that our clients are well-equipped to navigate the evolving digital landscape.',
       aboutBodyTwo:
-        'CCS is more than a technology provider; we are a trusted partner dedicated to transforming the IT landscape and helping businesses thrive in an increasingly digital world.',
+        'C.C.S is more than a technology provider; we are a trusted partner dedicated to transforming the IT landscape and helping businesses thrive in an increasingly digital world.',
       lifecycle:
         'Our end-to-end services cover the entire project lifecycle, from defining business requirements to delivering fully managed IT services.',
       servicesTitle: 'Services',
@@ -268,7 +268,7 @@ const COPY = {
       whatsapp:
         'Ready to buy? Reach out to us directly on WhatsApp for a seamless purchasing experience.',
       footer:
-        'Computer Copier System (CCS), founded in 1993, offers technology, IT solutions, and services for the Albanian information technology market.',
+        'Computer Copier System (C.C.S), founded in 1993, offers technology, IT solutions, and services for the Albanian information technology market.',
     },
   },
   al: {
@@ -314,11 +314,11 @@ const COPY = {
         'IT, siguri, infrastrukture dhe suport i integruar per organizata qe kerkojne sisteme te besueshme.',
       aboutTitle: 'Rreth nesh',
       aboutLead:
-        'Ne CCS ofrojme ekspertize te plote ne komponentet IT, duke perfshire rrjetin, infrastrukturen dhe sistemet operative.',
+        'Ne C.C.S ofrojme ekspertize te plote ne komponentet IT, duke perfshire rrjetin, infrastrukturen dhe sistemet operative.',
       aboutBody:
         'Qasja jone shkon pertej teknologjise dhe perfshin konsulence biznesi, zgjidhje sigurie dhe sherbime edukimi, qe klientet te jene gati per nje mjedis dixhital ne ndryshim.',
       aboutBodyTwo:
-        'CCS eshte me shume se nje ofrues teknologjie; jemi partner i besuar per transformimin e IT dhe rritjen e bizneseve.',
+        'C.C.S eshte me shume se nje ofrues teknologjie; jemi partner i besuar per transformimin e IT dhe rritjen e bizneseve.',
       lifecycle:
         'Sherbimet tona mbulojne gjithe ciklin e projektit, nga kerkesat e biznesit deri te sherbimet IT te menaxhuara.',
       servicesTitle: 'Sherbime',
@@ -362,7 +362,7 @@ const COPY = {
       whatsapp:
         'Gati per blerje? Na kontaktoni direkt ne WhatsApp per nje eksperience te shpejte.',
       footer:
-        'Computer Copier System (CCS), e themeluar me 1993, ofron teknologji, zgjidhje dhe sherbime informatike per tregun shqiptar.',
+        'Computer Copier System (C.C.S), e themeluar me 1993, ofron teknologji, zgjidhje dhe sherbime informatike per tregun shqiptar.',
     },
   },
 }
@@ -634,7 +634,7 @@ const PAGE_DATA = {
     intro:
       'Write an issue to the form down below to contact us about your problem.',
     alIntro:
-      'Suport i shpejte nga ekspertet e CCS per operacionet, incidentet dhe permiresimet.',
+      'Suport i shpejte nga ekspertet e C.C.S per operacionet, incidentet dhe permiresimet.',
     points: [
       'Troubleshooting, maintenance, upgrades, user assistance, and operational guidance.',
       'On-call expertise for IT, network, server, storage, and GIS environments.',
@@ -653,7 +653,7 @@ const PAGE_DATA = {
     points: [
       'Workstations, laptops, desktops, monitors, printers, and enterprise hardware.',
       'HP devices selected for professionals, offices, support teams, and IT departments.',
-      'Pair HP products with CCS support, setup, security, and lifecycle services.',
+      'Pair HP products with C.C.S support, setup, security, and lifecycle services.',
     ],
     action: '/shop/',
   },
@@ -669,7 +669,7 @@ const PAGE_DATA = {
     points: [
       'Headsets, video bars, conferencing systems, and room devices.',
       'Designed for hybrid work, meeting rooms, call centers, and executive spaces.',
-      'CCS helps with selection, setup, integration, and support.',
+      'C.C.S helps with selection, setup, integration, and support.',
     ],
   },
   '/fortinet/': {
@@ -708,12 +708,12 @@ const PAGE_DATA = {
     image: ASSETS.hpLogo,
     icon: Cpu,
     intro:
-      'Explore CCS product offerings across software, hardware, HP, networking, and security.',
+      'Explore C.C.S product offerings across software, hardware, HP, networking, and security.',
     alIntro:
-      'Eksploroni produktet CCS ne software, hardware, HP, rrjet dhe siguri.',
+      'Eksploroni produktet C.C.S ne software, hardware, HP, rrjet dhe siguri.',
     points: [
       'Software and hardware solutions that improve efficiency and reliability.',
-      'Professional product selection supported by CCS technical expertise.',
+      'Professional product selection supported by C.C.S technical expertise.',
       'Use the shop search to filter available hardware quickly.',
     ],
     action: '/shop/',
@@ -800,7 +800,7 @@ const IT_SOLUTION_SLIDES = [
     title: 'Technical Support',
     alTitle: 'Suport Teknik',
     intro:
-      'Responsive technical support, infrastructure monitoring, troubleshooting, and lifecycle assistance from the CCS team.',
+      'Responsive technical support, infrastructure monitoring, troubleshooting, and lifecycle assistance from the C.C.S team.',
   },
 ]
 
@@ -1047,7 +1047,7 @@ function normalizeStoreProduct(item, variations = []) {
     name,
     kind,
     category,
-    brand: brands[0]?.name || (kind === 'software' ? 'Software' : 'CCS'),
+    brand: brands[0]?.name || (kind === 'software' ? 'Software' : 'C.C.S'),
     brands,
     categories,
     price,
@@ -1744,55 +1744,55 @@ function shopCategoryPath(category) {
 const SITE_TITLE = 'C.C.S'
 
 function seoForRoute(route, lang) {
-  const suffix = ' | CCS Albania'
+  const suffix = ' | C.C.S Albania'
   const baseDescription =
-    'CCS provides technology, IT solutions, infrastructure, cybersecurity, GIS, support, and product sales for the Albanian information technology market.'
+    'C.C.S provides technology, IT solutions, infrastructure, cybersecurity, GIS, support, and product sales for the Albanian information technology market.'
 
   if (route.path === '/') {
     return {
-      title: lang === 'al' ? 'CCS Albania | Zgjidhje IT dhe infrastrukture' : 'CCS Albania | Enterprise IT Systems Integrator',
+      title: lang === 'al' ? 'C.C.S Albania | Zgjidhje IT dhe infrastrukture' : 'C.C.S Albania | Enterprise IT Systems Integrator',
       description:
         lang === 'al'
-          ? 'CCS ofron IT, siguri, infrastrukture, GIS, suport teknik dhe produkte teknologjie per tregun shqiptar.'
+          ? 'C.C.S ofron IT, siguri, infrastrukture, GIS, suport teknik dhe produkte teknologjie per tregun shqiptar.'
           : baseDescription,
     }
   }
 
   if (route.path === '/shop/' || route.path === '/products/') {
     return {
-      title: `${lang === 'al' ? 'Dyqani CCS' : 'CCS Shop'}${suffix}`,
+      title: `${lang === 'al' ? 'Dyqani C.C.S' : 'C.C.S Shop'}${suffix}`,
       description:
         lang === 'al'
-          ? 'Shfletoni produkte hardware dhe software te ofruara nga CCS.'
-          : 'Browse CCS hardware and software products with product search, filters, and inquiry options.',
+          ? 'Shfletoni produkte hardware dhe software te ofruara nga C.C.S.'
+          : 'Browse C.C.S hardware and software products with product search, filters, and inquiry options.',
     }
   }
 
   if (route.path === '/cisco/') {
     return {
       title: `Cisco Solutions${suffix}`,
-      description: 'Cisco syndicated solution content with CCS implementation and support context.',
+      description: 'Cisco syndicated solution content with C.C.S implementation and support context.',
     }
   }
 
   if (route.path === '/fortinet/') {
     return {
       title: `Fortinet Solutions${suffix}`,
-      description: 'Fortinet syndicated security content with CCS implementation and support context.',
+      description: 'Fortinet syndicated security content with C.C.S implementation and support context.',
     }
   }
 
   if (route.path === '/products-hp/') {
     return {
       title: `HP Business Solutions${suffix}`,
-      description: 'HP Brand Showcase content with CCS product selection, setup, and support context.',
+      description: 'HP Brand Showcase content with C.C.S product selection, setup, and support context.',
     }
   }
 
   if (route.path === '/hp-poly/') {
     return {
       title: `HP Poly Solutions${suffix}`,
-      description: 'HP Poly showcase content with CCS collaboration product support context.',
+      description: 'HP Poly showcase content with C.C.S collaboration product support context.',
     }
   }
 
@@ -1807,12 +1807,12 @@ function seoForRoute(route, lang) {
   if (route.path === '/case-studies/') {
     return {
       title: `${COPY[lang].nav.caseStudies}${suffix}`,
-      description: 'CCS case studies across IT infrastructure, cybersecurity, telecom, energy, defense, agriculture, and GIS work.',
+      description: 'C.C.S case studies across IT infrastructure, cybersecurity, telecom, energy, defense, agriculture, and GIS work.',
     }
   }
 
   return {
-    title: `CCS Albania`,
+    title: `C.C.S Albania`,
     description: baseDescription,
   }
 }
@@ -1990,7 +1990,7 @@ function Header({
   return (
     <header className="site-header">
       <div className="header-inner">
-        <AppLink to="/" navigate={navigate} className="brand" aria-label="CCS home">
+        <AppLink to="/" navigate={navigate} className="brand" aria-label="C.C.S home">
           <img src={darkMode ? ASSETS.logoDark : ASSETS.logoLight} alt="C.C.S" />
         </AppLink>
 
@@ -2711,7 +2711,7 @@ function HomePage({ copy, lang, navigate }) {
 
   return (
     <div className="hp">
-      <section className="ccs-command-hero ccs-command-hero--video ccs-video-only-hero" aria-label={isAl ? 'Video prezantuese CCS' : 'CCS company video'}>
+      <section className="ccs-command-hero ccs-command-hero--video ccs-video-only-hero" aria-label={isAl ? 'Video prezantuese C.C.S' : 'C.C.S company video'}>
         <video
           className="ccs-hero-video ccs-hero-video--full"
           autoPlay
@@ -2727,7 +2727,7 @@ function HomePage({ copy, lang, navigate }) {
         </video>
       </section>
 
-      <section className="hp-intro" aria-label={isAl ? 'Rreth CCS' : 'About CCS'}>
+      <section className="hp-intro" aria-label={isAl ? 'Rreth C.C.S' : 'About C.C.S'}>
         <div className="hp-wrap hp-intro__grid">
           <div className="hp-intro__copy">
             <h1 className="hp-display">
@@ -2750,7 +2750,7 @@ function HomePage({ copy, lang, navigate }) {
           </div>
 
           <div className="hp-intro__visual">
-            <img src={ASSETS.aboutTwo} alt={isAl ? 'Ambienti i punes ne zyrat e CCS ne Tirane' : 'The CCS office in Tirana'} />
+            <img src={ASSETS.aboutTwo} alt={isAl ? 'Ambienti i punes ne zyrat e C.C.S ne Tirane' : 'The C.C.S office in Tirana'} />
             <div className="hp-intro__badge">
               <strong>{yearsActive}</strong>
               <span>{isAl ? 'vite ne IT ne Shqiperi' : 'years delivering IT in Albania'}</span>
@@ -2796,7 +2796,7 @@ function HomePage({ copy, lang, navigate }) {
             <h2>{isAl ? 'Cfare bejme' : 'What we do'}</h2>
             <p>
               {isAl
-                ? 'CCS kombinon siguri, rrjet, infrastrukture, servera, storage dhe suport teknik.'
+                ? 'C.C.S kombinon siguri, rrjet, infrastrukture, servera, storage dhe suport teknik.'
                 : 'Four practices, one accountable team. We design, deliver and operate the systems your organisation depends on.'}
             </p>
             <AppLink to="/shop/" navigate={navigate} className="hp-link">
@@ -2838,7 +2838,7 @@ function HomePage({ copy, lang, navigate }) {
 
       <section className="hp-bleed" id="about">
         <div className="hp-bleed__media">
-          <img src={ASSETS.aboutOne} alt={isAl ? 'Zyrat e CCS ne Tirane' : 'CCS office reception in Tirana'} />
+          <img src={ASSETS.aboutOne} alt={isAl ? 'Zyrat e C.C.S ne Tirane' : 'C.C.S office reception in Tirana'} />
         </div>
         <div className="hp-bleed__copy">
           <SectionBar label={copy.home.aboutTitle} />
@@ -2863,8 +2863,8 @@ function HomePage({ copy, lang, navigate }) {
             <h2>{isAl ? 'Zgjidhje te integruara per sisteme kritike.' : 'Integrated protection for critical systems.'}</h2>
             <p>
               {isAl
-                ? 'CCS mbulon rrjetin, sigurine, serverat, storage, vazhdimesine e biznesit dhe suportin operacional.'
-                : 'CCS covers network security, servers, storage, business continuity, and operational support.'}
+                ? 'C.C.S mbulon rrjetin, sigurine, serverat, storage, vazhdimesine e biznesit dhe suportin operacional.'
+                : 'C.C.S covers network security, servers, storage, business continuity, and operational support.'}
             </p>
             <AppLink to="/network-security/" navigate={navigate} className="hp-btn hp-btn--light">
               {copy.nav.networkSecurity}
@@ -2909,7 +2909,7 @@ function HomePage({ copy, lang, navigate }) {
             </ul>
           </div>
           <figure className="hp-gis-split__media">
-            <img src={ASSETS.gis} alt={isAl ? 'Sistemet GIS te CCS' : 'CCS GIS systems'} loading="lazy" />
+            <img src={ASSETS.gis} alt={isAl ? 'Sistemet GIS te C.C.S' : 'C.C.S GIS systems'} loading="lazy" />
           </figure>
         </div>
       </section>
@@ -2962,7 +2962,7 @@ function HomePage({ copy, lang, navigate }) {
           <div className="hp-contact__lead">
             <span className="hp-contact__eyebrow">{isAl ? 'Kontakt' : 'Start a conversation'}</span>
             <h2 className="hp-contact__title">
-              {isAl ? 'Planifikoni zgjidhjen tuaj me CCS.' : 'Plan your next technology initiative with CCS.'}
+              {isAl ? 'Planifikoni zgjidhjen tuaj me C.C.S.' : 'Plan your next technology initiative with C.C.S.'}
             </h2>
             <p>
               {isAl
@@ -3339,12 +3339,12 @@ function ShopPage({
   return (
     <div className="shop-page">
       <ShopHeroCarousel
-        label={isAl ? 'Dyqani CCS' : 'CCS Shop'}
+        label={isAl ? 'Dyqani C.C.S' : 'C.C.S Shop'}
         slides={[
           {
             key: 'welcome',
             image: ASSETS.shopHero,
-            eyebrow: isAl ? 'Dyqani CCS' : 'CCS Shop',
+            eyebrow: isAl ? 'Dyqani C.C.S' : 'C.C.S Shop',
             title: copy.shop.welcome,
             text: copy.shop.capture,
             actions: [
@@ -4404,7 +4404,7 @@ function ITSolutionPage({ data, copy, lang, navigate }) {
               <h2>{isAl ? `Keni nevoje per ${title}?` : `Planning a ${title.toLowerCase()} project?`}</h2>
               <p>
                 {isAl
-                  ? 'Ekipi i CCS ju ndihmon nga vleresimi deri te implementimi dhe suporti.'
+                  ? 'Ekipi i C.C.S ju ndihmon nga vleresimi deri te implementimi dhe suporti.'
                   : 'Our engineers can help from assessment and design through to implementation and ongoing support.'}
               </p>
             </div>
@@ -4431,8 +4431,8 @@ function ITSolutionPage({ data, copy, lang, navigate }) {
             <h2>{isAl ? 'Zgjidhje te tjera' : 'Explore other solutions'}</h2>
             <p>
               {isAl
-                ? 'CCS mbulon te gjithe ciklin e IT: rrjet, siguri, servera, infrastrukture dhe suport.'
-                : 'CCS covers the full IT lifecycle, from networks and security to servers, infrastructure and support.'}
+                ? 'C.C.S mbulon te gjithe ciklin e IT: rrjet, siguri, servera, infrastrukture dhe suport.'
+                : 'C.C.S covers the full IT lifecycle, from networks and security to servers, infrastructure and support.'}
             </p>
           </header>
           <div className="sol-others">
@@ -4572,8 +4572,8 @@ function SupportIssuePanel({ lang }) {
           <h2>{isAl ? 'Na tregoni per problemin' : 'Tell us about the issue'}</h2>
           <p>
             {isAl
-              ? 'Plotesoni formen dhe ekipi CCS do t’ju kontaktoje per ndihme teknike.'
-              : 'Fill in the form and the CCS team will get back to you with technical assistance.'}
+              ? 'Plotesoni formen dhe ekipi C.C.S do t’ju kontaktoje per ndihme teknike.'
+              : 'Fill in the form and the C.C.S team will get back to you with technical assistance.'}
           </p>
           <ul className="sol-support__contacts">
             <li>
@@ -4651,8 +4651,8 @@ function CaseContactBand({ lang }) {
           <h2>{isAl ? 'Keni nje sfide te ngjashme?' : 'Facing a similar challenge?'}</h2>
           <p>
             {isAl
-              ? 'Tregojini ekipit te CCS per projektin tuaj dhe do t’ju ndihmojme te gjeni zgjidhjen e duhur.'
-              : 'Tell the CCS team about your project and we will help you find the right approach.'}
+              ? 'Tregojini ekipit te C.C.S per projektin tuaj dhe do t’ju ndihmojme te gjeni zgjidhjen e duhur.'
+              : 'Tell the C.C.S team about your project and we will help you find the right approach.'}
           </p>
         </div>
         <div className="sol-cta__actions">
@@ -4687,7 +4687,7 @@ function CaseStudiesPage({ copy, lang, navigate }) {
             <p>
               {isAl
                 ? 'Keto raste tregojne implementime te suksesshme IT dhe GIS ne industri te ndryshme.'
-                : 'Real IT, cybersecurity and GIS projects delivered by CCS for organisations in critical industries.'}
+                : 'Real IT, cybersecurity and GIS projects delivered by C.C.S for organisations in critical industries.'}
             </p>
           </div>
           <dl className="cs-hero__stats">
@@ -4783,8 +4783,8 @@ function CaseStudyDetail({ item, lang, navigate }) {
     [
       isAl ? 'Zgjidhja' : 'Solution',
       isAl
-        ? 'CCS projektoi, implementoi dhe optimizoi zgjidhjen duke kombinuar infrastrukture, siguri dhe dokumentim teknik.'
-        : 'CCS designed, implemented, and optimized the solution by combining infrastructure, security, and technical documentation.',
+        ? 'C.C.S projektoi, implementoi dhe optimizoi zgjidhjen duke kombinuar infrastrukture, siguri dhe dokumentim teknik.'
+        : 'C.C.S designed, implemented, and optimized the solution by combining infrastructure, security, and technical documentation.',
     ],
     [
       isAl ? 'Ndikimi' : 'Impact',
@@ -4834,7 +4834,7 @@ function CaseStudyDetail({ item, lang, navigate }) {
                 </div>
                 <div>
                   <dt>{isAl ? 'Partneri' : 'Delivered by'}</dt>
-                  <dd>CCS Albania</dd>
+                  <dd>C.C.S Albania</dd>
                 </div>
               </dl>
               <a href="mailto:info@ccs.al?subject=Project%20enquiry" className="hp-btn hp-btn--primary">
