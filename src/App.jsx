@@ -1741,6 +1741,8 @@ function shopCategoryPath(category) {
   return category === 'all' ? '/shop/' : `/product-category/${category}/`
 }
 
+const SITE_TITLE = 'C.C.S'
+
 function seoForRoute(route, lang) {
   const suffix = ' | CCS Albania'
   const baseDescription =
@@ -1861,7 +1863,8 @@ function App() {
 
   useEffect(() => {
     const seo = seoForRoute(route, lang)
-    document.title = seo.title
+    // Every tab shows just the brand name; the per-page description is still set for search engines.
+    document.title = SITE_TITLE
     document.querySelector('meta[name="description"]')?.setAttribute('content', seo.description)
   }, [route, lang])
 
@@ -2400,7 +2403,7 @@ function NotFoundPage({ copy, lang, navigate }) {
   // Runs after every render so it always wins over the app-level title update.
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      document.title = isAl ? 'Faqja nuk u gjet | CCS Albania' : 'Page not found | CCS Albania'
+      document.title = SITE_TITLE
     }, 0)
     return () => window.clearTimeout(timer)
   })
