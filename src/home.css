@@ -6613,7 +6613,11 @@ body:not(.dark-mode) .hp.ct .ct-empty {
 .hp-intro__visual,
 .hp-intro__visual > img,
 .hp-intro__visual::before,
-.hp-intro__visual::after {
+.hp-intro__visual::after,
+.hp-intro__badge,
+.hp-intro__card,
+.hp-intro__card a,
+.hp-intro__card-icon {
   border-radius: 0 !important;
 }
 
