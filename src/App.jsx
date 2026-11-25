@@ -78,8 +78,11 @@ const ASSETS = {
   favicon: 'https://ccs.al/wp-content/uploads/2025/04/cropped-Capture-111111-1.png',
   lightPattern: 'https://ccs.al/wp-content/uploads/2025/04/gplaypattern.png',
   darkPattern: 'https://ccs.al/wp-content/uploads/2025/04/diagmonds.png',
-  heroVideo:
-    'https://ccs.al/wp-content/uploads/2025/05/05072-online-video-cutter.com-1.mp4',
+  // Self-hosted, compressed copies of the hero video with the MP4 index at the front ("faststart"),
+  // so playback starts after the first few hundred KB instead of after the whole file downloads.
+  heroVideo: publicAsset('media/hero-1920.mp4'),
+  heroVideoSmall: publicAsset('media/hero-960.mp4'),
+  heroPoster: publicAsset('media/hero-poster.jpg'),
   shopHero: 'https://images.pexels.com/photos/36985767/pexels-photo-36985767.jpeg?auto=compress&cs=tinysrgb&w=2000',
   aboutOne: 'https://ccs.al/wp-content/uploads/2025/01/20241022_140111-scaled.jpg',
   aboutTwo: 'https://ccs.al/wp-content/uploads/2025/01/20241022_140826-scaled.jpg',
@@ -2680,6 +2683,12 @@ function LogoMarquee({ items, label, variant = 'partners', speed = 40 }) {
 function HomePage({ copy, lang, navigate }) {
   const [activeModal, setActiveModal] = useState(null)
   const [activeService, setActiveService] = useState(0)
+  // Phones get the 960px encode (~1.6 MB) instead of the 1920px one (~3.8 MB).
+  const [heroVideoSrc] = useState(() =>
+    typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches
+      ? ASSETS.heroVideoSmall
+      : ASSETS.heroVideo,
+  )
   const isAl = lang === 'al'
   const yearsActive = new Date().getFullYear() - 1993
   const facts = [
@@ -2704,11 +2713,12 @@ function HomePage({ copy, lang, navigate }) {
           muted
           loop
           playsInline
-          preload="metadata"
+          preload="auto"
+          poster={ASSETS.heroPoster}
           aria-hidden="true"
           tabIndex={-1}
         >
-          <source src={ASSETS.heroVideo} type="video/mp4" />
+          <source src={heroVideoSrc} type="video/mp4" />
         </video>
       </section>
 
