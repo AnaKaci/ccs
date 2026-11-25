@@ -31,6 +31,7 @@ import {
   ShieldCheck,
   ShoppingCart,
   Sun,
+  Tag,
   Wifi,
   X,
 } from 'lucide-react'
@@ -253,6 +254,7 @@ const COPY = {
       printer: 'Printer',
       network: 'Network',
       accessories: 'Accessories',
+      sale: 'On sale',
       filter: 'Filter',
       sort: 'Sort',
       newest: 'New products',
@@ -347,6 +349,7 @@ const COPY = {
       printer: 'Printer',
       network: 'Network',
       accessories: 'Aksesore',
+      sale: 'Ne ulje',
       filter: 'Filtro',
       sort: 'Rendit',
       newest: 'Produktet e reja',
@@ -864,6 +867,9 @@ const AUTH_PAGES = {
 
 const STORE_PRODUCTS_ENDPOINT = 'https://ccs.al/wp-json/wc/store/v1/products'
 const STORE_PRODUCTS_PAGE_SIZE = 100
+// Always ask WooCommerce for the current catalogue. The server's cache plugin sends long
+// cache headers on JSON, which would otherwise hide new products, price and sale changes.
+const STORE_FETCH_OPTIONS = { cache: 'no-store' }
 function storeProductsUrl(params = {}) {
   const search = new URLSearchParams({
     per_page: String(STORE_PRODUCTS_PAGE_SIZE),
@@ -873,7 +879,7 @@ function storeProductsUrl(params = {}) {
 }
 
 async function fetchStoreProducts(params = {}) {
-  const response = await fetch(storeProductsUrl(params))
+  const response = await fetch(storeProductsUrl(params), STORE_FETCH_OPTIONS)
   if (!response.ok) throw new Error(`Product API failed: ${response.status}`)
   return response.json()
 }
@@ -1062,12 +1068,12 @@ function normalizeStoreProduct(item, variations = []) {
 }
 
 async function fetchAllStorePages(params) {
-  const first = await fetch(storeProductsUrl({ ...params, page: '1' }))
+  const first = await fetch(storeProductsUrl({ ...params, page: '1' }), STORE_FETCH_OPTIONS)
   if (!first.ok) throw new Error(`Product API failed: ${first.status}`)
   const totalPages = Math.min(Number(first.headers.get('X-WP-TotalPages')) || 1, 20)
   const rest = await Promise.all(
     Array.from({ length: totalPages - 1 }, (_, index) =>
-      fetch(storeProductsUrl({ ...params, page: String(index + 2) })).then((response) => {
+      fetch(storeProductsUrl({ ...params, page: String(index + 2) }), STORE_FETCH_OPTIONS).then((response) => {
         if (!response.ok) throw new Error(`Product API failed: ${response.status}`)
         return response.json()
       }),
@@ -1187,6 +1193,7 @@ const HARDWARE_FACETS_BY_CATEGORY = {
 
 function matchesShopCategory(item, category) {
   if (category === 'all') return true
+  if (category === 'sale') return isProductOnSale(item)
   if (category === 'hardware' || category === 'software') return item.kind === category
   if (HARDWARE_CATEGORY_KEYS.has(category)) return item.kind === 'hardware' && item.category === category
   return false
@@ -1708,6 +1715,7 @@ function titleFor(item, lang) {
 
 function iconForCategory(category) {
   if (category === 'all') return LayoutGrid
+  if (category === 'sale') return Tag
   if (category === 'hardware') return Cpu
   if (category === 'software') return AppWindow
   if (category === 'desktop') return PcCase
@@ -1724,7 +1732,12 @@ const LANGUAGE_FLAGS = {
   al: 'https://upload.wikimedia.org/wikipedia/commons/3/36/Flag_of_Albania.svg',
 }
 
-const SHOP_CATEGORIES = ['all', 'hardware', 'software', 'desktop', 'laptop', 'monitor', 'printer', 'accessories']
+const SHOP_CATEGORIES = ['all', 'sale', 'hardware', 'software', 'desktop', 'laptop', 'monitor', 'printer', 'accessories']
+
+// A product is on sale when WooCommerce marks it so, or when it has a higher regular price.
+function isProductOnSale(item) {
+  return Boolean(item?.onSale || item?.regularPriceLabel)
+}
 
 function shopCategoryPath(category) {
   return category === 'all' ? '/shop/' : `/product-category/${category}/`
@@ -3343,7 +3356,8 @@ function ShopPage({
       return [...matches].sort((a, b) => (b.price ?? 0) - (a.price ?? 0))
     }
 
-    return matches
+    // Recommended: products on sale first, everything else keeps the WooCommerce order.
+    return [...matches].sort((a, b) => Number(isProductOnSale(b)) - Number(isProductOnSale(a)))
   }, [activeFilterGroups, category, filters, products, query, sort])
 
   const productSections = useMemo(() => {
@@ -3389,7 +3403,9 @@ function ShopPage({
     if (category !== 'all') goCategory('all')
   }
 
-  const categories = SHOP_CATEGORIES
+  const saleCount = useMemo(() => products.filter(isProductOnSale).length, [products])
+  // The "On sale" tab only appears while WooCommerce has discounted products.
+  const categories = SHOP_CATEGORIES.filter((item) => item !== 'sale' || saleCount > 0 || category === 'sale')
   const goCategory = (item) => {
     setCategory(item)
     navigate(shopCategoryPath(item), { keepScroll: true })
@@ -3473,7 +3489,7 @@ function ShopPage({
               <AppLink
                 to={shopCategoryPath(item)}
                 navigate={navigate}
-                className={active ? 'active' : ''}
+                className={`${active ? 'active' : ''}${item === 'sale' ? ' category-tab--sale' : ''}`.trim()}
                 aria-current={active ? 'page' : undefined}
                 onClick={(event) => {
                   event.preventDefault()
@@ -3483,6 +3499,7 @@ function ShopPage({
               >
                 <Icon size={17} aria-hidden="true" />
                 {copy.shop[item]}
+                {item === 'sale' && saleCount > 0 && <span className="category-tab__count">{saleCount}</span>}
               </AppLink>
             )
           })}
@@ -4266,13 +4283,16 @@ function ProductCard({ item, copy, navigate, addToCart }) {
     ? stripHtml(item.categories[0].name).split('>').pop().trim()
     : copy.shop?.[item.category] || item.category
   const href = `/product/${item.slug}/`
+  // WooCommerce sale: badge on any product marked on sale; struck-through old price when known.
+  const onSale = isProductOnSale(item)
 
   return (
-    <article className="sp-card">
+    <article className={`sp-card${onSale ? ' sp-card--sale' : ''}`}>
       <AppLink to={href} navigate={navigate} className="sp-card__link">
         <span className="sp-card__media">
           <img src={item.image} alt="" loading="lazy" />
           {categoryLabel && <span className="sp-card__badge">{categoryLabel}</span>}
+          {onSale && <span className="sp-card__sale">{isAl ? 'Ulje' : 'Sale'}</span>}
         </span>
         <span className="sp-card__info">
           <span className="sp-card__brand">{brand}</span>
@@ -4296,6 +4316,12 @@ function ProductCard({ item, copy, navigate, addToCart }) {
             <>
               <small>{variantCount > 0 ? (isAl ? 'Nga' : 'From') : isAl ? 'Cmimi' : 'Price'}</small>
               <strong>{String(item.priceLabel).replace(/^(from|nga)\s+/i, '')}</strong>
+              {item.regularPriceLabel && (
+                <s className="sp-card__was">
+                  <span className="visually-hidden">{isAl ? 'Cmimi i meparshem: ' : 'Was: '}</span>
+                  {item.regularPriceLabel}
+                </s>
+              )}
             </>
           )}
         </div>

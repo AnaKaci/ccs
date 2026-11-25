@@ -7146,3 +7146,70 @@ body .hp.sol .sol-compare article:hover {
   position: relative;
   display: block;
 }
+
+/* ---------- Sale products (WooCommerce "on sale") ---------- */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.sp-card__sale {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 4px 8px;
+  background: #ef4136;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Keep the category badge clear of the sale badge */
+.sp-card--sale .sp-card__badge {
+  max-width: calc(100% - 84px);
+}
+
+.site-shell .sp-card__was {
+  color: var(--ccs-caption, #62666c);
+  font-size: 12px;
+  font-weight: 500;
+  text-decoration: line-through;
+}
+
+.site-shell .sp-card--sale .sp-card__price strong {
+  color: #ef4136;
+}
+
+@media (max-width: 760px) {
+  .sp-card__sale {
+    top: 6px;
+    right: 6px;
+    font-size: 10px;
+  }
+}
+
+/* "On sale" shop tab */
+.site-shell .category-tabs a.category-tab--sale,
+.site-shell .category-tabs a.category-tab--sale svg {
+  color: #ef4136;
+}
+
+.site-shell .category-tabs .category-tab__count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  margin-left: 2px;
+  padding: 0 6px;
+  background: #ef4136;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+}
