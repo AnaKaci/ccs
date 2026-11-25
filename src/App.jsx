@@ -3052,6 +3052,8 @@ function langForCopy(copy) {
 }
 
 const SHOP_PAGE_SIZE = 20
+// How many of the newest products each section shows when sorting by "New products".
+const NEW_PER_SECTION = 10
 const SHOP_HERO_INTERVAL = 6500
 
 function ShopHeroCarousel({ slides, label }) {
@@ -3249,7 +3251,14 @@ function ShopPage({
 
     if (sort === 'newest') {
       // WooCommerce IDs increase as products are created, so a higher ID means a newer product.
-      return [...matches].sort((a, b) => (Number(b.id) || 0) - (Number(a.id) || 0))
+      // Products are ordered by section first, so each section lists its own newest items first.
+      const sectionRank = (item) => {
+        const rank = SHOP_CATEGORIES.indexOf(item.category)
+        return rank === -1 ? SHOP_CATEGORIES.length : rank
+      }
+      return [...matches].sort(
+        (a, b) => sectionRank(a) - sectionRank(b) || (Number(b.id) || 0) - (Number(a.id) || 0),
+      )
     }
 
     if (sort === 'low') {
@@ -3262,6 +3271,30 @@ function ShopPage({
 
     return matches
   }, [activeFilterGroups, category, filters, products, query, sort])
+
+  const productSections = useMemo(() => {
+    if (sort !== 'newest') return null
+    const totals = new Map()
+    filteredProducts.forEach((item) => totals.set(item.category, (totals.get(item.category) || 0) + 1))
+    if (totals.size < 2) return null
+
+    // filteredProducts is already ordered by section, newest first, so consecutive items share a section.
+    const sections = []
+    filteredProducts.forEach((item) => {
+      let section = sections[sections.length - 1]
+      if (!section || section.key !== item.category) {
+        section = {
+          key: item.category,
+          label: copy.shop[item.category] || item.category,
+          total: totals.get(item.category),
+          items: [],
+        }
+        sections.push(section)
+      }
+      if (section.items.length < NEW_PER_SECTION) section.items.push(item)
+    })
+    return sections
+  }, [copy, filteredProducts, sort])
 
   const toggleFilter = (groupKey, token) => {
     setFilters((current) => {
@@ -3398,15 +3431,17 @@ function ShopPage({
               <Filter size={18} />
               {copy.shop.filter}
             </button>
-            <label>
-              <span>{copy.shop.sort}</span>
-              <select value={sort} onChange={(event) => setSort(event.target.value)}>
-                <option value="">{langForCopy(copy) === 'al' ? 'Te rekomanduara' : 'Recommended'}</option>
-                <option value="newest">{copy.shop.newest}</option>
-                <option value="low">{copy.shop.low}</option>
-                <option value="high">{copy.shop.high}</option>
-              </select>
-            </label>
+            <SortMenu
+              label={copy.shop.sort}
+              value={sort}
+              onChange={setSort}
+              options={[
+                { value: '', label: langForCopy(copy) === 'al' ? 'Te rekomanduara' : 'Recommended' },
+                { value: 'newest', label: copy.shop.newest },
+                { value: 'low', label: copy.shop.low },
+                { value: 'high', label: copy.shop.high },
+              ]}
+            />
           </div>
         </div>
       </div>
@@ -3472,17 +3507,57 @@ function ShopPage({
           </div>
           {filteredProducts.length ? (
             <>
-              <div className="products-grid">
-                {filteredProducts.slice(0, visibleCount).map((item) => (
-                  <ProductCard
-                    key={item.id}
-                    item={item}
-                    copy={copy}
-                    navigate={navigate}
-                    addToCart={addToCart}
-                  />
-                ))}
-              </div>
+              {productSections ? (
+                productSections.map((section) => (
+                  <section className="sp-section" key={section.key} aria-labelledby={`sp-section-${section.key}`}>
+                    <header className="sp-section__head">
+                      <h2 id={`sp-section-${section.key}`}>{section.label}</h2>
+                      <span>
+                        {section.total} {isAl ? 'produkte' : section.total === 1 ? 'product' : 'products'}
+                      </span>
+                      {section.total > section.items.length && SHOP_CATEGORIES.includes(section.key) && (
+                        <AppLink
+                          to={shopCategoryPath(section.key)}
+                          navigate={navigate}
+                          className="sp-section__all"
+                          onClick={(event) => {
+                            event.preventDefault()
+                            goCategory(section.key)
+                            scrollToProducts()
+                          }}
+                        >
+                          {isAl ? 'Shiko te gjitha' : 'View all'}
+                          <ArrowRight size={15} aria-hidden="true" />
+                        </AppLink>
+                      )}
+                    </header>
+                    <div className="products-grid">
+                      {section.items.map((item) => (
+                        <ProductCard
+                          key={item.id}
+                          item={item}
+                          copy={copy}
+                          navigate={navigate}
+                          addToCart={addToCart}
+                        />
+                      ))}
+                    </div>
+                  </section>
+                ))
+              ) : (
+                <div className="products-grid">
+                  {filteredProducts.slice(0, visibleCount).map((item) => (
+                    <ProductCard
+                      key={item.id}
+                      item={item}
+                      copy={copy}
+                      navigate={navigate}
+                      addToCart={addToCart}
+                    />
+                  ))}
+                </div>
+              )}
+              {!productSections && (
               <div className="sp-more">
                 <p>
                   {langForCopy(copy) === 'al'
@@ -3498,6 +3573,7 @@ function ShopPage({
                   </button>
                 )}
               </div>
+              )}
             </>
           ) : (
             <p className="empty-state">{copy.common.noProducts}</p>
@@ -3819,6 +3895,119 @@ function ProductDetailPage({
             </div>
           </div>
         </section>
+      )}
+    </div>
+  )
+}
+
+function SortMenu({ label, value, options, onChange }) {
+  const [open, setOpen] = useState(false)
+  const [activeIndex, setActiveIndex] = useState(0)
+  const rootRef = useRef(null)
+  const buttonRef = useRef(null)
+  const listRef = useRef(null)
+  const selectedIndex = Math.max(
+    0,
+    options.findIndex((option) => option.value === value),
+  )
+  const selected = options[selectedIndex]
+
+  useEffect(() => {
+    if (!open) return undefined
+    const handlePointer = (event) => {
+      if (!rootRef.current?.contains(event.target)) setOpen(false)
+    }
+    document.addEventListener('pointerdown', handlePointer)
+    return () => document.removeEventListener('pointerdown', handlePointer)
+  }, [open])
+
+  useEffect(() => {
+    if (open) listRef.current?.focus()
+  }, [open])
+
+  const openMenu = () => {
+    setActiveIndex(selectedIndex)
+    setOpen(true)
+  }
+
+  const choose = (index) => {
+    onChange(options[index].value)
+    setOpen(false)
+    buttonRef.current?.focus()
+  }
+
+  const handleButtonKey = (event) => {
+    if (['ArrowDown', 'ArrowUp', 'Enter', ' '].includes(event.key)) {
+      event.preventDefault()
+      openMenu()
+    }
+  }
+
+  const handleListKey = (event) => {
+    if (event.key === 'ArrowDown') {
+      event.preventDefault()
+      setActiveIndex((index) => (index + 1) % options.length)
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault()
+      setActiveIndex((index) => (index - 1 + options.length) % options.length)
+    } else if (event.key === 'Home') {
+      event.preventDefault()
+      setActiveIndex(0)
+    } else if (event.key === 'End') {
+      event.preventDefault()
+      setActiveIndex(options.length - 1)
+    } else if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      choose(activeIndex)
+    } else if (event.key === 'Escape') {
+      event.preventDefault()
+      setOpen(false)
+      buttonRef.current?.focus()
+    } else if (event.key === 'Tab') {
+      setOpen(false)
+    }
+  }
+
+  return (
+    <div className={`sort-menu${open ? ' is-open' : ''}`} ref={rootRef}>
+      <button
+        ref={buttonRef}
+        type="button"
+        className="sort-menu__trigger"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        onClick={() => (open ? setOpen(false) : openMenu())}
+        onKeyDown={handleButtonKey}
+      >
+        <span className="sort-menu__label">{label}</span>
+        <span className="sort-menu__value">{selected?.label}</span>
+        <ChevronDown size={16} aria-hidden="true" className="sort-menu__chevron" />
+      </button>
+      {open && (
+        <ul
+          ref={listRef}
+          className="sort-menu__list"
+          role="listbox"
+          tabIndex={-1}
+          aria-label={label}
+          aria-activedescendant={`sort-option-${activeIndex}`}
+          onKeyDown={handleListKey}
+        >
+          {options.map((option, index) => (
+            <li
+              key={option.value || 'default'}
+              id={`sort-option-${index}`}
+              role="option"
+              aria-selected={index === selectedIndex}
+              className={index === activeIndex ? 'is-active' : ''}
+              onMouseEnter={() => setActiveIndex(index)}
+              onClick={() => choose(index)}
+            >
+              <span>{option.label}</span>
+              {index === selectedIndex && <Check size={16} aria-hidden="true" />}
+            </li>
+          ))}
+        </ul>
       )}
     </div>
   )
