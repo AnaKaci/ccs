@@ -5,7 +5,7 @@ import './gis.css'
 
 const pick = (value, isAl) => (isAl ? value.al : value.en)
 
-export default function GisPage({ lang, navigate, AppLink, homeLabel, heroImage, illustration }) {
+export default function GisPage({ lang, navigate, AppLink, homeLabel, heroImage }) {
   const isAl = lang === 'al'
 
   return (
@@ -42,16 +42,12 @@ export default function GisPage({ lang, navigate, AppLink, homeLabel, heroImage,
             <div>
               <span className="hp-label">{isAl ? 'Shërbimet GIS' : 'GIS Services'}</span>
               <h2>{pick(GIS_INTRO.overviewTitle, isAl)}</h2>
-              <p>{pick(GIS_INTRO.overview, isAl)}</p>
             </div>
-            <figure className="gis-overview__art">
-              <img src={illustration} alt="" width="211" height="211" loading="lazy" />
-            </figure>
+            <p>{pick(GIS_INTRO.overview, isAl)}</p>
           </div>
         </div>
-        <div className="sol-wrap">
-          <GisMap areas={GIS_AREAS} isAl={isAl} />
-        </div>
+        {/* Full-bleed map, edge to edge. */}
+        <GisMap areas={GIS_AREAS} isAl={isAl} />
       </section>
 
       <section className="sol-cta">

@@ -6,10 +6,8 @@
 .hp.gis {
   /* C.C.S brand colors */
   --gis-red: #ef4136;
-  --gis-blue: #1c9ad6;
-  --gis-violet: #b41e8e;
   --gis-charcoal: #231f20;
-  --gis-spectrum: linear-gradient(90deg, #ef4136 0 34%, #1c9ad6 34% 67%, #b41e8e 67% 100%);
+  --gis-spectrum: linear-gradient(90deg, #ef4136 0 50%, #231f20 50% 100%);
   --gis-tint: #f0f0ef;
 }
 
@@ -59,42 +57,22 @@ body.dark-mode .hp.gis {
 
 .gis-overview__head {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 32px clamp(40px, 6vw, 112px);
-  align-items: center;
-  margin-bottom: clamp(40px, 5vw, 64px);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 24px clamp(40px, 6vw, 112px);
+  align-items: end;
+  margin-bottom: clamp(36px, 4vw, 56px);
 }
 
 .gis-overview__head h2 {
   max-width: 20ch;
-  margin-bottom: 20px;
 }
 
-.gis-overview__head p {
-  max-width: 64ch;
+/* Intro text sits on the right, aligned to the right edge of the page. */
+.hp.gis .gis-overview__head > p {
+  justify-self: end;
+  max-width: 60ch;
   font-size: 17px;
   line-height: 1.7;
-}
-
-.gis-overview__art {
-  display: grid;
-  place-items: center;
-  width: clamp(160px, 16vw, 230px);
-  aspect-ratio: 1;
-  margin: 0;
-  border-radius: 50%;
-  background: var(--gis-tint);
-}
-
-.gis-overview__art img {
-  width: 72%;
-  height: auto;
-  border-radius: 50%;
-  mix-blend-mode: multiply;
-}
-
-body.dark-mode .gis-overview__art {
-  background: #f0f0ef;
 }
 
 /* ---------- Home: GIS "Learn more" button ---------- */
@@ -105,12 +83,17 @@ body.dark-mode .gis-overview__art {
 
 /* ---------- Responsive ---------- */
 
-@media (max-width: 720px) {
+@media (max-width: 900px) {
   .gis-overview__head {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .gis-overview__art {
-    display: none;
+  .hp.gis .gis-overview__head > p {
+    justify-self: start;
   }
+}
+
+/* The map runs straight into the contact band below it. */
+.hp.gis .gis-overview {
+  padding-bottom: 0;
 }

@@ -92,8 +92,6 @@ const ASSETS = {
   // GIS section photo (Tirana skyline with a GIS map on a laptop), self-hosted in high quality.
   gis: publicAsset('media/gis-tirana.jpg'),
   gisWebp: publicAsset('media/gis-tirana.webp'),
-  // Illustration from the GIS Services presentation.
-  gisAnalyst: publicAsset('media/gis-analyst.png'),
   // GIS page hero: laptop with a GIS map overlooking Tirana (no text on the photo).
   gisHero: publicAsset('media/gis-hero.jpg'),
   map: 'https://ccs.al/wp-content/uploads/2025/06/map.png',
@@ -2398,7 +2396,6 @@ function RouteRenderer({
         AppLink={AppLink}
         homeLabel={copy.nav.home}
         heroImage={ASSETS.gisHero}
-        illustration={ASSETS.gisAnalyst}
       />
     )
   }
