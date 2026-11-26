@@ -23,3 +23,7 @@ dist-cpanel
 *.njsproj
 *.sln
 *.sw?
+
+# cPanel deploy: credentials and the record of what is live on ccs.al
+.env.deploy
+.deploy/

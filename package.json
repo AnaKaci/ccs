@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy:ccs:check": "node scripts/deploy-cpanel.mjs --dry-run",
+    "deploy:ccs": "node scripts/deploy-cpanel.mjs"
   },
   "dependencies": {
     "lucide-react": "^1.31.0",
