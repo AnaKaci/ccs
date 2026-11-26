@@ -41,6 +41,7 @@ import { SiteFooter } from './components/SiteFooter'
 import FortinetSyndication from './components/syndication/FortinetSyndication'
 import HPSyndication from './components/syndication/HPSyndication'
 import VendorSolutionLayout from './components/vendor/VendorSolutionLayout'
+import GisPage from './components/gis/GisPage'
 import { useCart } from './cart'
 import { useSiteMotion } from './motion'
 import { CSV_PRODUCTS } from './data/catalog'
@@ -90,6 +91,8 @@ const ASSETS = {
   // GIS section photo (Tirana skyline with a GIS map on a laptop), self-hosted in high quality.
   gis: publicAsset('media/gis-tirana.jpg'),
   gisWebp: publicAsset('media/gis-tirana.webp'),
+  // Illustration from the GIS Services presentation.
+  gisAnalyst: publicAsset('media/gis-analyst.png'),
   map: 'https://ccs.al/wp-content/uploads/2025/06/map.png',
   serverIcon: 'https://ccs.al/wp-content/uploads/2025/06/server.png',
   headset: 'https://ccs.al/wp-content/uploads/2025/06/customer-service-headset.png',
@@ -166,6 +169,10 @@ const NAV_GROUPS = [
     ],
   },
   {
+    labelKey: 'gis',
+    to: '/gis/',
+  },
+  {
     labelKey: 'caseStudies',
     to: '/case-studies/',
   },
@@ -193,6 +200,7 @@ const COPY = {
       infrastructure: 'Infrastructure',
       technicalSupport: 'Technical Support',
       caseStudies: 'Case Studies',
+      gis: 'GIS',
       contactUs: 'Contact Us',
     },
     common: {
@@ -288,6 +296,7 @@ const COPY = {
       infrastructure: 'Infrastrukture',
       technicalSupport: 'Suport Teknik',
       caseStudies: 'Raste studimi',
+      gis: 'GIS',
       contactUs: 'Kontakt',
     },
     common: {
@@ -1806,6 +1815,16 @@ function seoForRoute(route, lang) {
     }
   }
 
+  if (route.path === '/gis/') {
+    return {
+      title: `${lang === 'al' ? 'Shërbime GIS' : 'GIS Services'}${suffix}`,
+      description:
+        lang === 'al'
+          ? 'Menaxhim i të dhënave hapësinore, analiza dhe raportim GIS, shërbime hartash (WMS/WFS) dhe zhvillim WebGIS nga C.C.S.'
+          : 'Spatial data management, GIS analysis and reporting, map and data services (WMS/WFS) and WebGIS development from C.C.S.',
+    }
+  }
+
   if (route.path === '/case-studies/') {
     return {
       title: `${COPY[lang].nav.caseStudies}${suffix}`,
@@ -2422,6 +2441,19 @@ function RouteRenderer({
     )
   }
 
+  if (route.path === '/gis/') {
+    return (
+      <GisPage
+        lang={lang}
+        navigate={navigate}
+        AppLink={AppLink}
+        homeLabel={copy.nav.home}
+        heroImage={ASSETS.gis}
+        illustration={ASSETS.gisAnalyst}
+      />
+    )
+  }
+
   if (route.path === '/case-studies/') {
     return <CaseStudiesPage copy={copy} lang={lang} navigate={navigate} />
   }
@@ -2956,6 +2988,10 @@ function HomePage({ copy, lang, navigate }) {
                 </li>
               ))}
             </ul>
+            <AppLink to="/gis/" navigate={navigate} className="hp-btn hp-btn--primary hp-gis-split__more">
+              {isAl ? 'Mëso më shumë' : 'Learn more'}
+              <ArrowRight size={17} aria-hidden="true" />
+            </AppLink>
           </div>
           <figure className="hp-gis-split__media">
             <picture>

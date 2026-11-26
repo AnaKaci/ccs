@@ -36,6 +36,11 @@ const REVEAL_SELECTORS = [
   '.sol-support__info > *',
   '.sol-form',
   '.sol-cta__inner > *',
+  // GIS services
+  '.gis-overview__head > *',
+  '.gis-svc',
+  '.gis-area__head',
+  '.gis-item',
   // Case studies
   '.cs-filter',
   '.cs-feature',
