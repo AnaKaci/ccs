@@ -108,13 +108,18 @@ export default function GisPage({ lang, navigate, AppLink, homeLabel, heroImage,
             {GIS_AREAS.map((area, index) => {
               const Icon = ICONS[area.icon]
               return (
-                <li key={area.id} className="gis-svc" style={{ '--gis-accent': area.color }}>
+                <li
+                  key={area.id}
+                  className="gis-svc"
+                  style={{ '--gis-accent': area.color, '--gis-next': GIS_AREAS[index + 1]?.color }}
+                >
+                  {index < GIS_AREAS.length - 1 && <span className="gis-svc__link" aria-hidden="true" />}
                   <a href={`#${area.id}`}>
                     <span className="gis-svc__top">
                       <span className="gis-svc__icon">
                         <Icon size={26} aria-hidden="true" />
                       </span>
-                      <span className="gis-svc__num">{String(index + 1).padStart(2, '0')}</span>
+                      <span className="gis-svc__num">{index + 1}</span>
                     </span>
                     <strong>{pick(area.title, isAl)}</strong>
                     <span className="gis-svc__text">{pick(area.summary, isAl)}</span>
@@ -143,21 +148,30 @@ export default function GisPage({ lang, navigate, AppLink, homeLabel, heroImage,
               <header className="gis-area__head">
                 <span className="gis-area__index">
                   <AreaIcon size={22} aria-hidden="true" />
-                  {String(areaIndex + 1).padStart(2, '0')} / {String(GIS_AREAS.length).padStart(2, '0')}
+                  {areaIndex + 1} / {GIS_AREAS.length}
                 </span>
                 <h2>{pick(area.title, isAl)}</h2>
                 <p>{pick(area.summary, isAl)}</p>
-                {area.lead && <p className="gis-area__lead">{pick(area.lead, isAl)}</p>}
+                <span className="gis-area__count">
+                  {area.items.length} {isAl ? 'shërbime' : 'services'}
+                </span>
+                {GIS_AREAS[areaIndex + 1] && (
+                  <a className="gis-area__next" href={`#${GIS_AREAS[areaIndex + 1].id}`}>
+                    <span>{isAl ? 'Në vijim' : 'Next'}</span>
+                    {pick(GIS_AREAS[areaIndex + 1].title, isAl)}
+                    <ArrowRight size={16} aria-hidden="true" />
+                  </a>
+                )}
               </header>
 
-              <ol className={`gis-items gis-items--${area.items.length % 2 === 0 ? 'even' : 'odd'}`}>
+              <ol className="gis-items">
                 {area.items.map((item, index) => {
                   const Icon = ICONS[item.icon]
                   const [stepColor, stepInk] = GIS_STEPS[index % GIS_STEPS.length]
                   return (
                     <li key={item.icon + index} className="gis-item" style={{ '--gis-step': stepColor, '--gis-step-ink': stepInk }}>
-                      <span className="gis-item__num">{String(index + 1).padStart(2, '0')}</span>
-                      <div>
+                      <span className="gis-item__num">{index + 1}</span>
+                      <div className="gis-item__card">
                         <h3>
                           <Icon size={20} aria-hidden="true" />
                           {pick(item.title, isAl)}

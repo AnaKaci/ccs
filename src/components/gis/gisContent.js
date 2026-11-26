@@ -26,6 +26,10 @@ export const GIS_AREAS = [
     icon: 'data',
     color: '#004b79',
     title: { en: 'Spatial Data Management', al: 'Menaxhimi i të dhënave hapësinore' },
+    short: {
+      en: 'Collection, processing, geodatabases, quality control and maintenance',
+      al: 'Mbledhje, përpunim, gjeodatabaza, kontroll cilësie dhe mirëmbajtje',
+    },
     summary: {
       en: 'We provide comprehensive spatial data management services, including data collection, processing, integration, geodatabase development, quality control, and maintenance, ensuring accurate, reliable, and accessible geospatial information for informed decision-making.',
       al: 'Ofrojmë shërbime të plota për menaxhimin e të dhënave hapësinore, duke përfshirë mbledhjen, përpunimin dhe integrimin e të dhënave, zhvillimin e gjeodatabazave, kontrollin e cilësisë dhe mirëmbajtjen, për të siguruar informacion gjeohapësinor të saktë, të besueshëm dhe të aksesueshëm për vendimmarrje të informuar.',
@@ -102,6 +106,10 @@ export const GIS_AREAS = [
     icon: 'analysis',
     color: '#068895',
     title: { en: 'GIS Analysis & Reporting', al: 'Analiza dhe raportimi GIS' },
+    short: {
+      en: 'Spatial analysis, thematic maps, visualization and technical reports',
+      al: 'Analiza hapësinore, harta tematike, vizualizim dhe raporte teknike',
+    },
     summary: {
       en: 'Our GIS team delivers spatial analysis, data visualization, thematic mapping, and technical reporting to support informed decision-making.',
       al: 'Ekipi ynë GIS ofron analiza hapësinore, vizualizim të të dhënave, harta tematike dhe raportim teknik për të mbështetur vendimmarrjen e informuar.',
@@ -146,6 +154,10 @@ export const GIS_AREAS = [
     icon: 'maps',
     color: '#48b861',
     title: { en: 'Map & Data Services', al: 'Shërbime hartash dhe të dhënash' },
+    short: {
+      en: 'Digital mapping, data processing and WMS/WFS map services',
+      al: 'Hartografi dixhitale, përpunim të dhënash dhe shërbime hartash WMS/WFS',
+    },
     summary: {
       en: 'We provide digital mapping, geospatial data processing, and map services (WMS/WFS) for efficient data sharing and visualization.',
       al: 'Ofrojmë hartografi dixhitale, përpunim të të dhënave gjeohapësinore dhe shërbime hartash (WMS/WFS) për shkëmbim dhe vizualizim efikas të të dhënave.',
@@ -206,6 +218,10 @@ export const GIS_AREAS = [
     icon: 'webgis',
     color: '#016d86',
     title: { en: 'WebGIS Development', al: 'Zhvillim WebGIS' },
+    short: {
+      en: 'Interactive web maps and custom WebGIS platforms',
+      al: 'Harta interaktive në web dhe platforma WebGIS të personalizuara',
+    },
     summary: {
       en: 'Our GIS team develops interactive WebGIS platforms for spatial data visualization, analysis, and sharing.',
       al: 'Ekipi ynë GIS zhvillon platforma interaktive WebGIS për vizualizimin, analizën dhe shkëmbimin e të dhënave hapësinore.',

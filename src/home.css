@@ -447,7 +447,8 @@
   border-top: 1px solid var(--hp-line);
 }
 
-.hp-gis button {
+.hp-gis button,
+.hp-gis a {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -459,9 +460,11 @@
   color: var(--hp-ink);
   text-align: left;
   cursor: pointer;
+  text-decoration: none;
 }
 
-.hp-gis button > span {
+.hp-gis button > span,
+.hp-gis a > span {
   display: grid;
   gap: 6px;
 }
@@ -482,7 +485,8 @@
   transition: transform 0.2s ease, color 0.2s ease;
 }
 
-.hp-gis button:hover svg {
+.hp-gis button:hover svg,
+.hp-gis a:hover svg {
   color: var(--hp-accent);
   transform: translateX(6px);
 }

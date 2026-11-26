@@ -42,6 +42,7 @@ import FortinetSyndication from './components/syndication/FortinetSyndication'
 import HPSyndication from './components/syndication/HPSyndication'
 import VendorSolutionLayout from './components/vendor/VendorSolutionLayout'
 import GisPage from './components/gis/GisPage'
+import { GIS_AREAS, GIS_INTRO } from './components/gis/gisContent'
 import { useCart } from './cart'
 import { useSiteMotion } from './motion'
 import { CSV_PRODUCTS } from './data/catalog'
@@ -93,6 +94,8 @@ const ASSETS = {
   gisWebp: publicAsset('media/gis-tirana.webp'),
   // Illustration from the GIS Services presentation.
   gisAnalyst: publicAsset('media/gis-analyst.png'),
+  // GIS page hero: laptop with a GIS map overlooking Tirana (no text on the photo).
+  gisHero: publicAsset('media/gis-hero.jpg'),
   map: 'https://ccs.al/wp-content/uploads/2025/06/map.png',
   serverIcon: 'https://ccs.al/wp-content/uploads/2025/06/server.png',
   headset: 'https://ccs.al/wp-content/uploads/2025/06/customer-service-headset.png',
@@ -235,7 +238,7 @@ const COPY = {
       lifecycle:
         'Our end-to-end services cover the entire project lifecycle, from defining business requirements to delivering fully managed IT services.',
       servicesTitle: 'Services',
-      gisTitle: 'GIS & ArcGIS services',
+      gisTitle: 'GIS Services',
       serviceContactTitle: 'Contact us for these services on:',
       partnersTitle: 'Some of our partners',
       partnersIntro:
@@ -331,7 +334,7 @@ const COPY = {
       lifecycle:
         'Sherbimet tona mbulojne gjithe ciklin e projektit, nga kerkesat e biznesit deri te sherbimet IT te menaxhuara.',
       servicesTitle: 'Sherbime',
-      gisTitle: 'Sherbime GIS & ArcGIS',
+      gisTitle: 'Shërbime GIS',
       serviceContactTitle: 'Na kontaktoni per keto sherbime:',
       partnersTitle: 'Disa nga partneret tane',
       partnersIntro:
@@ -417,60 +420,6 @@ const SERVICES = [
     image: ASSETS.support,
     icon: Headphones,
     to: '/support/',
-  },
-]
-
-const GIS_SERVICES = [
-  {
-    key: 'planning',
-    title: 'Planning',
-    alTitle: 'Planifikim',
-    subtitle: 'Building an ArcGIS technology Adoption Strategy',
-    alSubtitle: 'Ndertimi i nje strategjie adoptimi per teknologjine ArcGIS',
-    image: ASSETS.map,
-    body:
-      'At C.C.S, we offer tailored planning services that adapt to the scale and complexity of your GIS initiatives, from a focused assessment and roadmap to a multi-year Strategic Enterprise Plan.',
-    steps: [
-      ['Discovery & Assessment', 'We evaluate your current GIS setup and business goals.'],
-      ['Data Governance Strategy', 'We define standards, responsibilities, and workflows.'],
-      ['Technical Documentation', 'We create clear documentation for usage and scaling.'],
-      ['Maintenance Planning', 'We design schedules for updates and continuity.'],
-      ['Advisory & Support', 'We offer expert staffing, training, and on-call support.'],
-    ],
-  },
-  {
-    key: 'administration',
-    title: 'GIS System Administration',
-    alTitle: 'Administrim GIS',
-    subtitle: 'Proactive and ongoing GIS Infrastructure Management',
-    alSubtitle: 'Menaxhim i vazhdueshem dhe proaktiv i infrastruktures GIS',
-    image: ASSETS.serverIcon,
-    body:
-      'C.C.S offers a fully managed service for IT and ArcGIS infrastructure needs, designed to reduce overhead, boost performance, and ensure system reliability.',
-    steps: [
-      ['System Architecture Design', 'Plan stable GIS architecture.'],
-      ['ArcGIS Enterprise Implementation', 'Deploy and configure enterprise environments.'],
-      ['Updates & Maintenance', 'Keep platforms current and reliable.'],
-      ['Automation', 'Reduce manual work with scripted routines.'],
-      ['Backups & Support', 'Protect systems and troubleshoot issues.'],
-    ],
-  },
-  {
-    key: 'on-call',
-    title: 'GIS On-call',
-    alTitle: 'GIS On-call',
-    subtitle: 'Premium Support when you need it',
-    alSubtitle: 'Suport premium kur ju nevojitet',
-    image: ASSETS.headset,
-    body:
-      'When you are not sure of your exact needs, C.C.S can offer support on standby through an hourly services agreement.',
-    steps: [
-      ['Troubleshooting', 'Resolve incidents and unblock teams.'],
-      ['Data cleanup', 'Improve datasets and geospatial layers.'],
-      ['Training', 'Help teams use tools with confidence.'],
-      ['Scripting', 'Automate repeated GIS workflows.'],
-      ['Maps & apps', 'Reconfigure maps, dashboards, and apps.'],
-    ],
   },
 ]
 
@@ -2448,7 +2397,7 @@ function RouteRenderer({
         navigate={navigate}
         AppLink={AppLink}
         homeLabel={copy.nav.home}
-        heroImage={ASSETS.gis}
+        heroImage={ASSETS.gisHero}
         illustration={ASSETS.gisAnalyst}
       />
     )
@@ -2767,7 +2716,6 @@ function LogoMarquee({ items, label, variant = 'partners', speed = 40 }) {
 }
 
 function HomePage({ copy, lang, navigate }) {
-  const [activeModal, setActiveModal] = useState(null)
   const [activeService, setActiveService] = useState(0)
   // Phones get the 960px encode (~1.6 MB) instead of the 1920px one (~3.8 MB).
   const [heroVideoSrc] = useState(() =>
@@ -2965,26 +2913,23 @@ function HomePage({ copy, lang, navigate }) {
 
       <section className="hp-section hp-section--gis">
         <div className="hp-wrap">
-          <SectionBar label="GIS / ArcGIS" />
+          <SectionBar label="GIS" />
         </div>
         <div className="hp-wrap hp-gis-split">
           <div className="hp-gis-split__copy">
             <h2>{copy.home.gisTitle}</h2>
-            <p>
-              {isAl
-                ? 'Planifikim, administrim GIS dhe suport on-call per iniciativa ArcGIS.'
-                : 'Planning, GIS system administration, and on-call support for ArcGIS initiatives.'}
-            </p>
+            <p>{isAl ? GIS_INTRO.lead.al : GIS_INTRO.lead.en}</p>
+            {/* The four service areas of the GIS page; each opens its section there. */}
             <ul className="hp-gis">
-              {GIS_SERVICES.map((item) => (
-                <li key={item.key}>
-                  <button type="button" onClick={() => setActiveModal(item)}>
+              {GIS_AREAS.map((area) => (
+                <li key={area.id}>
+                  <AppLink to={`/gis/#${area.id}`} navigate={navigate}>
                     <span>
-                      <strong>{titleFor(item, lang)}</strong>
-                      <small>{lang === 'al' ? item.alSubtitle : item.subtitle}</small>
+                      <strong>{isAl ? area.title.al : area.title.en}</strong>
+                      <small>{isAl ? area.short.al : area.short.en}</small>
                     </span>
                     <ArrowRight size={18} aria-hidden="true" />
-                  </button>
+                  </AppLink>
                 </li>
               ))}
             </ul>
@@ -3111,61 +3056,6 @@ function HomePage({ copy, lang, navigate }) {
         </div>
       </section>
 
-      {activeModal && (
-        <Modal item={activeModal} copy={copy} lang={lang} onClose={() => setActiveModal(null)} />
-      )}
-    </div>
-  )
-}
-
-function Modal({ item, copy, lang, onClose }) {
-  useEffect(() => {
-    const onKeyDown = (event) => {
-      if (event.key === 'Escape') onClose()
-    }
-
-    document.addEventListener('keydown', onKeyDown)
-    return () => document.removeEventListener('keydown', onKeyDown)
-  }, [onClose])
-
-  const isAl = lang === 'al'
-
-  return (
-    <div className="gis-modal" role="presentation" onMouseDown={onClose}>
-      <article
-        className="gis-modal__panel"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="gis-modal-title"
-        onMouseDown={(e) => e.stopPropagation()}
-      >
-        <button className="gis-modal__close" type="button" onClick={onClose} aria-label={copy.common.closeMenu}>
-          <X size={20} aria-hidden="true" />
-        </button>
-        <div className="gis-modal__body">
-          <span className="hp-label">GIS / ArcGIS</span>
-          <h2 id="gis-modal-title">{titleFor(item, lang)}</h2>
-          {(isAl ? item.alSubtitle : item.subtitle) && (
-            <p className="gis-modal__subtitle">{isAl ? item.alSubtitle : item.subtitle}</p>
-          )}
-          <p className="gis-modal__intro">{item.body}</p>
-          <ol className="gis-modal__steps">
-            {item.steps.map(([title, body], index) => (
-              <li key={title}>
-                <span className="gis-modal__num">{index + 1}.</span>
-                <div>
-                  <strong>{title}</strong>
-                  <span>{body}</span>
-                </div>
-              </li>
-            ))}
-          </ol>
-          <a href={`mailto:info@ccs.al?subject=${encodeURIComponent(`GIS: ${item.title}`)}`} className="hp-btn hp-btn--primary">
-            <Mail size={17} aria-hidden="true" />
-            {copy.home.contactTitle}
-          </a>
-        </div>
-      </article>
     </div>
   )
 }

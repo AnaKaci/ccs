@@ -76,6 +76,9 @@ export function SiteFooter({
                   {titleFor(service, lang)}
                 </Link>
               ))}
+              <Link to="/gis/" navigate={navigate}>
+                {copy.nav.gis}
+              </Link>
             </div>
 
             <div className="ft__col">
