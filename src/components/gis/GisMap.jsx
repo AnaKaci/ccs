@@ -1,58 +1,107 @@
 import { useEffect, useRef, useState } from 'react'
-import { createPortal } from 'react-dom'
-import { ArrowLeft, ArrowRight, MapPin, X } from 'lucide-react'
+import { ArrowLeft, ArrowRight } from 'lucide-react'
 import './gis-map.css'
 
 /*
- * Interactive map of the four GIS service areas.
- * Each area is a labelled marker; clicking it flies the map there and opens a popup
- * that slides through the area's services. MapLibre loads only when this page opens.
+ * GIS services shown the way a GIS application works: the four service areas are
+ * map "layers". Choosing one switches the map to a matching view of Albania
+ * (satellite, terrain, topographic, street) and opens a card that slides through
+ * that area's services. No pins, so nothing reads as an office location.
+ * MapLibre loads only when this page opens.
  */
 
-// Marker positions across Albania (illustrative placement, one per service area).
-const POSITIONS = {
-  'spatial-data-management': [19.8187, 41.3275],
-  'gis-analysis-reporting': [19.5126, 42.0683],
-  'map-data-services': [20.7808, 40.6186],
-  'webgis-development': [19.4914, 40.4661],
-}
-
-// Esri World Imagery (satellite) with Esri's boundaries and place names on top. No API key needed.
 // Albania's extent (Konispol in the south to Vermosh in the north), so the whole country is framed.
 const ALBANIA_BOUNDS = [
   [19.26, 39.64],
   [21.07, 42.67],
 ]
 
-const SATELLITE_STYLE = {
-  version: 8,
-  sources: {
-    imagery: {
-      type: 'raster',
-      tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
-      tileSize: 256,
-      maxzoom: 19,
-      attribution: 'Imagery &copy; Esri, Maxar, Earthstar Geographics',
-    },
+const ESRI = 'https://server.arcgisonline.com/ArcGIS/rest/services'
+
+// One basemap per service area; `labels` adds Esri's place names on top of imagery-style views.
+const VIEWS = {
+  'spatial-data-management': {
+    service: 'World_Imagery',
+    labels: true,
+    name: { en: 'Satellite imagery', al: 'Imazhe satelitore' },
+    attribution: 'Imagery &copy; Esri, Maxar, Earthstar Geographics',
+  },
+  'gis-analysis-reporting': {
+    service: 'Elevation/World_Hillshade',
+    labels: true,
+    name: { en: 'Terrain hillshade', al: 'Relievi i terrenit' },
+    attribution: 'Hillshade &copy; Esri',
+  },
+  'map-data-services': {
+    service: 'World_Topo_Map',
+    labels: false,
+    name: { en: 'Topographic map', al: 'Hartë topografike' },
+    attribution: 'Topographic map &copy; Esri',
+  },
+  'webgis-development': {
+    service: 'World_Street_Map',
+    labels: false,
+    name: { en: 'Street map', al: 'Hartë rrugore' },
+    attribution: 'Street map &copy; Esri',
+  },
+}
+
+const FADE_MS = 500
+
+function buildStyle(areas, activeId) {
+  const sources = {
     places: {
       type: 'raster',
-      tiles: [
-        'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
-      ],
+      tiles: [`${ESRI}/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}`],
       tileSize: 256,
       maxzoom: 19,
       attribution: 'Labels &copy; Esri',
     },
-  },
-  layers: [
-    { id: 'imagery', type: 'raster', source: 'imagery' },
-    { id: 'places', type: 'raster', source: 'places' },
-  ],
+  }
+  const layers = []
+  areas.forEach((area) => {
+    const view = VIEWS[area.id]
+    sources[area.id] = {
+      type: 'raster',
+      tiles: [`${ESRI}/${view.service}/MapServer/tile/{z}/{y}/{x}`],
+      tileSize: 256,
+      maxzoom: 19,
+      attribution: view.attribution,
+    }
+    const visible = area.id === activeId
+    layers.push({
+      id: area.id,
+      type: 'raster',
+      source: area.id,
+      layout: { visibility: visible ? 'visible' : 'none' },
+      paint: { 'raster-opacity': visible ? 1 : 0, 'raster-opacity-transition': { duration: FADE_MS, delay: 0 } },
+    })
+  })
+  const labels = VIEWS[activeId]?.labels
+  layers.push({
+    id: 'places',
+    type: 'raster',
+    source: 'places',
+    layout: { visibility: labels ? 'visible' : 'none' },
+    paint: { 'raster-opacity': labels ? 1 : 0, 'raster-opacity-transition': { duration: FADE_MS, delay: 0 } },
+  })
+  return { version: 8, sources, layers }
 }
 
-const reducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+// Cross-fade a raster layer in or out; hidden layers are switched off so their tiles are not fetched.
+function fadeLayer(map, id, show, timers) {
+  if (!map.getLayer(id)) return
+  window.clearTimeout(timers[id])
+  if (show) {
+    map.setLayoutProperty(id, 'visibility', 'visible')
+    map.setPaintProperty(id, 'raster-opacity', 1)
+  } else {
+    map.setPaintProperty(id, 'raster-opacity', 0)
+    timers[id] = window.setTimeout(() => map.getLayer(id) && map.setLayoutProperty(id, 'visibility', 'none'), FADE_MS)
+  }
+}
 
-function AreaSlides({ area, areaIndex, areas, isAl, slide, setSlide, onClose, onOpenArea }) {
+function AreaSlides({ area, areaIndex, areas, isAl, slide, setSlide, onOpenArea }) {
   const total = area.items.length
   const nextArea = areas[(areaIndex + 1) % areas.length]
   const t = (value) => (isAl ? value.al : value.en)
@@ -62,13 +111,14 @@ function AreaSlides({ area, areaIndex, areas, isAl, slide, setSlide, onClose, on
       <header className="gis-pop__head">
         <span className="gis-pop__badge">{areaIndex + 1}</span>
         <div>
-          <small>{isAl ? 'Shërbime GIS' : 'GIS Services'}</small>
+          <small>
+            {isAl ? 'Pamja e hartës' : 'Map view'}: {t(VIEWS[area.id].name)}
+          </small>
           <strong>{t(area.title)}</strong>
         </div>
-        <button type="button" className="gis-pop__close" onClick={onClose} aria-label={isAl ? 'Mbyll' : 'Close'}>
-          <X size={18} aria-hidden="true" />
-        </button>
       </header>
+
+      <p className="gis-pop__summary">{t(area.summary)}</p>
 
       <div className="gis-pop__viewport" aria-live="polite">
         <ol className="gis-pop__track" style={{ transform: `translateX(-${slide * 100}%)` }}>
@@ -128,15 +178,12 @@ function AreaSlides({ area, areaIndex, areas, isAl, slide, setSlide, onClose, on
 export default function GisMap({ areas, isAl }) {
   const mapNodeRef = useRef(null)
   const mapRef = useRef(null)
-  const popupRef = useRef(null)
-  // Stable DOM nodes that MapLibre positions; React renders into them through portals.
-  const [markerNodes] = useState(() => areas.map(() => document.createElement('div')))
-  const [popupNode] = useState(() => document.createElement('div'))
-  const [active, setActive] = useState(null)
+  const timersRef = useRef({})
+  const [active, setActive] = useState(0)
   const [slide, setSlide] = useState(0)
   const [failed, setFailed] = useState(false)
-  // Bumped each time a map finishes loading, so the popup is re-attached to the new map.
-  const [mapVersion, setMapVersion] = useState(0)
+  // The layer shown when the map is created; later changes cross-fade instead.
+  const initialRef = useRef(areas[0].id)
 
   const openArea = (index) => {
     setActive(index)
@@ -146,6 +193,7 @@ export default function GisMap({ areas, isAl }) {
   // Create the map once (recreated on language change so the gesture hints are translated).
   useEffect(() => {
     let cancelled = false
+    const timers = timersRef.current
 
     Promise.all([
       import('maplibre-gl'),
@@ -158,9 +206,9 @@ export default function GisMap({ areas, isAl }) {
 
         const map = new maplibre.Map({
           container: mapNodeRef.current,
-          style: SATELLITE_STYLE,
-          center: [20.05, 41.2],
-          zoom: 6.6,
+          style: buildStyle(areas, initialRef.current),
+          bounds: ALBANIA_BOUNDS,
+          fitBoundsOptions: { padding: { top: 70, bottom: 40, left: 40, right: 40 } },
           minZoom: 5,
           maxZoom: 14,
           cooperativeGestures: true,
@@ -173,37 +221,33 @@ export default function GisMap({ areas, isAl }) {
               }
             : undefined,
         })
-        map.addControl(new maplibre.NavigationControl({ showCompass: false }), 'bottom-right')
-
-        areas.forEach((area, index) => {
-          new maplibre.Marker({ element: markerNodes[index], anchor: 'bottom' }).setLngLat(POSITIONS[area.id]).addTo(map)
-        })
-        map.fitBounds(ALBANIA_BOUNDS, { padding: { top: 70, bottom: 40, left: 40, right: 40 }, duration: 0 })
-
-        popupRef.current = new maplibre.Popup({
-          anchor: 'bottom',
-          offset: 64,
-          closeButton: false,
-          closeOnClick: false,
-          focusAfterOpen: false,
-          maxWidth: 'none',
-          className: 'gis-pop',
-        }).setDOMContent(popupNode)
-
-        mapRef.current = map
-        map.once('load', () => !cancelled && setMapVersion((version) => version + 1))
+        map.addControl(new maplibre.NavigationControl({ showCompass: false }), 'bottom-left')
         map.on('error', (event) => console.warn('[GIS map]', event.error?.message || event))
+        mapRef.current = map
       })
       .catch(() => !cancelled && setFailed(true))
 
     return () => {
       cancelled = true
-      popupRef.current?.remove()
+      Object.values(timers).forEach((timer) => window.clearTimeout(timer))
       mapRef.current?.remove()
       mapRef.current = null
-      popupRef.current = null
     }
-  }, [isAl, areas, markerNodes, popupNode])
+  }, [isAl, areas])
+
+  // Switch the map view to match the selected service area.
+  useEffect(() => {
+    const id = areas[active].id
+    initialRef.current = id
+    const map = mapRef.current
+    if (!map) return
+    const apply = () => {
+      areas.forEach((area) => fadeLayer(map, area.id, area.id === id, timersRef.current))
+      fadeLayer(map, 'places', VIEWS[id].labels, timersRef.current)
+    }
+    if (map.isStyleLoaded()) apply()
+    else map.once('load', apply)
+  }, [active, areas])
 
   // A link like /gis/#map-data-services opens that area straight away. Read the hash one tick
   // later: on a GitHub Pages deep link the router restores the real URL just after this mounts.
@@ -225,35 +269,14 @@ export default function GisMap({ areas, isAl }) {
     }
   }, [areas])
 
-  // Fly to the selected marker and show its popup.
-  useEffect(() => {
-    const map = mapRef.current
-    const popup = popupRef.current
-    if (!map || !popup) return
-    if (active === null) {
-      popup.remove()
-      return
-    }
-    const center = POSITIONS[areas[active].id]
-    popup.setLngLat(center).addTo(map)
-    // Put the marker near the bottom of the map so the popup above it fits.
-    const { clientWidth, clientHeight } = map.getContainer()
-    const camera = { center, zoom: clientWidth < 640 ? 7.4 : 8, offset: [0, Math.max(0, clientHeight / 2 - 60)] }
-    if (reducedMotion()) map.jumpTo(camera)
-    else map.flyTo({ ...camera, duration: 1400, essential: true })
-  }, [active, mapVersion, areas])
-
-  const area = active === null ? null : areas[active]
+  const area = areas[active]
 
   return (
-    <div className={`gis-map ${area ? 'has-popup' : ''}`}>
+    <div className={`gis-map ${failed ? 'is-failed' : ''}`}>
       <div className="gis-map__canvas" ref={mapNodeRef} />
 
-      <aside className="gis-map__legend">
-        <p>
-          <MapPin size={16} aria-hidden="true" />
-          {isAl ? 'Klikoni një shenjë në hartë për të parë shërbimet' : 'Select a marker to explore its services'}
-        </p>
+      <aside className="gis-map__layers" aria-label={isAl ? 'Shtresat e shërbimeve GIS' : 'GIS service layers'}>
+        <p className="gis-map__layers-title">{isAl ? 'Shtresat e shërbimeve' : 'Service layers'}</p>
         <ol>
           {areas.map((item, index) => (
             <li key={item.id}>
@@ -262,66 +285,30 @@ export default function GisMap({ areas, isAl }) {
                 className={active === index ? 'is-active' : ''}
                 style={{ '--gis-accent': item.color }}
                 onClick={() => openArea(index)}
+                aria-pressed={active === index}
               >
-                <span>{index + 1}</span>
-                {isAl ? item.title.al : item.title.en}
+                <span className="gis-map__check" aria-hidden="true" />
+                <span className="gis-map__layer-text">
+                  <strong>{isAl ? item.title.al : item.title.en}</strong>
+                  <small>{isAl ? VIEWS[item.id].name.al : VIEWS[item.id].name.en}</small>
+                </span>
               </button>
             </li>
           ))}
         </ol>
       </aside>
 
-      {failed && area && (
-        <div className="gis-map__fallback gis-pop">
-          <AreaSlides
-            area={area}
-            areaIndex={active}
-            areas={areas}
-            isAl={isAl}
-            slide={slide}
-            setSlide={setSlide}
-            onClose={() => setActive(null)}
-            onOpenArea={openArea}
-          />
-        </div>
-      )}
-
-      {areas.map((item, index) =>
-        createPortal(
-          <button
-            type="button"
-            className={`gis-marker ${active === index ? 'is-active' : ''}`}
-            style={{ '--gis-accent': item.color }}
-            onClick={(event) => {
-              event.stopPropagation()
-              openArea(index)
-            }}
-            aria-label={isAl ? item.title.al : item.title.en}
-          >
-            <span className="gis-marker__label">{isAl ? item.title.al : item.title.en}</span>
-            <span className="gis-marker__pin">
-              <b>{index + 1}</b>
-            </span>
-          </button>,
-          markerNodes[index],
-          item.id,
-        ),
-      )}
-
-      {area &&
-        createPortal(
-          <AreaSlides
-            area={area}
-            areaIndex={active}
-            areas={areas}
-            isAl={isAl}
-            slide={slide}
-            setSlide={setSlide}
-            onClose={() => setActive(null)}
-            onOpenArea={openArea}
-          />,
-          popupNode,
-        )}
+      <div className="gis-map__card gis-pop" key={area.id}>
+        <AreaSlides
+          area={area}
+          areaIndex={active}
+          areas={areas}
+          isAl={isAl}
+          slide={slide}
+          setSlide={setSlide}
+          onOpenArea={openArea}
+        />
+      </div>
     </div>
   )
 }

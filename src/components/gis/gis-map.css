@@ -1,6 +1,7 @@
 /*
- * GIS service map: labelled markers on a MapLibre map, and a popup that
- * slides through the services of the selected area. C.C.S brand colors.
+ * GIS service map: the four service areas are map layers (panel on the left);
+ * the selected one switches the basemap and opens a card on the right that
+ * slides through its services. C.C.S red and charcoal.
  */
 
 /* Full width of the screen and nearly a full screen tall. */
@@ -21,156 +22,132 @@
   height: 100%;
 }
 
-/* ---------- Legend (also a keyboard-friendly way to open areas) ---------- */
+/* ---------- Layer panel ---------- */
 
-.gis-map__legend {
+.gis-map__layers {
   position: absolute;
   z-index: 2;
-  top: 24px;
+  top: 28px;
   left: var(--page-gutter, 24px);
   width: min(320px, calc(100% - 48px));
-  padding: 18px;
+  padding: 18px 14px 14px;
   border-top: 4px solid var(--gis-red);
   background: var(--hp-surface);
-  box-shadow: 0 16px 40px rgba(35, 31, 32, 0.16);
+  box-shadow: 0 16px 40px rgba(35, 31, 32, 0.22);
 }
 
-.hp.gis .gis-map__legend p {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  margin-bottom: 12px;
+.hp.gis .gis-map__layers-title {
+  margin: 0 4px 12px;
   color: var(--hp-body);
-  font-size: 13px;
-  line-height: 1.45;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
-.gis-map__legend p svg {
-  flex: none;
-  margin-top: 1px;
-  color: var(--gis-red);
-}
-
-.hp.gis .gis-map__legend ol {
+.hp.gis .gis-map__layers ol {
   display: grid;
   gap: 4px;
 }
 
-.gis-map__legend button {
+.gis-map__layers button {
   display: flex;
   align-items: center;
   gap: 12px;
   width: 100%;
-  padding: 8px 10px;
+  padding: 10px;
   border: 0;
   border-left: 3px solid transparent;
   background: none;
   color: var(--hp-ink);
   font: inherit;
-  font-size: 14px;
-  font-weight: 600;
   text-align: left;
   cursor: pointer;
   transition: background 0.2s ease, border-color 0.2s ease;
 }
 
-.gis-map__legend button span {
-  display: grid;
-  flex: none;
-  place-items: center;
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  background: var(--gis-accent);
-  color: #fff;
-  font-size: 13px;
-  font-weight: 700;
+.gis-map__layers button:hover {
+  background: var(--gis-tint);
 }
 
-.gis-map__legend button:hover,
-.gis-map__legend button.is-active {
+.gis-map__layers button.is-active {
   border-left-color: var(--gis-accent);
   background: var(--gis-tint);
 }
 
-/* ---------- Markers: label pill above a numbered pin ---------- */
-
-.gis-marker {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  padding: 0;
-  border: 0;
-  background: none;
-  font: inherit;
-  cursor: pointer;
+/* Checkbox, like a layer toggle in a GIS application. */
+.gis-map__check {
+  position: relative;
+  flex: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--hp-line-strong);
+  background: var(--hp-surface);
+  transition: background 0.2s ease, border-color 0.2s ease;
 }
 
-.gis-marker__label {
-  padding: 5px 10px;
-  border-radius: 999px;
-  background: var(--hp-surface, #fff);
-  box-shadow: 0 4px 14px rgba(35, 31, 32, 0.2);
-  color: var(--hp-ink, #231f20);
-  font-size: 13px;
-  font-weight: 700;
-  white-space: nowrap;
-  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
-}
-
-.gis-marker__pin {
-  display: grid;
-  place-items: center;
-  width: 38px;
-  height: 38px;
-  border: 3px solid #fff;
-  border-radius: 50% 50% 50% 0;
+.gis-map__layers button.is-active .gis-map__check {
+  border-color: var(--gis-accent);
   background: var(--gis-accent);
-  box-shadow: 0 6px 16px rgba(35, 31, 32, 0.3);
-  transform: rotate(-45deg);
-  transition: transform 0.2s ease;
 }
 
-/* The number stays upright inside the rotated pin. */
-.gis-marker__pin b {
-  color: #fff;
-  font-size: 15px;
-  font-weight: 800;
+.gis-map__layers button.is-active .gis-map__check::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 5px;
+  width: 5px;
+  height: 10px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
   transform: rotate(45deg);
 }
 
-.gis-marker:hover .gis-marker__label,
-.gis-marker.is-active .gis-marker__label {
-  transform: translateY(-3px);
+body.dark-mode .gis-map__layers button.is-active .gis-map__check {
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35);
 }
 
-.gis-marker.is-active .gis-marker__label {
-  background: var(--gis-accent);
-  color: #fff;
+.gis-map__layer-text {
+  display: grid;
+  gap: 2px;
 }
 
-.gis-marker:hover .gis-marker__pin,
-.gis-marker.is-active .gis-marker__pin {
-  transform: rotate(-45deg) scale(1.12);
+.gis-map__layer-text strong {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.3;
 }
 
-/* ---------- Popup with sliding services ---------- */
-
-.gis-pop {
-  z-index: 3;
+.gis-map__layer-text small {
+  color: var(--hp-body);
+  font-size: 12px;
 }
 
-.gis-pop .maplibregl-popup-content {
-  width: min(380px, calc(100vw - 56px));
-  padding: 0;
-  border-radius: 0;
-  background: var(--hp-surface, #fff);
-  box-shadow: 0 24px 60px rgba(35, 31, 32, 0.28);
+/* ---------- Service card ---------- */
+
+.gis-map__card {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  right: var(--page-gutter, 24px);
+  width: min(420px, calc(100% - 48px));
+  background: var(--hp-surface);
+  box-shadow: 0 24px 60px rgba(35, 31, 32, 0.3);
+  transform: translateY(-50%);
+  animation: gis-card-in 0.35s ease both;
 }
 
-.gis-pop.maplibregl-popup-anchor-bottom .maplibregl-popup-tip {
-  border-top-color: var(--hp-surface, #fff);
+@keyframes gis-card-in {
+  from {
+    opacity: 0;
+    transform: translate(16px, -50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gis-map__card {
+    animation: none;
+  }
 }
 
 .gis-pop__inner {
@@ -181,52 +158,50 @@
 
 .gis-pop__head {
   display: grid;
-  grid-template-columns: 36px minmax(0, 1fr) 32px;
-  gap: 12px;
+  grid-template-columns: 40px minmax(0, 1fr);
+  gap: 14px;
   align-items: center;
-  padding: 14px 12px 12px 16px;
-  border-bottom: 1px solid var(--hp-line);
+  padding: 18px 20px 14px;
 }
 
 .gis-pop__badge {
   display: grid;
   place-items: center;
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: var(--gis-accent);
   color: #fff;
   font-weight: 800;
 }
 
+body.dark-mode .gis-pop__badge {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.3);
+}
+
 .gis-pop__head small {
   display: block;
+  margin-bottom: 2px;
   color: var(--hp-body);
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
 .gis-pop__head strong {
   display: block;
-  font-size: 17px;
+  font-size: 19px;
   line-height: 1.25;
 }
 
-.gis-pop__close {
-  display: grid;
-  place-items: center;
-  width: 32px;
-  height: 32px;
-  border: 0;
-  background: none;
+.hp.gis .gis-pop__summary {
+  margin: 0;
+  padding: 0 20px 16px;
+  border-bottom: 1px solid var(--hp-line);
   color: var(--hp-body);
-  cursor: pointer;
-}
-
-.gis-pop__close:hover {
-  color: var(--hp-ink);
+  font-size: 14px;
+  line-height: 1.6;
 }
 
 .gis-pop__viewport {
@@ -251,7 +226,7 @@
 .gis-pop__slide {
   flex: 0 0 100%;
   min-width: 0;
-  padding: 18px 18px 6px;
+  padding: 18px 20px 6px;
 }
 
 .gis-pop__count {
@@ -285,7 +260,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 12px 16px 16px;
+  padding: 14px 20px 18px;
 }
 
 .gis-pop__arrow {
@@ -335,6 +310,10 @@
   background: var(--gis-accent);
 }
 
+body.dark-mode .gis-pop__dots button.is-active {
+  background: var(--gis-red);
+}
+
 .gis-pop__area-next {
   display: inline-flex;
   flex: none;
@@ -357,58 +336,63 @@
   flex: none;
 }
 
-/* If the map cannot load (no WebGL), the popup shows as a panel instead. */
-.gis-map__fallback {
-  position: absolute;
-  z-index: 3;
-  right: 20px;
-  bottom: 20px;
-  width: min(380px, calc(100% - 40px));
-  background: var(--hp-surface);
-  box-shadow: 0 24px 60px rgba(35, 31, 32, 0.28);
+/* Without WebGL the map stays dark, but the panel and card still work. */
+.gis-map.is-failed {
+  background: linear-gradient(135deg, #2b2628, #1d1a1b);
 }
 
-/* ---------- Phones ---------- */
+/* ---------- Tablets and phones: panel on top, card at the bottom ---------- */
 
-@media (max-width: 720px) {
+@keyframes gis-card-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+
+@media (max-width: 900px) {
   .gis-map {
-    height: clamp(640px, calc(100svh - 40px), 860px);
+    height: clamp(760px, calc(100svh - 40px), 900px);
   }
 
-  /* Legend becomes a compact row of numbered chips. */
-  .gis-map__legend {
+  .gis-map__layers {
     top: 12px;
     left: 12px;
     width: calc(100% - 24px);
-    padding: 10px 12px;
+    padding: 12px 10px 10px;
   }
 
-  .hp.gis .gis-map__legend p {
+  .hp.gis .gis-map__layers-title {
     margin-bottom: 8px;
   }
 
-  .hp.gis .gis-map__legend ol {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+  .hp.gis .gis-map__layers ol {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .gis-map__legend button {
-    justify-content: center;
-    padding: 6px;
-    font-size: 0;
+  .gis-map__layers button {
+    padding: 8px;
   }
 
-  .gis-marker__label {
-    font-size: 11px;
-  }
-
-  /* The popup needs the whole map on a phone. */
-  .gis-map.has-popup .gis-map__legend {
+  .gis-map__layer-text small {
     display: none;
   }
-}
 
-/* Charcoal (Map & Data Services) chips need an outline on dark surfaces. */
-body.dark-mode .gis-map__legend button span,
-body.dark-mode .gis-pop__badge {
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.3);
+  .gis-map__layer-text strong {
+    font-size: 12px;
+  }
+
+  .gis-map__card {
+    top: auto;
+    right: 12px;
+    bottom: 12px;
+    left: 12px;
+    width: auto;
+    transform: none;
+    animation-name: gis-card-up;
+  }
+
+  .hp.gis .gis-pop__summary {
+    display: none;
+  }
 }
