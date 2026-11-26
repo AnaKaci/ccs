@@ -245,16 +245,12 @@ body.dark-mode .gis-overview__art {
   scroll-margin-top: 80px;
 }
 
-.gis-area__inner {
-  display: grid;
-  grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
-  gap: 40px clamp(48px, 6vw, 120px);
-  align-items: start;
-}
-
 .gis-area__head {
-  position: sticky;
-  top: 110px;
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: 24px clamp(40px, 6vw, 112px);
+  align-items: end;
+  margin-bottom: clamp(32px, 4vw, 56px);
   padding-left: 24px;
   border-left: 4px solid var(--gis-accent);
 }
@@ -274,10 +270,6 @@ body.dark-mode .gis-area__index {
   color: var(--gis-lime);
 }
 
-.gis-area__head h2 {
-  margin-bottom: 20px;
-}
-
 .gis-area__head p {
   font-size: 17px;
   line-height: 1.7;
@@ -285,7 +277,7 @@ body.dark-mode .gis-area__index {
 
 .gis-area__count {
   display: inline-block;
-  margin-top: 24px;
+  margin-top: 18px;
   padding: 6px 12px;
   border: 1px solid var(--hp-line-strong);
   color: var(--hp-body);
@@ -294,13 +286,11 @@ body.dark-mode .gis-area__index {
 }
 
 .gis-area__next {
-  display: flex;
-  flex-wrap: wrap;
+  display: inline-flex;
   align-items: center;
-  gap: 6px 10px;
-  margin-top: 28px;
-  padding-top: 20px;
-  border-top: 1px solid var(--hp-line);
+  gap: 8px;
+  margin-top: 18px;
+  margin-left: 16px;
   color: var(--hp-ink);
   font-size: 15px;
   font-weight: 700;
@@ -308,7 +298,6 @@ body.dark-mode .gis-area__index {
 }
 
 .gis-area__next span {
-  flex-basis: 100%;
   color: var(--hp-body);
   font-size: 12px;
   font-weight: 600;
@@ -328,104 +317,178 @@ body.dark-mode .gis-area__index {
   transform: translateX(4px);
 }
 
-/* Timeline: a gradient spine connects every numbered step. */
-.hp.gis .gis-items {
+/* ---------- Road map ---------- */
+
+/*
+ * Cards alternate left/right of a centre lane and overlap by one row, so the
+ * markers zig-zag and the SVG road winds through them (drawn in GisRoad.jsx).
+ */
+.gis-road {
+  --lane: 180px;
+  --marker: 56px;
   position: relative;
-  display: grid;
-  gap: 18px;
+  padding-block: 28px;
 }
 
-.hp.gis .gis-items::before {
-  content: '';
+.gis-road__svg {
   position: absolute;
-  top: 26px;
-  bottom: 26px;
-  left: 25px;
-  width: 2px;
-  background: linear-gradient(180deg, #004b79 0%, #016d86 25%, #068895 50%, #48b861 75%, #9fd063 100%);
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
 }
 
-.gis-item {
+.gis-road__edge,
+.gis-road__asphalt,
+.gis-road__lane {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.gis-road__edge {
+  stroke: rgba(11, 46, 58, 0.12);
+  stroke-width: 58;
+}
+
+.gis-road__asphalt {
+  stroke-width: 46;
+}
+
+.gis-road__lane {
+  stroke: #fff;
+  stroke-width: 3;
+  stroke-dasharray: 16 14;
+  opacity: 0.9;
+}
+
+body.dark-mode .gis-road__edge {
+  stroke: rgba(255, 255, 255, 0.08);
+}
+
+.hp.gis .gis-road__list {
+  position: static;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--lane) minmax(0, 1fr);
+  grid-auto-rows: auto;
+  row-gap: 0;
+}
+
+.gis-road__item {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  grid-row: var(--row) / span 2;
+  padding-block: 10px;
+}
+
+.gis-road__item.is-left {
+  grid-column: 1 / 2;
+  justify-content: flex-end;
+  padding-right: 28px;
+}
+
+.gis-road__item.is-right {
+  grid-column: 3 / 4;
+  padding-left: 28px;
+}
+
+/* Shield-shaped map marker sitting on the road. */
+.gis-road__marker {
+  position: absolute;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: var(--marker);
+  height: calc(var(--marker) * 1.18);
+  padding-bottom: 8px;
+  background: var(--step);
+  color: var(--step-ink);
+  font-size: 22px;
+  font-weight: 800;
+  clip-path: polygon(0 0, 100% 0, 100% 72%, 50% 100%, 0 72%);
+  border-radius: 8px 8px 0 0;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.18));
+  transform: translateY(-50%);
+}
+
+/* Markers sit in the lane: left cards' marker left of centre, right cards' marker right of it. */
+.gis-road__item.is-left .gis-road__marker {
+  left: calc(100% + var(--lane) / 2 - var(--marker) - 6px);
+}
+
+.gis-road__item.is-right .gis-road__marker {
+  right: calc(100% + var(--lane) / 2 - var(--marker) - 6px);
+}
+
+.gis-road__card {
   position: relative;
   display: grid;
   grid-template-columns: 52px minmax(0, 1fr);
-  gap: 28px;
-  align-items: center;
+  gap: 18px;
+  align-items: start;
+  width: 100%;
+  max-width: 620px;
+  padding: 22px 24px;
+  border: 3px solid var(--step);
+  background: var(--hp-surface);
+  box-shadow: 0 12px 28px rgba(0, 75, 121, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.gis-item__num {
-  position: relative;
-  z-index: 1;
+.gis-road__item:hover .gis-road__card {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 38px rgba(0, 75, 121, 0.16);
+}
+
+/* Short connector from the card to its marker. */
+.gis-road__card::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: calc(28px + var(--lane) / 2 - var(--marker) - 6px);
+  height: 3px;
+  background: var(--step);
+}
+
+.gis-road__item.is-left .gis-road__card::after {
+  left: 100%;
+}
+
+.gis-road__item.is-right .gis-road__card::after {
+  right: 100%;
+}
+
+.gis-road__icon {
   display: grid;
   place-items: center;
   width: 52px;
   height: 52px;
   border-radius: 50%;
-  background: var(--gis-step);
-  box-shadow: 0 0 0 6px var(--hp-page);
-  color: var(--gis-step-ink);
-  font-size: 19px;
-  font-weight: 700;
+  background: var(--gis-tint);
+  color: #004b79;
 }
 
-.sol-section--alt .gis-item__num {
-  box-shadow: 0 0 0 6px var(--hp-surface);
+body.dark-mode .gis-road__icon {
+  color: var(--gis-lime);
 }
 
-/* Short branch from the spine into each card. */
-.gis-item__num::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 100%;
-  width: 28px;
-  height: 2px;
-  background: var(--gis-step);
-}
-
-.gis-item__card {
-  position: relative;
-  padding: 22px 24px;
-  border: 1px solid var(--hp-line);
-  border-left: 3px solid var(--gis-step);
-  background: var(--hp-surface);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
-}
-
-.sol-section--alt .gis-item__card {
-  background: var(--hp-page);
-}
-
-.gis-item:hover .gis-item__card {
-  border-color: var(--gis-step);
-  box-shadow: 0 14px 32px rgba(0, 75, 121, 0.1);
-  transform: translateX(4px);
-}
-
-.hp.gis .gis-item h3 {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
+.hp.gis .gis-road__card h3 {
   margin-bottom: 8px;
+  color: #004b79;
   font-size: 18px;
   font-weight: 700;
   line-height: 1.3;
   letter-spacing: -0.01em;
 }
 
-.gis-item h3 svg {
-  flex: none;
-  margin-top: 1px;
-  color: var(--gis-step);
+body.dark-mode .hp.gis .gis-road__card h3 {
+  color: var(--hp-ink);
 }
 
-body.dark-mode .gis-item h3 svg {
-  color: var(--gis-lime);
-}
-
-.hp.gis .gis-item p {
+.hp.gis .gis-road__card p {
   font-size: 15px;
-  line-height: 1.65;
+  line-height: 1.6;
 }
 
 /* ---------- Home: GIS "Learn more" button ---------- */
@@ -445,12 +508,55 @@ body.dark-mode .gis-item h3 svg {
     display: none;
   }
 
-  .gis-area__inner {
+  .gis-road {
+    --lane: 130px;
+  }
+}
+
+@media (max-width: 900px) {
+  .gis-area__head {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .gis-area__head {
-    position: static;
+  /* One column: the road runs straight down the left edge. */
+  .gis-road {
+    --lane: 64px;
+    --marker: 44px;
+  }
+
+  .hp.gis .gis-road__list {
+    grid-template-columns: var(--lane) minmax(0, 1fr);
+    row-gap: 14px;
+  }
+
+  .gis-road__item.is-left,
+  .gis-road__item.is-right {
+    grid-column: 2 / 3;
+    grid-row: auto;
+    justify-content: flex-start;
+    padding: 0 0 0 18px;
+  }
+
+  .gis-road__item.is-left .gis-road__marker,
+  .gis-road__item.is-right .gis-road__marker {
+    right: calc(100% + (var(--lane) - var(--marker)) / 2);
+    left: auto;
+    font-size: 18px;
+  }
+
+  .gis-road__item.is-left .gis-road__card::after,
+  .gis-road__item.is-right .gis-road__card::after {
+    right: 100%;
+    left: auto;
+    width: calc(18px + (var(--lane) - var(--marker)) / 2);
+  }
+
+  .gis-road__edge {
+    stroke-width: 44;
+  }
+
+  .gis-road__asphalt {
+    stroke-width: 34;
   }
 }
 
@@ -471,32 +577,19 @@ body.dark-mode .gis-item h3 svg {
     display: none;
   }
 
-  .hp.gis .gis-items::before {
-    left: 19px;
-  }
-
-  .gis-item {
-    grid-template-columns: 40px minmax(0, 1fr);
-    gap: 16px;
-    align-items: start;
-  }
-
-  .gis-item__num {
-    width: 40px;
-    height: 40px;
-    margin-top: 16px;
-    font-size: 16px;
-  }
-
-  .gis-item__num::after {
-    width: 16px;
-  }
-
-  .gis-item__card {
+  .gis-road__card {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
     padding: 18px;
   }
 
-  .gis-area__head {
-    padding-left: 18px;
+  .gis-road__icon {
+    width: 44px;
+    height: 44px;
+  }
+
+  .gis-area__next {
+    margin-left: 0;
+    display: flex;
   }
 }

@@ -40,7 +40,7 @@ const REVEAL_SELECTORS = [
   '.gis-overview__head > *',
   '.gis-svc',
   '.gis-area__head',
-  '.gis-item',
+  '.gis-road__card',
   // Case studies
   '.cs-filter',
   '.cs-feature',

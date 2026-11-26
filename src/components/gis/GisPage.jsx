@@ -25,6 +25,7 @@ import {
   Workflow,
 } from 'lucide-react'
 import { GIS_AREAS, GIS_INTRO } from './gisContent'
+import GisRoad from './GisRoad'
 import './gis.css'
 
 // Icons for each service, keyed by the ids in gisContent.js.
@@ -70,7 +71,9 @@ export default function GisPage({ lang, navigate, AppLink, homeLabel, heroImage,
       <section className="sol-hero gis-hero" style={{ '--sol-image': `url(${heroImage})` }}>
         <div className="sol-wrap sol-hero__inner">
           <nav className="sol-crumbs" aria-label={isAl ? 'Gjurma' : 'Breadcrumb'}>
-            <AppLink to="/" navigate={navigate}>{homeLabel}</AppLink>
+            <AppLink to="/" navigate={navigate}>
+              {homeLabel}
+            </AppLink>
             <span aria-hidden="true">/</span>
             <span>GIS</span>
           </nav>
@@ -146,42 +149,30 @@ export default function GisPage({ lang, navigate, AppLink, homeLabel, heroImage,
           >
             <div className="sol-wrap gis-area__inner">
               <header className="gis-area__head">
-                <span className="gis-area__index">
-                  <AreaIcon size={22} aria-hidden="true" />
-                  {areaIndex + 1} / {GIS_AREAS.length}
-                </span>
-                <h2>{pick(area.title, isAl)}</h2>
-                <p>{pick(area.summary, isAl)}</p>
-                <span className="gis-area__count">
-                  {area.items.length} {isAl ? 'shërbime' : 'services'}
-                </span>
-                {GIS_AREAS[areaIndex + 1] && (
-                  <a className="gis-area__next" href={`#${GIS_AREAS[areaIndex + 1].id}`}>
-                    <span>{isAl ? 'Në vijim' : 'Next'}</span>
-                    {pick(GIS_AREAS[areaIndex + 1].title, isAl)}
-                    <ArrowRight size={16} aria-hidden="true" />
-                  </a>
-                )}
+                <div>
+                  <span className="gis-area__index">
+                    <AreaIcon size={22} aria-hidden="true" />
+                    {areaIndex + 1} / {GIS_AREAS.length}
+                  </span>
+                  <h2>{pick(area.title, isAl)}</h2>
+                </div>
+                <div>
+                  <p>{pick(area.summary, isAl)}</p>
+                  <span className="gis-area__count">
+                    {area.items.length} {isAl ? 'shërbime' : 'services'}
+                  </span>
+                  {GIS_AREAS[areaIndex + 1] && (
+                    <a className="gis-area__next" href={`#${GIS_AREAS[areaIndex + 1].id}`}>
+                      <span>{isAl ? 'Në vijim' : 'Next'}</span>
+                      {pick(GIS_AREAS[areaIndex + 1].title, isAl)}
+                      <ArrowRight size={16} aria-hidden="true" />
+                    </a>
+                  )}
+                </div>
               </header>
-
-              <ol className="gis-items">
-                {area.items.map((item, index) => {
-                  const Icon = ICONS[item.icon]
-                  const [stepColor, stepInk] = GIS_STEPS[index % GIS_STEPS.length]
-                  return (
-                    <li key={item.icon + index} className="gis-item" style={{ '--gis-step': stepColor, '--gis-step-ink': stepInk }}>
-                      <span className="gis-item__num">{index + 1}</span>
-                      <div className="gis-item__card">
-                        <h3>
-                          <Icon size={20} aria-hidden="true" />
-                          {pick(item.title, isAl)}
-                        </h3>
-                        <p>{pick(item.body, isAl)}</p>
-                      </div>
-                    </li>
-                  )
-                })}
-              </ol>
+            </div>
+            <div className="sol-wrap">
+              <GisRoad id={area.id} items={area.items} icons={ICONS} isAl={isAl} />
             </div>
           </section>
         )
@@ -203,8 +194,7 @@ export default function GisPage({ lang, navigate, AppLink, homeLabel, heroImage,
               info@ccs.al
             </a>
             <a href="tel:+35542259005" className="hp-btn hp-btn--outline-light">
-              <Phone size={18} aria-hidden="true" />
-              + 04 225 9005
+              <Phone size={18} aria-hidden="true" />+ 04 225 9005
             </a>
           </div>
         </div>
@@ -212,16 +202,3 @@ export default function GisPage({ lang, navigate, AppLink, homeLabel, heroImage,
     </div>
   )
 }
-
-// The deck's spectrum: deep navy -> ocean -> teal -> green -> lime.
-// Each entry is [badge color, number color]; light greens get dark ink for contrast.
-const GIS_STEPS = [
-  ['#004b79', '#ffffff'],
-  ['#016d86', '#ffffff'],
-  ['#068895', '#ffffff'],
-  ['#0f7f6a', '#ffffff'],
-  ['#48b861', '#0b2e3a'],
-  ['#7cc25a', '#0b2e3a'],
-  ['#9fd063', '#0b2e3a'],
-  ['#195b45', '#ffffff'],
-]
