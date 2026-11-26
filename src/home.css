@@ -6951,6 +6951,7 @@ body .hp.sol .sol-compare article:first-child {
   z-index: 1;
   display: grid;
   place-items: center;
+  margin-right: 5px;
   width: 40px;
   height: 40px;
   padding: 0;
