@@ -1,16 +1,12 @@
 import { useLayoutEffect, useRef, useState } from 'react'
 
-// Marker colors follow the presentation's road: navy -> teal -> green -> lime -> yellow -> olive.
+// Marker colors cycle through the C.C.S brand colors.
 // Each entry is [marker/border color, number color].
 const STEPS = [
-  ['#004b79', '#ffffff'],
-  ['#016d86', '#ffffff'],
-  ['#068895', '#ffffff'],
-  ['#48b861', '#ffffff'],
-  ['#9fd063', '#0b2e3a'],
-  ['#e8dc3c', '#0b2e3a'],
-  ['#6aa121', '#ffffff'],
-  ['#a7ac0b', '#ffffff'],
+  ['#ef4136', '#ffffff'],
+  ['#1c9ad6', '#ffffff'],
+  ['#efac1f', '#231f20'],
+  ['#b41e8e', '#ffffff'],
 ]
 
 // Builds a smooth road through the marker centres, starting at the top edge and ending at the bottom edge.
@@ -70,10 +66,8 @@ export default function GisRoad({ items, icons, isAl, id }) {
       >
         <defs>
           <linearGradient id={gradientId} gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2={road.height || 1}>
-            <stop offset="0%" stopColor="#004b79" />
-            <stop offset="35%" stopColor="#068895" />
-            <stop offset="70%" stopColor="#48b861" />
-            <stop offset="100%" stopColor="#9fd063" />
+            <stop offset="0%" stopColor="#231f20" />
+            <stop offset="100%" stopColor="#3d3638" />
           </linearGradient>
         </defs>
         <path className="gis-road__edge" d={road.d} />

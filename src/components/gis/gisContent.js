@@ -24,7 +24,7 @@ export const GIS_AREAS = [
   {
     id: 'spatial-data-management',
     icon: 'data',
-    color: '#004b79',
+    color: '#ef4136',
     title: { en: 'Spatial Data Management', al: 'Menaxhimi i të dhënave hapësinore' },
     short: {
       en: 'Collection, processing, geodatabases, quality control and maintenance',
@@ -104,7 +104,7 @@ export const GIS_AREAS = [
   {
     id: 'gis-analysis-reporting',
     icon: 'analysis',
-    color: '#068895',
+    color: '#1c9ad6',
     title: { en: 'GIS Analysis & Reporting', al: 'Analiza dhe raportimi GIS' },
     short: {
       en: 'Spatial analysis, thematic maps, visualization and technical reports',
@@ -152,7 +152,7 @@ export const GIS_AREAS = [
   {
     id: 'map-data-services',
     icon: 'maps',
-    color: '#48b861',
+    color: '#efac1f',
     title: { en: 'Map & Data Services', al: 'Shërbime hartash dhe të dhënash' },
     short: {
       en: 'Digital mapping, data processing and WMS/WFS map services',
@@ -216,7 +216,7 @@ export const GIS_AREAS = [
   {
     id: 'webgis-development',
     icon: 'webgis',
-    color: '#016d86',
+    color: '#b41e8e',
     title: { en: 'WebGIS Development', al: 'Zhvillim WebGIS' },
     short: {
       en: 'Interactive web maps and custom WebGIS platforms',
