@@ -3,11 +3,10 @@ import { ArrowLeft, ArrowRight } from 'lucide-react'
 import './gis-map.css'
 
 /*
- * GIS services shown the way a GIS application works, around the C.C.S office in Tirana.
- * The four service areas are map "layers": choosing one switches the map to a matching
- * view (satellite, analysis canvas, topographic, street) and opens a card that slides
- * through that area's services. One marker shows the C.C.S office.
- * MapLibre loads only when this page opens.
+ * GIS services on a topographic map around the C.C.S office in Tirana.
+ * The four service areas are listed as layers; choosing one opens a card that slides
+ * through that area's services. In dark mode the map's colors are inverted to a dark
+ * topographic look. MapLibre loads only when this page opens.
  */
 
 // C.C.S sh.p.k., Rruga Sulejman Delvina Nr. 8, Tirana (same place as the site's Google Maps link).
@@ -16,62 +15,46 @@ const CCS_MAPS_URL =
   'https://www.google.com/maps/place/CCS/@41.3182471,19.812785,19z/data=!4m6!3m5!1s0x135030fe090c438d:0x1fa870c29319170c!8m2!3d41.3182471!4d19.812785'
 const OFFICE_ZOOM = 17
 
-const ESRI = 'https://server.arcgisonline.com/ArcGIS/rest/services'
+// Esri World Topographic Map (no API key needed).
+const TOPO_STYLE = {
+  version: 8,
+  sources: {
+    topo: {
+      type: 'raster',
+      tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}'],
+      tileSize: 256,
+      maxzoom: 19,
+      attribution: 'Topographic map &copy; Esri',
+    },
+  },
+  layers: [{ id: 'topo', type: 'raster', source: 'topo' }],
+}
 
-// One look per service area: a basemap plus optional reference overlays (roads, place names).
-const VIEWS = {
-  'spatial-data-management': {
-    services: ['World_Imagery', 'Reference/World_Transportation', 'Reference/World_Boundaries_and_Places'],
-    name: { en: 'Satellite imagery', al: 'Imazhe satelitore' },
-    attribution: 'Imagery &copy; Esri, Maxar, Earthstar Geographics',
+// Dark mode: invert brightness, then turn hues back so water stays blue and parks green.
+const TOPO_PAINT = {
+  light: {
+    'raster-brightness-min': 0,
+    'raster-brightness-max': 1,
+    'raster-hue-rotate': 0,
+    'raster-saturation': 0,
+    'raster-contrast': 0,
   },
-  'gis-analysis-reporting': {
-    services: ['Canvas/World_Light_Gray_Base', 'Canvas/World_Light_Gray_Reference'],
-    maxzoom: 16,
-    name: { en: 'Analysis canvas', al: 'Hartë bazë për analiza' },
-    attribution: 'Light Gray Canvas &copy; Esri',
-  },
-  'map-data-services': {
-    services: ['World_Topo_Map'],
-    name: { en: 'Topographic map', al: 'Hartë topografike' },
-    attribution: 'Topographic map &copy; Esri',
-  },
-  'webgis-development': {
-    services: ['World_Street_Map'],
-    name: { en: 'Street map', al: 'Hartë rrugore' },
-    attribution: 'Street map &copy; Esri',
+  dark: {
+    'raster-brightness-min': 0.86,
+    'raster-brightness-max': 0.1,
+    'raster-hue-rotate': 180,
+    'raster-saturation': -0.3,
+    'raster-contrast': 0.05,
   },
 }
 
-const layerIds = (areaId) => VIEWS[areaId].services.map((_, index) => `${areaId}-${index}`)
+const isDark = () => document.body.classList.contains('dark-mode')
 
-const FADE_MS = 500
-
-function buildStyle(areas, activeId) {
-  const sources = {}
-  const layers = []
-  areas.forEach((area) => {
-    const view = VIEWS[area.id]
-    const visible = area.id === activeId
-    view.services.forEach((service, index) => {
-      const id = `${area.id}-${index}`
-      sources[id] = {
-        type: 'raster',
-        tiles: [`${ESRI}/${service}/MapServer/tile/{z}/{y}/{x}`],
-        tileSize: 256,
-        maxzoom: view.maxzoom || 19,
-        attribution: index === 0 ? view.attribution : undefined,
-      }
-      layers.push({
-        id,
-        type: 'raster',
-        source: id,
-        layout: { visibility: visible ? 'visible' : 'none' },
-        paint: { 'raster-opacity': visible ? 1 : 0, 'raster-opacity-transition': { duration: FADE_MS, delay: 0 } },
-      })
-    })
-  })
-  return { version: 8, sources, layers }
+function applyTheme(map) {
+  if (!map.getLayer('topo')) return
+  Object.entries(TOPO_PAINT[isDark() ? 'dark' : 'light']).forEach(([property, value]) =>
+    map.setPaintProperty('topo', property, value),
+  )
 }
 
 // The office marker: a label card above a red pin; it opens directions in Google Maps.
@@ -105,19 +88,6 @@ function officePadding(container) {
   return { top: 40, bottom: 40, left: 360, right: 480 }
 }
 
-// Cross-fade a raster layer in or out; hidden layers are switched off so their tiles are not fetched.
-function fadeLayer(map, id, show, timers) {
-  if (!map.getLayer(id)) return
-  window.clearTimeout(timers[id])
-  if (show) {
-    map.setLayoutProperty(id, 'visibility', 'visible')
-    map.setPaintProperty(id, 'raster-opacity', 1)
-  } else {
-    map.setPaintProperty(id, 'raster-opacity', 0)
-    timers[id] = window.setTimeout(() => map.getLayer(id) && map.setLayoutProperty(id, 'visibility', 'none'), FADE_MS)
-  }
-}
-
 function AreaSlides({ area, areaIndex, areas, isAl, slide, setSlide, onOpenArea }) {
   const total = area.items.length
   const nextArea = areas[(areaIndex + 1) % areas.length]
@@ -128,9 +98,7 @@ function AreaSlides({ area, areaIndex, areas, isAl, slide, setSlide, onOpenArea 
       <header className="gis-pop__head">
         <span className="gis-pop__badge">{areaIndex + 1}</span>
         <div>
-          <small>
-            {isAl ? 'Pamja e hartës' : 'Map view'}: {t(VIEWS[area.id].name)}
-          </small>
+          <small>{isAl ? 'Shërbime GIS' : 'GIS Services'}</small>
           <strong>{t(area.title)}</strong>
         </div>
       </header>
@@ -195,12 +163,9 @@ function AreaSlides({ area, areaIndex, areas, isAl, slide, setSlide, onOpenArea 
 export default function GisMap({ areas, isAl, address }) {
   const mapNodeRef = useRef(null)
   const mapRef = useRef(null)
-  const timersRef = useRef({})
   const [active, setActive] = useState(0)
   const [slide, setSlide] = useState(0)
   const [failed, setFailed] = useState(false)
-  // The layer shown when the map is created; later changes cross-fade instead.
-  const initialRef = useRef(areas[0].id)
 
   const openArea = (index) => {
     setActive(index)
@@ -210,7 +175,7 @@ export default function GisMap({ areas, isAl, address }) {
   // Create the map once (recreated on language change so the gesture hints are translated).
   useEffect(() => {
     let cancelled = false
-    const timers = timersRef.current
+    let themeObserver
 
     Promise.all([
       import('maplibre-gl'),
@@ -223,7 +188,7 @@ export default function GisMap({ areas, isAl, address }) {
 
         const map = new maplibre.Map({
           container: mapNodeRef.current,
-          style: buildStyle(areas, initialRef.current),
+          style: TOPO_STYLE,
           center: CCS_OFFICE,
           zoom: OFFICE_ZOOM,
           minZoom: 11,
@@ -242,30 +207,21 @@ export default function GisMap({ areas, isAl, address }) {
         map.jumpTo({ center: CCS_OFFICE, zoom: OFFICE_ZOOM, padding: officePadding(mapNodeRef.current) })
         new maplibre.Marker({ element: officeMarker(isAl, address), anchor: 'bottom' }).setLngLat(CCS_OFFICE).addTo(map)
         map.on('error', (event) => console.warn('[GIS map]', event.error?.message || event))
+        map.once('load', () => applyTheme(map))
+        // Follow the site's light/dark toggle.
+        themeObserver = new MutationObserver(() => applyTheme(map))
+        themeObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] })
         mapRef.current = map
       })
       .catch(() => !cancelled && setFailed(true))
 
     return () => {
       cancelled = true
-      Object.values(timers).forEach((timer) => window.clearTimeout(timer))
+      themeObserver?.disconnect()
       mapRef.current?.remove()
       mapRef.current = null
     }
   }, [isAl, areas, address])
-
-  // Switch the map view to match the selected service area.
-  useEffect(() => {
-    const id = areas[active].id
-    initialRef.current = id
-    const map = mapRef.current
-    if (!map) return
-    const apply = () => {
-      areas.forEach((area) => layerIds(area.id).forEach((layerId) => fadeLayer(map, layerId, area.id === id, timersRef.current)))
-    }
-    if (map.isStyleLoaded()) apply()
-    else map.once('load', apply)
-  }, [active, areas])
 
   // A link like /gis/#map-data-services opens that area straight away. Read the hash one tick
   // later: on a GitHub Pages deep link the router restores the real URL just after this mounts.
@@ -308,7 +264,9 @@ export default function GisMap({ areas, isAl, address }) {
                 <span className="gis-map__check" aria-hidden="true" />
                 <span className="gis-map__layer-text">
                   <strong>{isAl ? item.title.al : item.title.en}</strong>
-                  <small>{isAl ? VIEWS[item.id].name.al : VIEWS[item.id].name.en}</small>
+                  <small>
+                    {item.items.length} {isAl ? 'shërbime' : 'services'}
+                  </small>
                 </span>
               </button>
             </li>
