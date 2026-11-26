@@ -12,7 +12,7 @@ import './gis-map.css'
 // C.C.S sh.p.k., Rruga Sulejman Delvina Nr. 8, Tirana (same place as the site's Google Maps link).
 const CCS_OFFICE = [19.812785, 41.3182471]
 const CCS_MAPS_URL =
-  'https://www.google.com/maps/place/CCS/@41.3182471,19.812785,19z/data=!4m6!3m5!1s0x135030fe090c438d:0x1fa870c29319170c!8m2!3d41.3182471!4d19.812785'
+  'https://www.google.com/maps/place/CCS/@41.3182471,19.812785,19z/data=!4m6!3m5!1s0x135030fe090c438d:0x1fa870c29319170c!8m2!3d41.3182471!4d19.812785!16s%2Fg%2F1hdz7vbw9?entry=ttu&g_ep=EgoyMDI2MTEyMy4wIKXMDSoASAFQAw%3D%3D'
 const OFFICE_ZOOM = 17
 
 // Esri World Topographic Map (no API key needed).

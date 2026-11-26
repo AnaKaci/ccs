@@ -27,7 +27,7 @@ function FacebookIcon() {
 }
 
 const SOCIAL_LINKS = [
-  ['Instagram', 'https://www.instagram.com/c.c.s.shpk?igsh=MTh2dm9ybDBlbWhiNg==', InstagramIcon],
+  ['Instagram', 'https://www.instagram.com/ccs_shpk/?hl=en', InstagramIcon],
   ['LinkedIn', 'https://www.linkedin.com/company/computer-&-copier-systems/', LinkedInIcon],
   ['Facebook', 'https://www.facebook.com/people/CCS/100063607406981/', FacebookIcon],
 ]
