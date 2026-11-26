@@ -331,7 +331,7 @@ const COPY = {
       lifecycle:
         'Sherbimet tona mbulojne gjithe ciklin e projektit, nga kerkesat e biznesit deri te sherbimet IT te menaxhuara.',
       servicesTitle: 'Sherbime',
-      gisTitle: 'Sherbime GIS & ArcGIS',
+      gisTitle: 'Shërbime GIS & ArcGIS',
       serviceContactTitle: 'Na kontaktoni per keto sherbime:',
       partnersTitle: 'Disa nga partneret tane',
       partnersIntro:
@@ -426,10 +426,12 @@ const GIS_SERVICES = [
     title: 'Planning',
     alTitle: 'Planifikim',
     subtitle: 'Building an ArcGIS technology Adoption Strategy',
-    alSubtitle: 'Ndertimi i nje strategjie adoptimi per teknologjine ArcGIS',
+    alSubtitle: 'Ndërtimi i një strategjie për adoptimin e teknologjisë ArcGIS',
     image: ASSETS.map,
     body:
       'At C.C.S, we offer tailored planning services that adapt to the scale and complexity of your GIS initiatives, from a focused assessment and roadmap to a multi-year Strategic Enterprise Plan.',
+    alBody:
+      'Në C.C.S ofrojmë shërbime planifikimi të përshtatura me shkallën dhe kompleksitetin e iniciativave tuaja GIS, nga një vlerësim i fokusuar dhe udhërrëfyes deri te një Plan Strategjik Shumëvjeçar për ndërmarrjen.',
     steps: [
       ['Discovery & Assessment', 'We evaluate your current GIS setup and business goals.'],
       ['Data Governance Strategy', 'We define standards, responsibilities, and workflows.'],
@@ -437,22 +439,38 @@ const GIS_SERVICES = [
       ['Maintenance Planning', 'We design schedules for updates and continuity.'],
       ['Advisory & Support', 'We offer expert staffing, training, and on-call support.'],
     ],
+    alSteps: [
+      ['Zbulim dhe vlerësim', 'Vlerësojmë sistemin tuaj aktual GIS dhe objektivat e biznesit.'],
+      ['Strategjia e qeverisjes së të dhënave', 'Përcaktojmë standardet, përgjegjësitë dhe proceset e punës.'],
+      ['Dokumentim teknik', 'Krijojmë dokumentacion të qartë për përdorimin dhe zgjerimin.'],
+      ['Planifikimi i mirëmbajtjes', 'Hartojmë kalendarë për përditësimet dhe vazhdimësinë.'],
+      ['Këshillim dhe suport', 'Ofrojmë staf ekspert, trajnime dhe suport on-call.'],
+    ],
   },
   {
     key: 'administration',
     title: 'GIS System Administration',
-    alTitle: 'Administrim GIS',
+    alTitle: 'Administrimi i sistemit GIS',
     subtitle: 'Proactive and ongoing GIS Infrastructure Management',
-    alSubtitle: 'Menaxhim i vazhdueshem dhe proaktiv i infrastruktures GIS',
+    alSubtitle: 'Menaxhim i vazhdueshëm dhe proaktiv i infrastrukturës GIS',
     image: ASSETS.serverIcon,
     body:
       'C.C.S offers a fully managed service for IT and ArcGIS infrastructure needs, designed to reduce overhead, boost performance, and ensure system reliability.',
+    alBody:
+      'C.C.S ofron një shërbim plotësisht të menaxhuar për nevojat e infrastrukturës IT dhe ArcGIS, i krijuar për të ulur kostot, për të rritur performancën dhe për të garantuar besueshmërinë e sistemit.',
     steps: [
       ['System Architecture Design', 'Plan stable GIS architecture.'],
       ['ArcGIS Enterprise Implementation', 'Deploy and configure enterprise environments.'],
       ['Updates & Maintenance', 'Keep platforms current and reliable.'],
       ['Automation', 'Reduce manual work with scripted routines.'],
       ['Backups & Support', 'Protect systems and troubleshoot issues.'],
+    ],
+    alSteps: [
+      ['Projektimi i arkitekturës së sistemit', 'Planifikojmë një arkitekturë të qëndrueshme GIS.'],
+      ['Implementimi i ArcGIS Enterprise', 'Instalojmë dhe konfigurojmë mjediset enterprise.'],
+      ['Përditësime dhe mirëmbajtje', 'Mbajmë platformat të përditësuara dhe të besueshme.'],
+      ['Automatizim', 'Ulim punën manuale me procese të automatizuara me skripte.'],
+      ['Kopje rezervë dhe suport', 'Mbrojmë sistemet dhe zgjidhim problemet.'],
     ],
   },
   {
@@ -473,12 +491,21 @@ const GIS_SERVICES = [
     image: ASSETS.headset,
     body:
       'When you are not sure of your exact needs, C.C.S can offer support on standby through an hourly services agreement.',
+    alBody:
+      'Kur nuk jeni të sigurt për nevojat tuaja të sakta, C.C.S mund t’ju ofrojë suport në gatishmëri përmes një marrëveshjeje shërbimi me orë.',
     steps: [
       ['Troubleshooting', 'Resolve incidents and unblock teams.'],
       ['Data cleanup', 'Improve datasets and geospatial layers.'],
       ['Training', 'Help teams use tools with confidence.'],
       ['Scripting', 'Automate repeated GIS workflows.'],
       ['Maps & apps', 'Reconfigure maps, dashboards, and apps.'],
+    ],
+    alSteps: [
+      ['Zgjidhje problemesh', 'Zgjidhim incidentet dhe zhbllokojmë ekipet.'],
+      ['Pastrim të dhënash', 'Përmirësojmë të dhënat dhe shtresat gjeohapësinore.'],
+      ['Trajnim', 'Ndihmojmë ekipet të përdorin mjetet me siguri.'],
+      ['Skriptim', 'Automatizojmë proceset GIS që përsëriten.'],
+      ['Harta dhe aplikacione', 'Rikonfigurojmë harta, panele dhe aplikacione.'],
     ],
   },
 ]
@@ -2981,7 +3008,7 @@ function HomePage({ copy, lang, navigate }) {
             <h2>{copy.home.gisTitle}</h2>
             <p>
               {isAl
-                ? 'Planifikim, administrim GIS dhe suport on-call per iniciativa ArcGIS.'
+                ? 'Planifikim, administrim GIS dhe suport on-call për iniciativa ArcGIS.'
                 : 'Planning, GIS system administration, and on-call support for ArcGIS initiatives.'}
             </p>
             {/* ArcGIS services open a popup; "GIS Services" opens the GIS page. */}
@@ -4385,9 +4412,9 @@ function Modal({ item, copy, lang, onClose }) {
           {(isAl ? item.alSubtitle : item.subtitle) && (
             <p className="gis-modal__subtitle">{isAl ? item.alSubtitle : item.subtitle}</p>
           )}
-          <p className="gis-modal__intro">{item.body}</p>
+          <p className="gis-modal__intro">{isAl && item.alBody ? item.alBody : item.body}</p>
           <ol className="gis-modal__steps">
-            {item.steps.map(([title, body], index) => (
+            {(isAl && item.alSteps ? item.alSteps : item.steps).map(([title, body], index) => (
               <li key={title}>
                 <span className="gis-modal__num">{index + 1}.</span>
                 <div>
