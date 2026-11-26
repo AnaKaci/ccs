@@ -42,7 +42,6 @@ import FortinetSyndication from './components/syndication/FortinetSyndication'
 import HPSyndication from './components/syndication/HPSyndication'
 import VendorSolutionLayout from './components/vendor/VendorSolutionLayout'
 import GisPage from './components/gis/GisPage'
-import { GIS_AREAS, GIS_INTRO } from './components/gis/gisContent'
 import { useCart } from './cart'
 import { useSiteMotion } from './motion'
 import { CSV_PRODUCTS } from './data/catalog'
@@ -236,7 +235,7 @@ const COPY = {
       lifecycle:
         'Our end-to-end services cover the entire project lifecycle, from defining business requirements to delivering fully managed IT services.',
       servicesTitle: 'Services',
-      gisTitle: 'GIS Services',
+      gisTitle: 'GIS & ArcGIS services',
       serviceContactTitle: 'Contact us for these services on:',
       partnersTitle: 'Some of our partners',
       partnersIntro:
@@ -332,7 +331,7 @@ const COPY = {
       lifecycle:
         'Sherbimet tona mbulojne gjithe ciklin e projektit, nga kerkesat e biznesit deri te sherbimet IT te menaxhuara.',
       servicesTitle: 'Sherbime',
-      gisTitle: 'Shërbime GIS',
+      gisTitle: 'Sherbime GIS & ArcGIS',
       serviceContactTitle: 'Na kontaktoni per keto sherbime:',
       partnersTitle: 'Disa nga partneret tane',
       partnersIntro:
@@ -418,6 +417,69 @@ const SERVICES = [
     image: ASSETS.support,
     icon: Headphones,
     to: '/support/',
+  },
+]
+
+const GIS_SERVICES = [
+  {
+    key: 'planning',
+    title: 'Planning',
+    alTitle: 'Planifikim',
+    subtitle: 'Building an ArcGIS technology Adoption Strategy',
+    alSubtitle: 'Ndertimi i nje strategjie adoptimi per teknologjine ArcGIS',
+    image: ASSETS.map,
+    body:
+      'At C.C.S, we offer tailored planning services that adapt to the scale and complexity of your GIS initiatives, from a focused assessment and roadmap to a multi-year Strategic Enterprise Plan.',
+    steps: [
+      ['Discovery & Assessment', 'We evaluate your current GIS setup and business goals.'],
+      ['Data Governance Strategy', 'We define standards, responsibilities, and workflows.'],
+      ['Technical Documentation', 'We create clear documentation for usage and scaling.'],
+      ['Maintenance Planning', 'We design schedules for updates and continuity.'],
+      ['Advisory & Support', 'We offer expert staffing, training, and on-call support.'],
+    ],
+  },
+  {
+    key: 'administration',
+    title: 'GIS System Administration',
+    alTitle: 'Administrim GIS',
+    subtitle: 'Proactive and ongoing GIS Infrastructure Management',
+    alSubtitle: 'Menaxhim i vazhdueshem dhe proaktiv i infrastruktures GIS',
+    image: ASSETS.serverIcon,
+    body:
+      'C.C.S offers a fully managed service for IT and ArcGIS infrastructure needs, designed to reduce overhead, boost performance, and ensure system reliability.',
+    steps: [
+      ['System Architecture Design', 'Plan stable GIS architecture.'],
+      ['ArcGIS Enterprise Implementation', 'Deploy and configure enterprise environments.'],
+      ['Updates & Maintenance', 'Keep platforms current and reliable.'],
+      ['Automation', 'Reduce manual work with scripted routines.'],
+      ['Backups & Support', 'Protect systems and troubleshoot issues.'],
+    ],
+  },
+  {
+    // Opens the GIS Services page instead of a popup.
+    key: 'gis-services',
+    title: 'GIS Services',
+    alTitle: 'Shërbime GIS',
+    subtitle: 'GIS Mapping, Analysis & WebGIS Solutions',
+    alSubtitle: 'Hartografi GIS, analiza dhe zgjidhje WebGIS',
+    to: '/gis/',
+  },
+  {
+    key: 'on-call',
+    title: 'GIS On-call',
+    alTitle: 'GIS On-call',
+    subtitle: 'Premium Support when you need it',
+    alSubtitle: 'Suport premium kur ju nevojitet',
+    image: ASSETS.headset,
+    body:
+      'When you are not sure of your exact needs, C.C.S can offer support on standby through an hourly services agreement.',
+    steps: [
+      ['Troubleshooting', 'Resolve incidents and unblock teams.'],
+      ['Data cleanup', 'Improve datasets and geospatial layers.'],
+      ['Training', 'Help teams use tools with confidence.'],
+      ['Scripting', 'Automate repeated GIS workflows.'],
+      ['Maps & apps', 'Reconfigure maps, dashboards, and apps.'],
+    ],
   },
 ]
 
@@ -2714,6 +2776,7 @@ function LogoMarquee({ items, label, variant = 'partners', speed = 40 }) {
 }
 
 function HomePage({ copy, lang, navigate }) {
+  const [activeModal, setActiveModal] = useState(null)
   const [activeService, setActiveService] = useState(0)
   // Phones get the 960px encode (~1.6 MB) instead of the 1920px one (~3.8 MB).
   const [heroVideoSrc] = useState(() =>
@@ -2911,25 +2974,42 @@ function HomePage({ copy, lang, navigate }) {
 
       <section className="hp-section hp-section--gis">
         <div className="hp-wrap">
-          <SectionBar label="GIS" />
+          <SectionBar label="GIS / ArcGIS" />
         </div>
         <div className="hp-wrap hp-gis-split">
           <div className="hp-gis-split__copy">
             <h2>{copy.home.gisTitle}</h2>
-            <p>{isAl ? GIS_INTRO.lead.al : GIS_INTRO.lead.en}</p>
-            {/* The four service areas of the GIS page; each opens its section there. */}
+            <p>
+              {isAl
+                ? 'Planifikim, administrim GIS dhe suport on-call per iniciativa ArcGIS.'
+                : 'Planning, GIS system administration, and on-call support for ArcGIS initiatives.'}
+            </p>
+            {/* ArcGIS services open a popup; "GIS Services" opens the GIS page. */}
             <ul className="hp-gis">
-              {GIS_AREAS.map((area) => (
-                <li key={area.id}>
-                  <AppLink to={`/gis/#${area.id}`} navigate={navigate}>
+              {GIS_SERVICES.map((item) => {
+                const content = (
+                  <>
                     <span>
-                      <strong>{isAl ? area.title.al : area.title.en}</strong>
-                      <small>{isAl ? area.short.al : area.short.en}</small>
+                      <strong>{titleFor(item, lang)}</strong>
+                      <small>{isAl ? item.alSubtitle : item.subtitle}</small>
                     </span>
                     <ArrowRight size={18} aria-hidden="true" />
-                  </AppLink>
-                </li>
-              ))}
+                  </>
+                )
+                return (
+                  <li key={item.key}>
+                    {item.to ? (
+                      <AppLink to={item.to} navigate={navigate}>
+                        {content}
+                      </AppLink>
+                    ) : (
+                      <button type="button" onClick={() => setActiveModal(item)}>
+                        {content}
+                      </button>
+                    )}
+                  </li>
+                )
+              })}
             </ul>
             <AppLink to="/gis/" navigate={navigate} className="hp-btn hp-btn--primary hp-gis-split__more">
               {isAl ? 'Mëso më shumë' : 'Learn more'}
@@ -3033,7 +3113,7 @@ function HomePage({ copy, lang, navigate }) {
               </a>
             </li>
             <li>
-              <a href="https://www.google.com/maps/place/CCS/@41.3182558,19.8101846,17z" target="_blank" rel="noreferrer">
+              <a href="https://www.google.com/maps/place/CCS/@41.3182471,19.812785,19z/data=!4m6!3m5!1s0x135030fe090c438d:0x1fa870c29319170c!8m2!3d41.3182471!4d19.812785" target="_blank" rel="noreferrer">
                 <MapPin size={22} aria-hidden="true" />
                 <span className="hp-contact__k">{copy.home.location}</span>
                 <strong>{copy.home.address}</strong>
@@ -3054,6 +3134,9 @@ function HomePage({ copy, lang, navigate }) {
         </div>
       </section>
 
+      {activeModal && (
+        <Modal item={activeModal} copy={copy} lang={lang} onClose={() => setActiveModal(null)} />
+      )}
     </div>
   )
 }
@@ -4272,6 +4355,58 @@ function ProductCard({ item, copy, navigate, addToCart }) {
   )
 }
 
+function Modal({ item, copy, lang, onClose }) {
+  useEffect(() => {
+    const onKeyDown = (event) => {
+      if (event.key === 'Escape') onClose()
+    }
+
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [onClose])
+
+  const isAl = lang === 'al'
+
+  return (
+    <div className="gis-modal" role="presentation" onMouseDown={onClose}>
+      <article
+        className="gis-modal__panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="gis-modal-title"
+        onMouseDown={(e) => e.stopPropagation()}
+      >
+        <button className="gis-modal__close" type="button" onClick={onClose} aria-label={copy.common.closeMenu}>
+          <X size={20} aria-hidden="true" />
+        </button>
+        <div className="gis-modal__body">
+          <span className="hp-label">GIS / ArcGIS</span>
+          <h2 id="gis-modal-title">{titleFor(item, lang)}</h2>
+          {(isAl ? item.alSubtitle : item.subtitle) && (
+            <p className="gis-modal__subtitle">{isAl ? item.alSubtitle : item.subtitle}</p>
+          )}
+          <p className="gis-modal__intro">{item.body}</p>
+          <ol className="gis-modal__steps">
+            {item.steps.map(([title, body], index) => (
+              <li key={title}>
+                <span className="gis-modal__num">{index + 1}.</span>
+                <div>
+                  <strong>{title}</strong>
+                  <span>{body}</span>
+                </div>
+              </li>
+            ))}
+          </ol>
+          <a href={`mailto:info@ccs.al?subject=${encodeURIComponent(`GIS: ${item.title}`)}`} className="hp-btn hp-btn--primary">
+            <Mail size={17} aria-hidden="true" />
+            {copy.home.contactTitle}
+          </a>
+        </div>
+      </article>
+    </div>
+  )
+}
+
 function DetailPage({ data, copy, lang, navigate }) {
   const Icon = data.icon || BriefcaseBusiness
 
@@ -4896,7 +5031,7 @@ function ContactSection({ copy }) {
         <article>
           <MapPin size={22} />
           <h3>{copy.home.location}</h3>
-          <a href="https://www.google.com/maps/place/CCS/@41.3182558,19.8101846,17z" target="_blank" rel="noreferrer">
+          <a href="https://www.google.com/maps/place/CCS/@41.3182471,19.812785,19z/data=!4m6!3m5!1s0x135030fe090c438d:0x1fa870c29319170c!8m2!3d41.3182471!4d19.812785" target="_blank" rel="noreferrer">
             {copy.home.address}
           </a>
         </article>
