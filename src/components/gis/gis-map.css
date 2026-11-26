@@ -7,7 +7,7 @@
 .gis-map {
   position: relative;
   width: 100%;
-  height: clamp(600px, calc(100vh - 80px), 1080px);
+  height: clamp(780px, calc(100vh - 40px), 1200px);
   overflow: hidden;
   border-block: 1px solid var(--hp-line);
   background: #1d1a1b;
@@ -372,7 +372,7 @@
 
 @media (max-width: 720px) {
   .gis-map {
-    height: clamp(560px, calc(100svh - 70px), 760px);
+    height: clamp(640px, calc(100svh - 40px), 860px);
   }
 
   /* Legend becomes a compact row of numbered chips. */

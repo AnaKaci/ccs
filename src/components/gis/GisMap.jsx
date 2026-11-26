@@ -18,6 +18,12 @@ const POSITIONS = {
 }
 
 // Esri World Imagery (satellite) with Esri's boundaries and place names on top. No API key needed.
+// Albania's extent (Konispol in the south to Vermosh in the north), so the whole country is framed.
+const ALBANIA_BOUNDS = [
+  [19.26, 39.64],
+  [21.07, 42.67],
+]
+
 const SATELLITE_STYLE = {
   version: 8,
   sources: {
@@ -169,12 +175,10 @@ export default function GisMap({ areas, isAl }) {
         })
         map.addControl(new maplibre.NavigationControl({ showCompass: false }), 'bottom-right')
 
-        const bounds = new maplibre.LngLatBounds()
         areas.forEach((area, index) => {
-          bounds.extend(POSITIONS[area.id])
           new maplibre.Marker({ element: markerNodes[index], anchor: 'bottom' }).setLngLat(POSITIONS[area.id]).addTo(map)
         })
-        map.fitBounds(bounds, { padding: { top: 110, bottom: 70, left: 80, right: 80 }, duration: 0, maxZoom: 7.4 })
+        map.fitBounds(ALBANIA_BOUNDS, { padding: { top: 70, bottom: 40, left: 40, right: 40 }, duration: 0 })
 
         popupRef.current = new maplibre.Popup({
           anchor: 'bottom',
