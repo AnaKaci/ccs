@@ -5,7 +5,7 @@ import './gis.css'
 
 const pick = (value, isAl) => (isAl ? value.al : value.en)
 
-export default function GisPage({ lang, navigate, AppLink, homeLabel, heroImage }) {
+export default function GisPage({ lang, navigate, AppLink, homeLabel, heroImage, address }) {
   const isAl = lang === 'al'
 
   return (
@@ -47,7 +47,7 @@ export default function GisPage({ lang, navigate, AppLink, homeLabel, heroImage 
           </div>
         </div>
         {/* Full-bleed map, edge to edge. */}
-        <GisMap areas={GIS_AREAS} isAl={isAl} />
+        <GisMap areas={GIS_AREAS} isAl={isAl} address={address} />
       </section>
 
       <section className="sol-cta">

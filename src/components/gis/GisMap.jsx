@@ -3,89 +3,105 @@ import { ArrowLeft, ArrowRight } from 'lucide-react'
 import './gis-map.css'
 
 /*
- * GIS services shown the way a GIS application works: the four service areas are
- * map "layers". Choosing one switches the map to a matching view of Albania
- * (satellite, terrain, topographic, street) and opens a card that slides through
- * that area's services. No pins, so nothing reads as an office location.
+ * GIS services shown the way a GIS application works, around the C.C.S office in Tirana.
+ * The four service areas are map "layers": choosing one switches the map to a matching
+ * view (satellite, analysis canvas, topographic, street) and opens a card that slides
+ * through that area's services. One marker shows the C.C.S office.
  * MapLibre loads only when this page opens.
  */
 
-// Albania's extent (Konispol in the south to Vermosh in the north), so the whole country is framed.
-const ALBANIA_BOUNDS = [
-  [19.26, 39.64],
-  [21.07, 42.67],
-]
+// C.C.S sh.p.k., Rruga Sulejman Delvina Nr. 8, Tirana (same place as the site's Google Maps link).
+const CCS_OFFICE = [19.8101846, 41.3182558]
+const CCS_MAPS_URL = 'https://www.google.com/maps/place/CCS/@41.3182558,19.8101846,17z'
+const OFFICE_ZOOM = 16
 
 const ESRI = 'https://server.arcgisonline.com/ArcGIS/rest/services'
 
-// One basemap per service area; `labels` adds Esri's place names on top of imagery-style views.
+// One look per service area: a basemap plus optional reference overlays (roads, place names).
 const VIEWS = {
   'spatial-data-management': {
-    service: 'World_Imagery',
-    labels: true,
+    services: ['World_Imagery', 'Reference/World_Transportation', 'Reference/World_Boundaries_and_Places'],
     name: { en: 'Satellite imagery', al: 'Imazhe satelitore' },
     attribution: 'Imagery &copy; Esri, Maxar, Earthstar Geographics',
   },
   'gis-analysis-reporting': {
-    service: 'Elevation/World_Hillshade',
-    labels: true,
-    name: { en: 'Terrain hillshade', al: 'Relievi i terrenit' },
-    attribution: 'Hillshade &copy; Esri',
+    services: ['Canvas/World_Light_Gray_Base', 'Canvas/World_Light_Gray_Reference'],
+    maxzoom: 16,
+    name: { en: 'Analysis canvas', al: 'Hartë bazë për analiza' },
+    attribution: 'Light Gray Canvas &copy; Esri',
   },
   'map-data-services': {
-    service: 'World_Topo_Map',
-    labels: false,
+    services: ['World_Topo_Map'],
     name: { en: 'Topographic map', al: 'Hartë topografike' },
     attribution: 'Topographic map &copy; Esri',
   },
   'webgis-development': {
-    service: 'World_Street_Map',
-    labels: false,
+    services: ['World_Street_Map'],
     name: { en: 'Street map', al: 'Hartë rrugore' },
     attribution: 'Street map &copy; Esri',
   },
 }
 
+const layerIds = (areaId) => VIEWS[areaId].services.map((_, index) => `${areaId}-${index}`)
+
 const FADE_MS = 500
 
 function buildStyle(areas, activeId) {
-  const sources = {
-    places: {
-      type: 'raster',
-      tiles: [`${ESRI}/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}`],
-      tileSize: 256,
-      maxzoom: 19,
-      attribution: 'Labels &copy; Esri',
-    },
-  }
+  const sources = {}
   const layers = []
   areas.forEach((area) => {
     const view = VIEWS[area.id]
-    sources[area.id] = {
-      type: 'raster',
-      tiles: [`${ESRI}/${view.service}/MapServer/tile/{z}/{y}/{x}`],
-      tileSize: 256,
-      maxzoom: 19,
-      attribution: view.attribution,
-    }
     const visible = area.id === activeId
-    layers.push({
-      id: area.id,
-      type: 'raster',
-      source: area.id,
-      layout: { visibility: visible ? 'visible' : 'none' },
-      paint: { 'raster-opacity': visible ? 1 : 0, 'raster-opacity-transition': { duration: FADE_MS, delay: 0 } },
+    view.services.forEach((service, index) => {
+      const id = `${area.id}-${index}`
+      sources[id] = {
+        type: 'raster',
+        tiles: [`${ESRI}/${service}/MapServer/tile/{z}/{y}/{x}`],
+        tileSize: 256,
+        maxzoom: view.maxzoom || 19,
+        attribution: index === 0 ? view.attribution : undefined,
+      }
+      layers.push({
+        id,
+        type: 'raster',
+        source: id,
+        layout: { visibility: visible ? 'visible' : 'none' },
+        paint: { 'raster-opacity': visible ? 1 : 0, 'raster-opacity-transition': { duration: FADE_MS, delay: 0 } },
+      })
     })
   })
-  const labels = VIEWS[activeId]?.labels
-  layers.push({
-    id: 'places',
-    type: 'raster',
-    source: 'places',
-    layout: { visibility: labels ? 'visible' : 'none' },
-    paint: { 'raster-opacity': labels ? 1 : 0, 'raster-opacity-transition': { duration: FADE_MS, delay: 0 } },
-  })
   return { version: 8, sources, layers }
+}
+
+// The office marker: a label card above a red pin; it opens directions in Google Maps.
+function officeMarker(isAl, address) {
+  const link = document.createElement('a')
+  link.className = 'gis-office'
+  link.href = CCS_MAPS_URL
+  link.target = '_blank'
+  link.rel = 'noreferrer'
+  link.setAttribute('aria-label', `C.C.S sh.p.k. - ${address}`)
+
+  const card = document.createElement('span')
+  card.className = 'gis-office__card'
+  const name = document.createElement('strong')
+  name.textContent = 'C.C.S sh.p.k.'
+  const line = document.createElement('small')
+  line.textContent = address
+  const cta = document.createElement('em')
+  cta.textContent = isAl ? 'Merr udhëzime' : 'Get directions'
+  card.append(name, line, cta)
+
+  const pin = document.createElement('span')
+  pin.className = 'gis-office__pin'
+  link.append(card, pin)
+  return link
+}
+
+// Keep the office between the layer panel and the service card (or above the card on phones).
+function officePadding(container) {
+  if (container.clientWidth < 900) return { top: 150, bottom: 380, left: 0, right: 0 }
+  return { top: 40, bottom: 40, left: 360, right: 480 }
 }
 
 // Cross-fade a raster layer in or out; hidden layers are switched off so their tiles are not fetched.
@@ -175,7 +191,7 @@ function AreaSlides({ area, areaIndex, areas, isAl, slide, setSlide, onOpenArea 
   )
 }
 
-export default function GisMap({ areas, isAl }) {
+export default function GisMap({ areas, isAl, address }) {
   const mapNodeRef = useRef(null)
   const mapRef = useRef(null)
   const timersRef = useRef({})
@@ -207,10 +223,10 @@ export default function GisMap({ areas, isAl }) {
         const map = new maplibre.Map({
           container: mapNodeRef.current,
           style: buildStyle(areas, initialRef.current),
-          bounds: ALBANIA_BOUNDS,
-          fitBoundsOptions: { padding: { top: 70, bottom: 40, left: 40, right: 40 } },
-          minZoom: 5,
-          maxZoom: 14,
+          center: CCS_OFFICE,
+          zoom: OFFICE_ZOOM,
+          minZoom: 11,
+          maxZoom: 19,
           cooperativeGestures: true,
           attributionControl: { compact: true },
           locale: isAl
@@ -222,6 +238,8 @@ export default function GisMap({ areas, isAl }) {
             : undefined,
         })
         map.addControl(new maplibre.NavigationControl({ showCompass: false }), 'bottom-left')
+        map.jumpTo({ center: CCS_OFFICE, zoom: OFFICE_ZOOM, padding: officePadding(mapNodeRef.current) })
+        new maplibre.Marker({ element: officeMarker(isAl, address), anchor: 'bottom' }).setLngLat(CCS_OFFICE).addTo(map)
         map.on('error', (event) => console.warn('[GIS map]', event.error?.message || event))
         mapRef.current = map
       })
@@ -233,7 +251,7 @@ export default function GisMap({ areas, isAl }) {
       mapRef.current?.remove()
       mapRef.current = null
     }
-  }, [isAl, areas])
+  }, [isAl, areas, address])
 
   // Switch the map view to match the selected service area.
   useEffect(() => {
@@ -242,8 +260,7 @@ export default function GisMap({ areas, isAl }) {
     const map = mapRef.current
     if (!map) return
     const apply = () => {
-      areas.forEach((area) => fadeLayer(map, area.id, area.id === id, timersRef.current))
-      fadeLayer(map, 'places', VIEWS[id].labels, timersRef.current)
+      areas.forEach((area) => layerIds(area.id).forEach((layerId) => fadeLayer(map, layerId, area.id === id, timersRef.current)))
     }
     if (map.isStyleLoaded()) apply()
     else map.once('load', apply)

@@ -2396,6 +2396,7 @@ function RouteRenderer({
         AppLink={AppLink}
         homeLabel={copy.nav.home}
         heroImage={ASSETS.gisHero}
+        address={copy.home.address}
       />
     )
   }
