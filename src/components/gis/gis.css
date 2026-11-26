@@ -7,10 +7,9 @@
   /* C.C.S brand colors */
   --gis-red: #ef4136;
   --gis-blue: #1c9ad6;
-  --gis-yellow: #efac1f;
   --gis-violet: #b41e8e;
   --gis-charcoal: #231f20;
-  --gis-spectrum: linear-gradient(90deg, #ef4136 0 25%, #efac1f 25% 50%, #1c9ad6 50% 75%, #b41e8e 75% 100%);
+  --gis-spectrum: linear-gradient(90deg, #ef4136 0 34%, #1c9ad6 34% 67%, #b41e8e 67% 100%);
   --gis-tint: #f0f0ef;
 }
 
@@ -37,7 +36,7 @@ body.dark-mode .hp.gis {
   align-items: center;
   gap: 10px;
   margin-bottom: 18px;
-  color: var(--gis-yellow);
+  color: #ff6b61;
   font-size: 15px;
   font-weight: 700;
   letter-spacing: 0.08em;

@@ -1,65 +1,7 @@
-import {
-  ArrowRight,
-  Blend,
-  ChartColumn,
-  ChartPie,
-  Combine,
-  Database,
-  FileCheck,
-  FileText,
-  FolderTree,
-  Globe,
-  Layers,
-  Mail,
-  Map,
-  MapPinned,
-  MousePointerClick,
-  Phone,
-  Presentation,
-  RefreshCw,
-  Satellite,
-  ScanLine,
-  ScanSearch,
-  Share2,
-  Smartphone,
-  Workflow,
-} from 'lucide-react'
+import { ArrowRight, Mail, Phone } from 'lucide-react'
 import { GIS_AREAS, GIS_INTRO } from './gisContent'
 import GisMap from './GisMap'
 import './gis.css'
-
-// Icons for each service, keyed by the ids in gisContent.js.
-const ICONS = {
-  collection: Satellite,
-  digitization: ScanLine,
-  geodatabase: Database,
-  processing: Workflow,
-  quality: FileCheck,
-  harmonization: Blend,
-  metadata: FileText,
-  maintenance: RefreshCw,
-  spatialAnalysis: ScanSearch,
-  thematicMapping: Map,
-  visualization: ChartPie,
-  reporting: Presentation,
-  cartography: MapPinned,
-  dataProcessing: Workflow,
-  wms: Layers,
-  wfs: FolderTree,
-  interactiveMaps: MousePointerClick,
-  publishing: Share2,
-  customApps: Globe,
-  webMapping: Map,
-  webVisualization: ChartColumn,
-  webTools: ScanSearch,
-  integration: Combine,
-  sharing: Share2,
-  responsive: Smartphone,
-  data: Database,
-  analysis: ChartColumn,
-  maps: Map,
-  webgis: Globe,
-}
 
 const pick = (value, isAl) => (isAl ? value.al : value.en)
 
@@ -106,10 +48,9 @@ export default function GisPage({ lang, navigate, AppLink, homeLabel, heroImage,
               <img src={illustration} alt="" width="211" height="211" loading="lazy" />
             </figure>
           </div>
-
         </div>
         <div className="sol-wrap">
-          <GisMap areas={GIS_AREAS} icons={ICONS} isAl={isAl} />
+          <GisMap areas={GIS_AREAS} isAl={isAl} />
         </div>
       </section>
 

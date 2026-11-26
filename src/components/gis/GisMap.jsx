@@ -17,15 +17,36 @@ const POSITIONS = {
   'webgis-development': [19.4914, 40.4661],
 }
 
-const STYLES = {
-  light: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
-  dark: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
+// Esri World Imagery (satellite) with Esri's boundaries and place names on top. No API key needed.
+const SATELLITE_STYLE = {
+  version: 8,
+  sources: {
+    imagery: {
+      type: 'raster',
+      tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
+      tileSize: 256,
+      maxzoom: 19,
+      attribution: 'Imagery &copy; Esri, Maxar, Earthstar Geographics',
+    },
+    places: {
+      type: 'raster',
+      tiles: [
+        'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
+      ],
+      tileSize: 256,
+      maxzoom: 19,
+      attribution: 'Labels &copy; Esri',
+    },
+  },
+  layers: [
+    { id: 'imagery', type: 'raster', source: 'imagery' },
+    { id: 'places', type: 'raster', source: 'places' },
+  ],
 }
 
-const isDark = () => document.body.classList.contains('dark-mode')
 const reducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
 
-function AreaSlides({ area, areaIndex, areas, icons, isAl, slide, setSlide, onClose, onOpenArea }) {
+function AreaSlides({ area, areaIndex, areas, isAl, slide, setSlide, onClose, onOpenArea }) {
   const total = area.items.length
   const nextArea = areas[(areaIndex + 1) % areas.length]
   const t = (value) => (isAl ? value.al : value.en)
@@ -45,23 +66,15 @@ function AreaSlides({ area, areaIndex, areas, icons, isAl, slide, setSlide, onCl
 
       <div className="gis-pop__viewport" aria-live="polite">
         <ol className="gis-pop__track" style={{ transform: `translateX(-${slide * 100}%)` }}>
-          {area.items.map((item, index) => {
-            const Icon = icons[item.icon]
-            return (
-              <li key={item.icon + index} className="gis-pop__slide" aria-hidden={index !== slide}>
-                <div className="gis-pop__top">
-                  <span className="gis-pop__icon">
-                    <Icon size={22} aria-hidden="true" />
-                  </span>
-                  <span className="gis-pop__count">
-                    {index + 1} / {total}
-                  </span>
-                </div>
-                <h3>{t(item.title)}</h3>
-                <p>{t(item.body)}</p>
-              </li>
-            )
-          })}
+          {area.items.map((item, index) => (
+            <li key={item.icon + index} className="gis-pop__slide" aria-hidden={index !== slide}>
+              <span className="gis-pop__count">
+                {index + 1} / {total}
+              </span>
+              <h3>{t(item.title)}</h3>
+              <p>{t(item.body)}</p>
+            </li>
+          ))}
         </ol>
       </div>
 
@@ -106,7 +119,7 @@ function AreaSlides({ area, areaIndex, areas, icons, isAl, slide, setSlide, onCl
   )
 }
 
-export default function GisMap({ areas, icons, isAl }) {
+export default function GisMap({ areas, isAl }) {
   const mapNodeRef = useRef(null)
   const mapRef = useRef(null)
   const popupRef = useRef(null)
@@ -127,7 +140,6 @@ export default function GisMap({ areas, icons, isAl }) {
   // Create the map once (recreated on language change so the gesture hints are translated).
   useEffect(() => {
     let cancelled = false
-    let themeObserver
 
     Promise.all([
       import('maplibre-gl'),
@@ -140,7 +152,7 @@ export default function GisMap({ areas, icons, isAl }) {
 
         const map = new maplibre.Map({
           container: mapNodeRef.current,
-          style: isDark() ? STYLES.dark : STYLES.light,
+          style: SATELLITE_STYLE,
           center: [20.05, 41.2],
           zoom: 6.6,
           minZoom: 5,
@@ -177,16 +189,11 @@ export default function GisMap({ areas, icons, isAl }) {
         mapRef.current = map
         map.once('load', () => !cancelled && setMapVersion((version) => version + 1))
         map.on('error', (event) => console.warn('[GIS map]', event.error?.message || event))
-
-        // Follow the site's light/dark toggle.
-        themeObserver = new MutationObserver(() => map.setStyle(isDark() ? STYLES.dark : STYLES.light))
-        themeObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] })
       })
       .catch(() => !cancelled && setFailed(true))
 
     return () => {
       cancelled = true
-      themeObserver?.disconnect()
       popupRef.current?.remove()
       mapRef.current?.remove()
       mapRef.current = null
@@ -266,7 +273,6 @@ export default function GisMap({ areas, icons, isAl }) {
             area={area}
             areaIndex={active}
             areas={areas}
-            icons={icons}
             isAl={isAl}
             slide={slide}
             setSlide={setSlide}
@@ -304,7 +310,6 @@ export default function GisMap({ areas, icons, isAl }) {
             area={area}
             areaIndex={active}
             areas={areas}
-            icons={icons}
             isAl={isAl}
             slide={slide}
             setSlide={setSlide}

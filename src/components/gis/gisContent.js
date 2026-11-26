@@ -152,7 +152,7 @@ export const GIS_AREAS = [
   {
     id: 'map-data-services',
     icon: 'maps',
-    color: '#efac1f',
+    color: '#231f20',
     title: { en: 'Map & Data Services', al: 'Shërbime hartash dhe të dhënash' },
     short: {
       en: 'Digital mapping, data processing and WMS/WFS map services',
