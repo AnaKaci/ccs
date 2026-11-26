@@ -38,9 +38,6 @@ const REVEAL_SELECTORS = [
   '.sol-cta__inner > *',
   // GIS services
   '.gis-overview__head > *',
-  '.gis-svc',
-  '.gis-area__head',
-  '.gis-road__card',
   // Case studies
   '.cs-filter',
   '.cs-feature',

@@ -25,7 +25,7 @@ import {
   Workflow,
 } from 'lucide-react'
 import { GIS_AREAS, GIS_INTRO } from './gisContent'
-import GisRoad from './GisRoad'
+import GisMap from './GisMap'
 import './gis.css'
 
 // Icons for each service, keyed by the ids in gisContent.js.
@@ -107,76 +107,11 @@ export default function GisPage({ lang, navigate, AppLink, homeLabel, heroImage,
             </figure>
           </div>
 
-          <ol className="gis-cards">
-            {GIS_AREAS.map((area, index) => {
-              const Icon = ICONS[area.icon]
-              return (
-                <li
-                  key={area.id}
-                  className="gis-svc"
-                  style={{ '--gis-accent': area.color, '--gis-next': GIS_AREAS[index + 1]?.color }}
-                >
-                  {index < GIS_AREAS.length - 1 && <span className="gis-svc__link" aria-hidden="true" />}
-                  <a href={`#${area.id}`}>
-                    <span className="gis-svc__top">
-                      <span className="gis-svc__icon">
-                        <Icon size={26} aria-hidden="true" />
-                      </span>
-                      <span className="gis-svc__num">{index + 1}</span>
-                    </span>
-                    <strong>{pick(area.title, isAl)}</strong>
-                    <span className="gis-svc__text">{pick(area.summary, isAl)}</span>
-                    <span className="gis-svc__more">
-                      {isAl ? 'Lexo më shumë' : 'Read more'}
-                      <ArrowRight size={16} aria-hidden="true" />
-                    </span>
-                  </a>
-                </li>
-              )
-            })}
-          </ol>
+        </div>
+        <div className="sol-wrap">
+          <GisMap areas={GIS_AREAS} icons={ICONS} isAl={isAl} />
         </div>
       </section>
-
-      {GIS_AREAS.map((area, areaIndex) => {
-        const AreaIcon = ICONS[area.icon]
-        return (
-          <section
-            key={area.id}
-            id={area.id}
-            className={`sol-section gis-area ${areaIndex % 2 === 0 ? 'sol-section--alt' : ''}`}
-            style={{ '--gis-accent': area.color }}
-          >
-            <div className="sol-wrap gis-area__inner">
-              <header className="gis-area__head">
-                <div>
-                  <span className="gis-area__index">
-                    <AreaIcon size={22} aria-hidden="true" />
-                    {areaIndex + 1} / {GIS_AREAS.length}
-                  </span>
-                  <h2>{pick(area.title, isAl)}</h2>
-                </div>
-                <div>
-                  <p>{pick(area.summary, isAl)}</p>
-                  <span className="gis-area__count">
-                    {area.items.length} {isAl ? 'shërbime' : 'services'}
-                  </span>
-                  {GIS_AREAS[areaIndex + 1] && (
-                    <a className="gis-area__next" href={`#${GIS_AREAS[areaIndex + 1].id}`}>
-                      <span>{isAl ? 'Në vijim' : 'Next'}</span>
-                      {pick(GIS_AREAS[areaIndex + 1].title, isAl)}
-                      <ArrowRight size={16} aria-hidden="true" />
-                    </a>
-                  )}
-                </div>
-              </header>
-            </div>
-            <div className="sol-wrap">
-              <GisRoad id={area.id} items={area.items} icons={ICONS} isAl={isAl} />
-            </div>
-          </section>
-        )
-      })}
 
       <section className="sol-cta">
         <div className="sol-wrap sol-cta__inner">

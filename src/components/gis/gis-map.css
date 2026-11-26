@@ -1,0 +1,418 @@
+/*
+ * GIS service map: labelled markers on a MapLibre map, and a popup that
+ * slides through the services of the selected area. C.C.S brand colors.
+ */
+
+.gis-map {
+  position: relative;
+  height: clamp(520px, 74vh, 720px);
+  overflow: hidden;
+  border: 1px solid var(--hp-line);
+  background: var(--gis-tint);
+}
+
+/* MapLibre's stylesheet sets its container to position: relative, so size it explicitly. */
+.gis-map .gis-map__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* ---------- Legend (also a keyboard-friendly way to open areas) ---------- */
+
+.gis-map__legend {
+  position: absolute;
+  z-index: 2;
+  top: 20px;
+  left: 20px;
+  width: min(300px, calc(100% - 40px));
+  padding: 18px;
+  border-top: 4px solid var(--gis-red);
+  background: var(--hp-surface);
+  box-shadow: 0 16px 40px rgba(35, 31, 32, 0.16);
+}
+
+.hp.gis .gis-map__legend p {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 12px;
+  color: var(--hp-body);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.gis-map__legend p svg {
+  flex: none;
+  margin-top: 1px;
+  color: var(--gis-red);
+}
+
+.hp.gis .gis-map__legend ol {
+  display: grid;
+  gap: 4px;
+}
+
+.gis-map__legend button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-left: 3px solid transparent;
+  background: none;
+  color: var(--hp-ink);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.gis-map__legend button span {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--gis-accent);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.gis-map__legend button:hover,
+.gis-map__legend button.is-active {
+  border-left-color: var(--gis-accent);
+  background: var(--gis-tint);
+}
+
+/* ---------- Markers: label pill above a numbered pin ---------- */
+
+.gis-marker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  cursor: pointer;
+}
+
+.gis-marker__label {
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: var(--hp-surface, #fff);
+  box-shadow: 0 4px 14px rgba(35, 31, 32, 0.2);
+  color: var(--hp-ink, #231f20);
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+.gis-marker__pin {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 3px solid #fff;
+  border-radius: 50% 50% 50% 0;
+  background: var(--gis-accent);
+  box-shadow: 0 6px 16px rgba(35, 31, 32, 0.3);
+  transform: rotate(-45deg);
+  transition: transform 0.2s ease;
+}
+
+/* The number stays upright inside the rotated pin. */
+.gis-marker__pin b {
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+  transform: rotate(45deg);
+}
+
+.gis-marker:hover .gis-marker__label,
+.gis-marker.is-active .gis-marker__label {
+  transform: translateY(-3px);
+}
+
+.gis-marker.is-active .gis-marker__label {
+  background: var(--gis-accent);
+  color: #fff;
+}
+
+.gis-marker:hover .gis-marker__pin,
+.gis-marker.is-active .gis-marker__pin {
+  transform: rotate(-45deg) scale(1.12);
+}
+
+/* ---------- Popup with sliding services ---------- */
+
+.gis-pop {
+  z-index: 3;
+}
+
+.gis-pop .maplibregl-popup-content {
+  width: min(380px, calc(100vw - 56px));
+  padding: 0;
+  border-radius: 0;
+  background: var(--hp-surface, #fff);
+  box-shadow: 0 24px 60px rgba(35, 31, 32, 0.28);
+}
+
+.gis-pop.maplibregl-popup-anchor-bottom .maplibregl-popup-tip {
+  border-top-color: var(--hp-surface, #fff);
+}
+
+.gis-pop__inner {
+  border-top: 4px solid var(--gis-accent);
+  color: var(--hp-ink);
+  font-family: inherit;
+}
+
+.gis-pop__head {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr) 32px;
+  gap: 12px;
+  align-items: center;
+  padding: 14px 12px 12px 16px;
+  border-bottom: 1px solid var(--hp-line);
+}
+
+.gis-pop__badge {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--gis-accent);
+  color: #fff;
+  font-weight: 800;
+}
+
+.gis-pop__head small {
+  display: block;
+  color: var(--hp-body);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.gis-pop__head strong {
+  display: block;
+  font-size: 17px;
+  line-height: 1.25;
+}
+
+.gis-pop__close {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  background: none;
+  color: var(--hp-body);
+  cursor: pointer;
+}
+
+.gis-pop__close:hover {
+  color: var(--hp-ink);
+}
+
+.gis-pop__viewport {
+  overflow: hidden;
+}
+
+.gis-pop .gis-pop__track {
+  display: flex;
+  align-items: flex-start;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  transition: transform 0.45s cubic-bezier(0.22, 0.8, 0.24, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gis-pop .gis-pop__track {
+    transition: none;
+  }
+}
+
+.gis-pop__slide {
+  flex: 0 0 100%;
+  min-width: 0;
+  padding: 16px 18px 6px;
+}
+
+.gis-pop__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.gis-pop__icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--gis-tint);
+  color: var(--gis-accent);
+}
+
+.gis-pop__count {
+  color: var(--hp-body);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.gis-pop .gis-pop__slide h3 {
+  margin: 0 0 8px;
+  color: var(--hp-ink);
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.gis-pop .gis-pop__slide p {
+  margin: 0;
+  color: var(--hp-body);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.gis-pop__controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px 16px;
+}
+
+.gis-pop__arrow {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--hp-line-strong);
+  background: none;
+  color: var(--hp-ink);
+  cursor: pointer;
+}
+
+.gis-pop__arrow--next {
+  border-color: var(--gis-red);
+  background: var(--gis-red);
+  color: #fff;
+}
+
+.gis-pop__arrow:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.gis-pop__dots {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+}
+
+.gis-pop__dots button {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--hp-line-strong);
+  cursor: pointer;
+  transition: width 0.2s ease, background 0.2s ease;
+}
+
+.gis-pop__dots button.is-active {
+  width: 22px;
+  border-radius: 4px;
+  background: var(--gis-accent);
+}
+
+.gis-pop__area-next {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  max-width: 58%;
+  padding: 9px 12px;
+  border: 0;
+  background: var(--gis-red);
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.25;
+  text-align: left;
+  cursor: pointer;
+}
+
+.gis-pop__area-next svg {
+  flex: none;
+}
+
+/* If the map cannot load (no WebGL), the popup shows as a panel instead. */
+.gis-map__fallback {
+  position: absolute;
+  z-index: 3;
+  right: 20px;
+  bottom: 20px;
+  width: min(380px, calc(100% - 40px));
+  background: var(--hp-surface);
+  box-shadow: 0 24px 60px rgba(35, 31, 32, 0.28);
+}
+
+/* ---------- Phones ---------- */
+
+@media (max-width: 720px) {
+  .gis-map {
+    height: 620px;
+  }
+
+  /* Legend becomes a compact row of numbered chips. */
+  .gis-map__legend {
+    top: 12px;
+    left: 12px;
+    width: calc(100% - 24px);
+    padding: 10px 12px;
+  }
+
+  .hp.gis .gis-map__legend p {
+    margin-bottom: 8px;
+  }
+
+  .hp.gis .gis-map__legend ol {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .gis-map__legend button {
+    justify-content: center;
+    padding: 6px;
+    font-size: 0;
+  }
+
+  .gis-marker__label {
+    font-size: 11px;
+  }
+
+  /* The popup needs the whole map on a phone. */
+  .gis-map.has-popup .gis-map__legend {
+    display: none;
+  }
+}
